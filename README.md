@@ -1,4 +1,6 @@
-# GPS Unified Pipeline <!-- omit in toc -->
+# CPS Extractor Pipeline <!-- omit in toc -->
+
+This pipeline is in the early stages of development and is not fully tested!
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-23.10.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
@@ -48,9 +50,10 @@ The development of this pipeline is part of the GPS Project ([Global Pneumococca
   | --- | --- |
   | `standard`<br> (Default) | Docker is used as the container engine. <br> Processes are executed locally. |
   | `singularity` |  Singularity is used as the container engine. <br> Processes are executed locally. |
-  | `lsf` | **The pipeline should be launched from a LSF cluster head node with this profile.** <br>Singularity is used as the container engine. <br> Processes are submitted to your LSF cluster via `bsub` by the pipeline. <br> (Tested on Wellcome Sanger Institute farm5 LSF cluster only) <br> (Option `--kraken2_memory_mapping` default change to `false`.) |
+  | `lsf` | **The pipeline should be launched from a LSF cluster head node with this profile.** <br>Singularity is used as the container engine. <br> Processes are submitted to your LSF cluster via `bsub` by the pipeline. <br> (Tested on Wellcome Sanger Institute farm5 LSF cluster only) |
 
 ## Options
+  ```
   |Usage:
   |nextflow run . [option] [value]
   |
@@ -62,3 +65,4 @@ The development of this pipeline is part of the GPS Project ([Global Pneumococca
   |--prodigal-training-file [PATH] Path to prodigal training file used in annotation. Default: all.trn
   |--version                       Alternative workflow for getting versions of pipeline, container images, tools and databases
   |--help                          Print this help message
+  ```
