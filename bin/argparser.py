@@ -32,6 +32,14 @@ class BlastParser:
             type=int,
         )
 
+        optional.add_argument(
+            "-s",
+            "--serotype",
+            required=False,
+            help="Provide the serotype if it is known",
+            default=None,
+        )
+
         args = parser.parse_args(vargs)
 
         return args

@@ -12,7 +12,8 @@ validParams = [
     lite: 'boolean',
     singularity_cachedir: 'path',
     maxretries: 'int',
-    prodigal_training_file: 'path_exist'
+    prodigal_training_file: 'path_exist',
+    serotype: 'string'
 ]
 
 // Validate whether all provided parameters are valid
@@ -86,6 +87,12 @@ void validate(Map params) {
             case 'int':
                 if (value !instanceof Integer) {
                     invalidValues[key] = [value, 'integer value']
+                }
+                break
+
+            case 'string':
+                if (value !instanceof String) {
+                    invalidValues[key] = [value, 'string value']
                 }
                 break
 

@@ -30,13 +30,14 @@ class Blast:
                 if int(hit_length) >= self.hit_length:
                     for hsp in hit.findall(".//Hsp"):
                         q_sequence = hsp.find(".//Hsp_qseq").text
+                        e_value = float(hsp.find(".//Hsp_evalue").text)
                         hit_start = int(hsp.find(".//Hsp_hit-from").text)
                         hit_end = int(hsp.find(".//Hsp_hit-to").text)
                         aln_len = hsp.find(".//Hsp_align-len").text
                         if hit_start < hit_end:
-                            seq_length = int(hit_end) - int(hit_start)
+                            seq_length = int(hit_end) - int(hit_start) + 1
                         else:
-                            seq_length = int(hit_start) - int(hit_end)
+                            seq_length = int(hit_start) - int(hit_end) + 1
                         hit_frame = hsp.find(".//Hsp_hit-frame").text
                         if int(aln_len) >= self.hit_length:
                             blast_result = {
@@ -47,6 +48,8 @@ class Blast:
                                 "query_id": query_id,
                                 "hit_def": hit_def,
                                 "seq": q_sequence,
+                                "reference_length": hit_length,
+                                "e_value": e_value,
                             }
 
                             blast_results.append(blast_result)
@@ -65,20 +68,50 @@ class Blast:
                     overlap = True
         return overlap
 
-    def get_largest_hit(self, final_blast_results: list) -> str:
+    def get_best_hit(self, final_blast_results: list, serotype: str) -> str:
+        max_seq_ratio = 0
         max_seq_length = 0
-        for result in final_blast_results:
+        best_serotype = str()
+        best_serotype_results = list()
+
+        # if the serotype is known, only select results for that serotype
+        if serotype is not None:
+            for result in final_blast_results:
+                if serotype in result["hit_def"] and result["e_value"] < float(10 ** -50):
+                    best_serotype_results.append(result)
+            if len(best_serotype_results) == 0:
+                logging.error(f"No results found for {serotype}, please check the blast results file")
+                raise SystemExit(1)
+
+        # get reference with best hit length to total length ratio, 'best guess' to determine serotype
+        if serotype is None:
+            for result in final_blast_results:
+                seq_length = int(result["seq_length"])
+                ref_length = int(result["reference_length"])
+                seq_ratio = seq_length / ref_length
+                print(f"{result['hit_def']} {seq_ratio}")
+                if seq_ratio > max_seq_ratio:
+                    max_seq_ratio = seq_ratio
+                    best_serotype = result["hit_def"].strip().split()[0]
+                    print(best_serotype)
+
+            for result in final_blast_results:
+                if best_serotype in result["hit_def"] and result["e_value"] < float(10**-50):
+                    best_serotype_results.append(result)
+
+        for result in best_serotype_results:
             seq_length = int(result["seq_length"])
+            print(f"{seq_length} {result['hit_def']}")
             if seq_length > max_seq_length:
                 max_seq_length = seq_length
                 max_hit_def = result["hit_def"]
         return max_hit_def
 
-    def compare_blast_dicts(self, blast_results: list) -> list:
+    def compare_blast_dicts(self, blast_results: list, serotype: str) -> list:
         overlaps = list()
 
         # get the longest hit, remove hits from other references in the blastdb
-        largest_hit_ref = self.get_largest_hit(blast_results)
+        largest_hit_ref = self.get_best_hit(blast_results, serotype)
         blast_results = [
             item for item in blast_results if item["hit_def"] == largest_hit_ref
         ]
@@ -95,7 +128,6 @@ class Blast:
                         overlaps.append(dict1)
 
         final_results = [item for item in blast_results if item not in overlaps]
-        logging.info(final_results)
         return final_results
 
     def check_partial_overlap(self, dict1: dict, dict2: dict) -> bool:
@@ -134,6 +166,7 @@ class Blast:
         # curate blast sequence from final blast results
         # if sequences don't overlap, join them together
         # if sequences do overlap, prioritise the match from the sequence with the higher length in overlapping regions
+        logging.info(sorted_data)
         seq = str()
         if len(sorted_data) == 0:
             logging.error("No blast hits found, please check the blast XML file")
@@ -211,14 +244,14 @@ class Blast:
                 hit_def = hit.find(".//Hit_def").text
                 if int(hit_length) >= self.hit_length:
                     for hsp in hit.findall(".//Hsp"):
-                        q_sequence = hsp.find(".//Hsp_qseq").text
+                        e_value = float(hsp.find(".//Hsp_evalue").text)
                         hit_start = int(hsp.find(".//Hsp_hit-from").text)
                         hit_end = int(hsp.find(".//Hsp_hit-to").text)
                         aln_len = hsp.find(".//Hsp_align-len").text
                         if hit_start < hit_end:
-                            seq_length = int(hit_end) - int(hit_start)
+                            seq_length = int(hit_end) - int(hit_start) + 1
                         else:
-                            seq_length = int(hit_start) - int(hit_end)
+                            seq_length = int(hit_start) - int(hit_end) + 1
                         hit_frame = hsp.find(".//Hsp_hit-frame").text
                         if int(aln_len) >= self.hit_length:
                             blast_result = {
@@ -228,6 +261,8 @@ class Blast:
                                 "seq_length": seq_length,
                                 "query_id": query_id,
                                 "hit_def": hit_def,
+                                "reference_length": hit_length,
+                                "e_value": e_value,
                             }
 
                             blast_results.append(blast_result)

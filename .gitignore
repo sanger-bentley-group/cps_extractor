@@ -2,3 +2,4 @@
 .idea
 work
 __pycache__
+venv*

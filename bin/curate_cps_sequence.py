@@ -8,7 +8,7 @@ def main(args):
 
     blast_results = blast.parse_blast_results()
 
-    final_results = blast.compare_blast_dicts(blast_results)
+    final_results = blast.compare_blast_dicts(blast_results, args.serotype)
 
     sorted_results = blast.sort_and_reverse_complement_hits(final_results)
 

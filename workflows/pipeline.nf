@@ -17,7 +17,7 @@ workflow PIPELINE {
         input_ch = Channel.fromPath( "$params.input/*.{fa,fasta}", checkIfExists: true )
                    .map { tuple( it.name.split('.fa')[0], it ) }
 
-        BLASTN( input_ch, blast_db_ch )
+        BLASTN( input_ch, blast_db_ch.first() )
 
         CURATE_CPS_SEQUENCE( BLASTN.out.blast_results_ch )
 

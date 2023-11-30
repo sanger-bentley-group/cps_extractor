@@ -17,6 +17,11 @@ process CURATE_CPS_SEQUENCE {
     script:
     cps_sequence="${sample_id}_cps.fa"
     """
-    curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa
+    if [ "${params.serotype}" == "" ]
+    then
+        curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa
+    else
+        curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa -s ${params.serotype}
+    fi
     """
 }
