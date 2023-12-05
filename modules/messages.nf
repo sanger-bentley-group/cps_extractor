@@ -30,7 +30,7 @@ void helpMessage() {
         |--blastdb [PATH]                Path to blast database. Default: cps_blastdb
         |--input [PATH]                  Path to the input directory that contains the sequences to be processed {.fa,.fasta}. Default: input
         |--output [PATH]                 Path to the output directory that save the results. Default: output
-        |--prodigal-training-file [PATH] Path to prodigal training file used in annotation. Default: all.trn
+        |--prodigal_training_file [PATH] Path to prodigal training file used in annotation. Default: all.trn
         |--version                       Alternative workflow for getting versions of pipeline, container images, tools and databases
         |--help                          Print this help message
         |
