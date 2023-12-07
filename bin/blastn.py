@@ -139,7 +139,7 @@ class Blast:
 
     def reverse_complement(self, sequence: str) -> str:
         # rev comp, keep gaps as they are
-        complement = {"A": "T", "T": "A", "C": "G", "G": "C", "-": "-"}
+        complement = {"A": "T", "T": "A", "C": "G", "G": "C", "-": "-", "N": "N"}
         reversed_sequence = sequence[::-1]
         reverse_complement_sequence = "".join(
             [complement[base] for base in reversed_sequence]
@@ -218,8 +218,9 @@ class Blast:
                     else:
                         seq += sorted_data[i + 1]["seq"]
 
-        # remove gaps
+        # remove gaps and Ns
         seq = seq.replace("-", "")
+        seq = seq.replace("N", "")
         return seq
 
     def write_fasta(self, sequence: str, output_file: str):
