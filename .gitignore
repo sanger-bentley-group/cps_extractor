@@ -3,3 +3,6 @@
 work
 __pycache__
 venv*
+.pytest*
+.coverage*
+*.log

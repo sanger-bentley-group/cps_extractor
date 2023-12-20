@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from annotation import Annotation
-from argparser import AnnotationParser
+from lib.annotation import Annotation
+from lib.argparser import AnnotationParser
 
 def main(args):
     Annotator = Annotation(args.cps_sequence, args.bakta_input)
