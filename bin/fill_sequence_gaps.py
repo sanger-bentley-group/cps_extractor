@@ -5,12 +5,14 @@ import logging
 from lib.argparser import GapFillerParser
 from lib.gap_filler import GapFiller
 
+
 def check_gaps(args, gap_filler) -> list:
     hits_list = gap_filler.read_hits_list()
     cps_cds_regions = gap_filler.get_cps_cds_regions()
     gaps = gap_filler.get_gaps(args.gap_length, hits_list)
     gaps_to_fill = gap_filler.check_gaps(cps_cds_regions, gaps)
     return gaps_to_fill
+
 
 def fill_gaps(args, gap_filler, gaps_to_fill):
     gap_length = 0
@@ -29,16 +31,20 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
             logging.info(f"Too few reads for {gaps_to_fill[i]}")
             continue
 
-        #filtered_reads = gap_filler.bam_to_fastq(bam_file)
+        # filtered_reads = gap_filler.bam_to_fastq(bam_file)
         consensus_sequence = gap_filler.samtools_consensus(bam_file)
         consensus_seq = gap_filler.get_sequence(consensus_sequence)
 
         # basic check to see if there is a useful number of bases in the consensus to fill a gap
         if len(str(consensus_seq)) < (gap_length / 2):
-            logging.info(f"very low number of bases in consensus sequence for {gaps_to_fill[i]}: {len(str(consensus_seq))}")
+            logging.info(
+                f"very low number of bases in consensus sequence for {gaps_to_fill[i]}: {len(str(consensus_seq))}"
+            )
             continue
 
-        gap_filling_seq = gap_filler.filter_assembly_seq(consensus_seq, gaps_to_fill, i)
+        gap_filling_seq = gap_filler.filter_consensus_seq(
+            consensus_seq, gaps_to_fill, i
+        )
         if i == 0:
             cps_seq = gap_filler.get_sequence(gap_filler.cps_sequence)
         else:
@@ -54,9 +60,16 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
             f.write(">gap_filled_seq\n")
             f.write(gap_fill_seq)
 
+
 def main(args):
-    gap_filler = GapFiller(args.log_file, args.annotation, args.reference, args.read_1, args.read_2,
-                           args.input_sequence)
+    gap_filler = GapFiller(
+        args.log_file,
+        args.annotation,
+        args.reference,
+        args.read_1,
+        args.read_2,
+        args.input_sequence,
+    )
 
     gaps_to_fill = check_gaps(args, gap_filler)
 
@@ -67,4 +80,3 @@ def main(args):
 if __name__ == "__main__":
     args = GapFillerParser.parse_args(vargs=None)
     main(args)
-

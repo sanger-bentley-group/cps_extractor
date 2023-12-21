@@ -29,21 +29,21 @@ class GapFiller:
         hits_list_copy = hits_list
         # switch round reverse hit positions
         for i in range(0, len(hits_list)):
-            if hits_list[i]['hit_frame'] == -1:
-                start = hits_list[i]['hit_end']
-                end = hits_list[i]['hit_start']
-                hits_list_copy[i]['hit_start'] = start
-                hits_list_copy[i]['hit_end'] = end
+            if hits_list[i]["hit_frame"] == -1:
+                start = hits_list[i]["hit_end"]
+                end = hits_list[i]["hit_start"]
+                hits_list_copy[i]["hit_start"] = start
+                hits_list_copy[i]["hit_end"] = end
         # sort hits
-        sorted_hits_list = sorted(hits_list_copy, key=itemgetter('hit_start'))
+        sorted_hits_list = sorted(hits_list_copy, key=itemgetter("hit_start"))
 
         # switch back reverse positions
         for i in range(0, len(sorted_hits_list)):
-            if sorted_hits_list[i]['hit_frame'] == -1:
-                start = sorted_hits_list[i]['hit_end']
-                end = sorted_hits_list[i]['hit_start']
-                sorted_hits_list[i]['hit_start'] = start
-                sorted_hits_list[i]['hit_end'] = end
+            if sorted_hits_list[i]["hit_frame"] == -1:
+                start = sorted_hits_list[i]["hit_end"]
+                end = sorted_hits_list[i]["hit_start"]
+                sorted_hits_list[i]["hit_start"] = start
+                sorted_hits_list[i]["hit_end"] = end
         return sorted_hits_list
 
     def read_hits_list(self) -> list:
@@ -53,7 +53,7 @@ class GapFiller:
             hits_list = ast.literal_eval(content)
             # remove sequence from dict as it no longer necessary
             for d in hits_list:
-                del d['seq']
+                del d["seq"]
             sorted_hits_list = self.sort_hits_list(hits_list)
             return sorted_hits_list
 
@@ -64,47 +64,41 @@ class GapFiller:
         with open(self.annotation, "r", newline="") as gff_file:
             gff_reader = csv.reader(gff_file, delimiter="\t")
             for row in gff_reader:
-                if len(row) >= 3 and row[2] == "CDS" and "transposase" not in row[-1]:
+                if (
+                    len(row) >= 3
+                    and row[2] == "CDS"
+                    and "transposase" not in row[-1].lower()
+                ):
                     coding_dict = {int(row[3]): int(row[4])}
                     coding_regions.append(coding_dict)
         return coding_regions
 
     def get_gaps(self, min_gap_length: int, hits_list: list) -> list:
-        # identify gaps from the blast hits results >= 1000 bases
+        # identify gaps from the blast hits results >= n bases
         gaps = list()
         for i in range(0, (len(hits_list) - 1)):
-            if (
-                hits_list[i]["hit_frame"] == 1
-                and hits_list[i + 1]["hit_frame"] == 1
-            ):
+            if hits_list[i]["hit_frame"] == 1 and hits_list[i + 1]["hit_frame"] == 1:
                 if (
                     hits_list[i + 1]["hit_start"] - hits_list[i]["hit_end"]
                     >= min_gap_length
                 ):
-                    gaps_dict = {
-                        hits_list[i]["hit_end"]: hits_list[i + 1]["hit_start"]
-                    }
+                    gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_start"]}
                     gaps.append(gaps_dict)
             elif (
-                hits_list[i]["hit_frame"] == -1
-                and hits_list[i + 1]["hit_frame"] == -1
+                hits_list[i]["hit_frame"] == -1 and hits_list[i + 1]["hit_frame"] == -1
             ):
                 if (
                     hits_list[i + 1]["hit_end"] - hits_list[i]["hit_start"]
                     >= min_gap_length
                 ):
-                    gaps_dict = {
-                        hits_list[i]["hit_start"]: hits_list[i + 1]["hit_end"]
-                    }
+                    gaps_dict = {hits_list[i]["hit_start"]: hits_list[i + 1]["hit_end"]}
                     gaps.append(gaps_dict)
             elif hits_list[i]["hit_frame"] > hits_list[i + 1]["hit_frame"]:
                 if (
                     hits_list[i + 1]["hit_end"] - hits_list[i]["hit_end"]
                     >= min_gap_length
                 ):
-                    gaps_dict = {
-                        hits_list[i]["hit_end"]: hits_list[i + 1]["hit_end"]
-                    }
+                    gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_end"]}
                     gaps.append(gaps_dict)
             else:
                 if (
@@ -112,9 +106,7 @@ class GapFiller:
                     >= min_gap_length
                 ):
                     gaps_dict = {
-                        hits_list[i]["hit_start"]: hits_list[i + 1][
-                            "hit_start"
-                        ]
+                        hits_list[i]["hit_start"]: hits_list[i + 1]["hit_start"]
                     }
                     gaps.append(gaps_dict)
         return gaps
@@ -136,19 +128,26 @@ class GapFiller:
             for j in range(0, len(cps_cds_regions)):
                 # is a gap entirely contained within coding region of reference
                 if self.do_dicts_overlap(gaps_list[i], cps_cds_regions[j]):
-                    gap_checking_regions.append(gaps_list[i])
-                    break
+                    if gaps_list[i] not in gap_checking_regions:
+                        gap_checking_regions.append(gaps_list[i])
+                        break
                 # does a gap overlap an entire coding region of the reference sequence
                 elif self.do_dicts_overlap(cps_cds_regions[j], gaps_list[i]):
-                    gap_checking_regions.append(gaps_list[i])
-                    break
+                    if gaps_list[i] not in gap_checking_regions:
+                        gap_checking_regions.append(gaps_list[i])
+                        break
                 else:
-                    for k,v in gaps_list[i].items():
+                    for k, v in gaps_list[i].items():
                         if j < (len(cps_cds_regions) - 1):
                             # does a gap partially overlap two coding regions in the reference
-                            if k > list(cps_cds_regions[j].items())[0][0] and v > list(cps_cds_regions[j+1].items())[0][0] and v < list(cps_cds_regions[j+1].items())[0][1]:
-                                gap_checking_regions.append(gaps_list[i])
-                                break
+                            if (
+                                k > list(cps_cds_regions[j].items())[0][0]
+                                and v > list(cps_cds_regions[j + 1].items())[0][0]
+                                and v < list(cps_cds_regions[j + 1].items())[0][1]
+                            ):
+                                if gaps_list[i] not in gap_checking_regions:
+                                    gap_checking_regions.append(gaps_list[i])
+                                    break
         return gap_checking_regions
 
     def get_sequence(self, input_file: str) -> str:
@@ -160,7 +159,7 @@ class GapFiller:
 
     def subset_reference(self, ref_seq: str, gaps_dict: dict) -> str:
         for k, v in gaps_dict.items():
-            ref_seq = ref_seq[k + 2 : v]
+            ref_seq = ref_seq[k : v - 1]
         return ref_seq
 
     def write_subset_file(self, subset_seq: str):
@@ -194,24 +193,32 @@ class GapFiller:
 
     def samtools_consensus(self, bam_file: str) -> str:
         sample_id = bam_file.split("_filtered.bam")[0]
-        samtools_cmd = f"samtools consensus -f fasta {bam_file} -o {sample_id}_gap_fill.fa"
+        samtools_cmd = (
+            f"samtools consensus -f fasta {bam_file} -o {sample_id}_gap_fill.fa"
+        )
         subprocess.check_output(samtools_cmd, shell=True)
         return f"{sample_id}_gap_fill.fa"
 
     def get_gap_length(self, gaps: dict) -> int:
-        # -2 to not include the bases at either end of the blast hit region
+        # -1 to not include the bases at either end of the blast hit region
         for k, v in gaps.items():
-            gap_length = v - k - 2
+            gap_length = v - k - 1
         return gap_length
 
-    def filter_assembly_seq(self, seq: str, gaps: list, iteration: int) -> str:
+    def filter_consensus_seq(self, seq: str, gaps: list, iteration: int) -> str:
         for k, v in gaps[iteration].items():
             gap_length = v - k
-        seq = seq[0 : gap_length - 2]
+        if len(seq) > gap_length:
+            seq = seq[0 : gap_length - 1]
         return seq
 
     def fill_sequence_gap(
-        self, seq_to_fill: str, gap_seq: str, gap_data: list, iteration: int, seq_added: int
+        self,
+        seq_to_fill: str,
+        gap_seq: str,
+        gap_data: list,
+        iteration: int,
+        seq_added: int,
     ) -> str:
         filled_seq = str()
         for k, v in gap_data[iteration].items():
@@ -219,7 +226,7 @@ class GapFiller:
             print(f"[0: {k - 1} + {seq_added}]")
             print(f"[{k - 1} + {seq_added}:]")
             print(f"seq added {seq_added}")
-            ref_seq_start = seq_to_fill[0 : (k - 1 + seq_added)]
-            ref_seq_end = seq_to_fill[(k - 1 + seq_added) :]
+            ref_seq_start = seq_to_fill[0 : (k + seq_added)]
+            ref_seq_end = seq_to_fill[(k + seq_added) :]
             filled_seq = f"{ref_seq_start}{gap_seq}{ref_seq_end}"
         return filled_seq
