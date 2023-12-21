@@ -23,4 +23,4 @@ jobs:
         sudo apt-get install -y bedtools
     - name: Run tests
       run: |
-        python -m pytest tests
+        python -m pytest tests --cov
