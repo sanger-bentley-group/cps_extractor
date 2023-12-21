@@ -7,7 +7,7 @@ from lib.annotation import Annotation
 
 @pytest.fixture
 def annotator():
-    annotator = Annotation("test_data/test_cps.fa", "test_data")
+    annotator = Annotation("tests/test_data/test_cps.fa", "tests/test_data")
     return annotator
 
 
@@ -37,8 +37,8 @@ def test_check_sequence_completeness_mutation(annotator):
 
 def test_get_cds_annotations(annotator, tmp_path):
     annotator.get_cds_annotations("test.gff3", "out.gff3")
-    test_gff = "test_data/out.gff3"
-    acc_gff = "test_data/cds.gff3"
+    test_gff = "tests/test_data/out.gff3"
+    acc_gff = "tests/test_data/cds.gff3"
     assert filecmp.cmp(test_gff, acc_gff,
                        shallow=False)
     # remove tmp file after comparison
@@ -48,8 +48,8 @@ def test_get_cds_annotations(annotator, tmp_path):
 def test_get_cds_fna(annotator):
     # need bedtools in path for this test
     annotator.get_cds_fna("cds.gff3", "test.fna", "out.fna")
-    acc_cds_fna = "test_data/test_cds.fna"
-    test_cds_fna = "test_data/out.fna"
+    acc_cds_fna = "tests/test_data/test_cds.fna"
+    test_cds_fna = "tests/test_data/out.fna"
     assert filecmp.cmp(test_cds_fna, acc_cds_fna,
                        shallow=False)
     # remove tmp file after comparison

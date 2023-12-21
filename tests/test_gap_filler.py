@@ -7,12 +7,12 @@ from lib.gap_filler import GapFiller
 @pytest.fixture
 def gap_filler():
     gap_filler = GapFiller(
-        "test_data/test.log",
-        "test_data/test.gff3",
-        "test_data/ref.fa",
+        "tests/test_data/test.log",
+        "tests/test_data/test.gff3",
+        "tests/test_data/ref.fa",
         "read_1.fastq.gz",
         "read_2.fastq.gz",
-        "test_data/cps_seq.fa",
+        "tests/test_data/cps_seq.fa",
     )
     return gap_filler
 

@@ -7,13 +7,13 @@ from lib.blastn import Blast
 @pytest.fixture
 def blast():
     # this blast fixture has a truncated sequence in it for readability
-    blast_tester = Blast("test_data/blast_1_hit.xml", 2500)
+    blast_tester = Blast("tests/test_data/blast_1_hit.xml", 2500)
     return blast_tester
 
 
 @pytest.fixture
 def blast_real_results():
-    real_blast = Blast("test_data/real_blast_results.xml", 2500)
+    real_blast = Blast("tests/test_data/real_blast_results.xml", 2500)
     result = real_blast.parse_blast_results()
     result_no_sequence = real_blast.parse_blast_results_dev(result)
     return result_no_sequence
@@ -22,7 +22,7 @@ def blast_real_results():
 @pytest.fixture
 def blast_2_hits():
     # this blast fixture has a truncated sequence in it for readability
-    blast_tester = Blast("test_data/blast_2_hits.xml", 2500)
+    blast_tester = Blast("tests/test_data/blast_2_hits.xml", 2500)
     return blast_tester
 
 
