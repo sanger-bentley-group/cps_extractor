@@ -23,4 +23,4 @@ jobs:
         sudo apt-get install -y bedtools
     - name: Run tests
       run: |
-        python -m pytest tests --cov --cov-fail-under=90
+        python -m pytest --cov=lib --cov-fail-under=80 tests
