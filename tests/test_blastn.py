@@ -586,6 +586,7 @@ def test_curate_sequence_3_hit_2_overlap(blast):
     sequence = blast.curate_sequence(overlapping_blast_results)
     assert sequence == "ATATAGTAACAATTTTAATGTCACG"
 
+
 def test_curate_sequence_remove_n_gaps(blast):
     non_overlapping_blast_results = [
         {

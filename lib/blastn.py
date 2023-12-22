@@ -77,16 +77,22 @@ class Blast:
 
         # basic check to see if there are any blast hits before running the code
         if len(final_blast_results) == 0:
-            logging.error("The blast results file is empty, please check your blast database and input sequence")
+            logging.error(
+                "The blast results file is empty, please check your blast database and input sequence"
+            )
             raise SystemExit(1)
 
         # if the serotype is known, only select results for that serotype
         if serotype is not None:
             for result in final_blast_results:
-                if serotype.lower() in result["hit_def"].lower() and result["e_value"] < float(10 ** -50):
+                if serotype.lower() in result["hit_def"].lower() and result[
+                    "e_value"
+                ] < float(10**-50):
                     best_serotype_results.append(result)
             if len(best_serotype_results) == 0:
-                logging.error(f"No results found for {serotype}, please check the blast results file")
+                logging.error(
+                    f"No results found for {serotype}, please check the blast results file"
+                )
                 raise SystemExit(1)
 
         # get reference with best hit length to total length ratio, 'best guess' to determine serotype
@@ -100,7 +106,9 @@ class Blast:
                     best_serotype = result["hit_def"].strip().split()[0]
 
             for result in final_blast_results:
-                if best_serotype in result["hit_def"] and result["e_value"] < float(10**-50):
+                if best_serotype in result["hit_def"] and result["e_value"] < float(
+                    10**-50
+                ):
                     best_serotype_results.append(result)
 
         for result in best_serotype_results:
@@ -211,9 +219,8 @@ class Blast:
                             )
                             seq += sorted_data[i + 1]["seq"][overlap_index::]
                         else:
-                            overlap_index = (
-                                 int(sorted_data[i]["hit_end"])
-                                - int(sorted_data[i + 1]["hit_start"])
+                            overlap_index = int(sorted_data[i]["hit_end"]) - int(
+                                sorted_data[i + 1]["hit_start"]
                             )
                             print(overlap_index)
                             seq = seq[:-overlap_index]
@@ -238,6 +245,6 @@ class Blast:
     def parse_blast_results_dev(self, blast_results) -> list:
         # function to pass the blast results to a log file without the sequences for readablility
         for result in blast_results:
-            del result['seq']
+            del result["seq"]
         logging.info(blast_results)
         return blast_results

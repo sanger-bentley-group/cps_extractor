@@ -44,6 +44,7 @@ class BlastParser:
 
         return args
 
+
 class AnnotationParser:
     @classmethod
     def parse_args(cls, vargs=None):
@@ -68,6 +69,7 @@ class AnnotationParser:
         args = parser.parse_args(vargs)
 
         return args
+
 
 class GapFillerParser:
     @classmethod
