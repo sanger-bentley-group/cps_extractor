@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from annotation import Annotation
-from argparser import AnnotationParser
+from lib.annotation import Annotation
+from lib.argparser import AnnotationParser
+
 
 def main(args):
     Annotator = Annotation(args.cps_sequence, args.bakta_input)
@@ -16,9 +17,8 @@ def main(args):
     )
 
     mutations = Annotator.find_mutations(cds_fna)
-    Annotator.write_disruptive_mutations_file(
-        f"{sample_name}_mutations.csv", mutations
-    )
+    Annotator.write_disruptive_mutations_file(f"{sample_name}_mutations.csv", mutations)
+
 
 if __name__ == "__main__":
     args = AnnotationParser.parse_args(vargs=None)

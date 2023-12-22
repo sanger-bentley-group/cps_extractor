@@ -1,0 +1,24 @@
+##gff-version 3
+##feature-ontology https://github.com/The-Sequence-Ontology/SO-Ontologies/blob/v3.1/so.obo
+# Annotated with Bakta
+# Software: v1.8.2
+# Database: v5.0, full
+# DOI: 10.1099/mgen.0.000685
+# URL: github.com/oschwengers/bakta
+##sequence-region contig_1 1 13836
+contig_1	Bakta	region	1	13836	.	+	.	ID=contig_1;Name=contig_1
+contig_1	Prodigal	CDS	293	466	.	+	0	ID=NNAIKG_00005;Name=Lipoprotein;locus_tag=NNAIKG_00005;product=Lipoprotein;Dbxref=RefSeq:WP_001022228.1,SO:0001217,UniParc:UPI00000E4685,UniRef:UniRef100_A0A0H2ZQL8,UniRef:UniRef50_A0A0H2ZQL8,UniRef:UniRef90_A0A0H2ZQL8
+contig_1	Prodigal	CDS	459	782	.	-	0	ID=NNAIKG_00010;Name=DDE-3 domain-containing protein;locus_tag=NNAIKG_00010;product=DDE-3 domain-containing protein;Dbxref=SO:0001217,UniParc:UPI00000BE39B,UniRef:UniRef100_Q9X997,UniRef:UniRef50_V6Z4H1,UniRef:UniRef90_A0A8E0HMU2
+contig_1	Prodigal	CDS	910	1308	.	-	0	ID=NNAIKG_00015;Name=Transposase;locus_tag=NNAIKG_00015;product=Transposase;Dbxref=SO:0001217,UniRef:UniRef50_A0A6H3SJP2,UniRef:UniRef90_Q8DPR8
+contig_1	Prodigal	CDS	1560	3005	.	+	0	ID=NNAIKG_00020;Name=capsular polysaccharide biosynthesis protein Cps4A;locus_tag=NNAIKG_00020;product=capsular polysaccharide biosynthesis protein Cps4A;Dbxref=BlastRules:WP_000091082,COG:COG1316,COG:M,EC:2.7.8.-,KEGG:K01005,RefSeq:WP_000091084.1,SO:0001217,UniParc:UPI00000B3975,UniRef:UniRef100_Q9AHA7,UniRef:UniRef50_S3AVK7,UniRef:UniRef90_O54604;gene=cps4A
+contig_1	Prodigal	CDS	3007	3738	.	+	0	ID=NNAIKG_00025;Name=capsular polysaccharide biosynthesis protein Cps4B;locus_tag=NNAIKG_00025;product=capsular polysaccharide biosynthesis protein Cps4B;Dbxref=BlastRules:WP_000565352,RefSeq:WP_000565357.1,SO:0001217,UniParc:UPI00000BCC79,UniRef:UniRef100_Q9AHA6,UniRef:UniRef90_Q9AHD4;gene=cps4B
+contig_1	Prodigal	HI	3747	4439	.	+	0	ID=NNAIKG_00030;Name=Capsular polysaccharide biosynthesis protein CpsC;locus_tag=NNAIKG_00030;product=Capsular polysaccharide biosynthesis protein CpsC;Dbxref=RefSeq:WP_000664149.1,SO:0001217,UniParc:UPI0002732BBC,UniRef:UniRef100_Q9AHA5,UniRef:UniRef50_Q54519,UniRef:UniRef90_Q4K1E0;gene=cpsC
+contig_1	Prodigal	CDS	4449	5138	.	+	0	ID=NNAIKG_00035;Name=Tyrosine-protein kinase CpsD;locus_tag=NNAIKG_00035;product=Tyrosine-protein kinase CpsD;Dbxref=RefSeq:WP_001142532.1,SO:0001217,UniParc:UPI0002732EDE,UniRef:UniRef100_A0A4J1QXY3,UniRef:UniRef50_Q54520,UniRef:UniRef90_O84996;gene=cpsD
+contig_1	Prodigal	CDS	5153	6520	.	+	0	ID=NNAIKG_00040;Name=Galactosyl transferase CpsE;locus_tag=NNAIKG_00040;product=Galactosyl transferase CpsE;Dbxref=KEGG:K16566,RefSeq:WP_001013653.1,SO:0001217,UniParc:UPI000053FE59,UniRef:UniRef100_Q4K2N6,UniRef:UniRef50_Q8VU30,UniRef:UniRef90_Q8VU30;gene=cpsE
+contig_1	Prodigal	CDS	6525	7004	.	+	0	ID=NNAIKG_00045;Name=Cap8F protein;locus_tag=NNAIKG_00045;product=Cap8F protein;Dbxref=EC:2.4.1.141,KEGG:K07441,RefSeq:WP_050218869.1,SO:0001217,UniParc:UPI000053FE5A,UniRef:UniRef100_Q9X9A3,UniRef:UniRef50_A0A143XZZ3,UniRef:UniRef90_Q9X9A3
+contig_1	Prodigal	CDS	7005	7484	.	+	0	ID=NNAIKG_00050;Name=Putative glycosyl transferase (In conjunction with wciQ) WciR;locus_tag=NNAIKG_00050;product=Putative glycosyl transferase (In conjunction with wciQ) WciR;Dbxref=RefSeq:WP_000576309.1,SO:0001217,UniParc:UPI00000B080A,UniRef:UniRef100_Q9AHA2,UniRef:UniRef50_A0A2P2BSP4,UniRef:UniRef90_Q9AHA2;gene=wciR
+contig_1	Prodigal	CDS	7497	8561	.	+	0	ID=NNAIKG_00055;Name=Galactosyl transferase;locus_tag=NNAIKG_00055;product=Galactosyl transferase;Dbxref=RefSeq:WP_061368345.1,SO:0001217,UniParc:UPI00000B5E69,UniRef:UniRef100_Q9X9A5,UniRef:UniRef50_Q9X9A5,UniRef:UniRef90_Q9X9A5
+contig_1	Prodigal	CDS	8561	10021	.	+	0	ID=NNAIKG_00060;Name=Flippase Wzx;locus_tag=NNAIKG_00060;product=Flippase Wzx;Dbxref=RefSeq:WP_000163162.1,SO:0001217,UniParc:UPI00000BD969,UniRef:UniRef100_Q9X9A6,UniRef:UniRef50_Q9X9A6,UniRef:UniRef90_Q9X9A6
+contig_1	Prodigal	CDS	10034	10762	.	+	0	ID=NNAIKG_00065;Name=Putative glycosyl transferase;locus_tag=NNAIKG_00065;product=Putative glycosyl transferase;Dbxref=RefSeq:WP_000612420.1,SO:0001217,UniParc:UPI00000BB4F6,UniRef:UniRef100_Q9AHA0,UniRef:UniRef50_A0A6N7V370,UniRef:UniRef90_Q9AHA0
+contig_1	Prodigal	CDS	10746	11909	.	+	0	ID=NNAIKG_00070;Name=Oligosaccharide repeat unit polymerase Wzy;locus_tag=NNAIKG_00070;product=Oligosaccharide repeat unit polymerase Wzy;Dbxref=RefSeq:WP_001146576.1,SO:0001217,UniParc:UPI00000BE599,UniRef:UniRef100_Q9X9A8,UniRef:UniRef50_Q9X9A8,UniRef:UniRef90_Q9X9A8
+contig_1	Prodigal	CDS	11978	13216	.	+	0	ID=NNAIKG_00075;Name=UDP-glucose 6-dehydrogenase;locus_tag=NNAIKG_00075;product=UDP-glucose 6-dehydrogenase;Dbxref=EC:1.1.1.22,KEGG:K00012,RefSeq:WP_000686363.1,SO:0001217,UniParc:UPI00000B382A,UniRef:UniRef100_Q9AH99,UniRef:UniRef50_A0A366KB82,UniRef:UniRef90_Q9AH99

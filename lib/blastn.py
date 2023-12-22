@@ -58,13 +58,14 @@ class Blast:
     def do_dicts_overlap(self, dict1: dict, dict2: dict) -> bool:
         # check if one blast sequence is entirely contained in a larger hit
         overlap = False
+
         if int(dict1["seq_length"]) > int(dict2["seq_length"]):
-            if int(dict1["hit_start"]) < int(dict1["hit_end"]) and int(
+            if int(dict1["hit_start"]) <= int(dict1["hit_end"]) and int(
                 dict2["hit_start"]
-            ) < int(dict2["hit_end"]):
-                if int(dict2["hit_start"]) > int(dict1["hit_start"]) and int(
+            ) <= int(dict2["hit_end"]):
+                if int(dict2["hit_start"]) >= int(dict1["hit_start"]) and int(
                     dict2["hit_end"]
-                ) < int(dict1["hit_end"]):
+                ) <= int(dict1["hit_end"]):
                     overlap = True
         return overlap
 
@@ -74,13 +75,24 @@ class Blast:
         best_serotype = str()
         best_serotype_results = list()
 
+        # basic check to see if there are any blast hits before running the code
+        if len(final_blast_results) == 0:
+            logging.error(
+                "The blast results file is empty, please check your blast database and input sequence"
+            )
+            raise SystemExit(1)
+
         # if the serotype is known, only select results for that serotype
         if serotype is not None:
             for result in final_blast_results:
-                if serotype in result["hit_def"] and result["e_value"] < float(10 ** -50):
+                if serotype.lower() in result["hit_def"].lower() and result[
+                    "e_value"
+                ] < float(10**-50):
                     best_serotype_results.append(result)
             if len(best_serotype_results) == 0:
-                logging.error(f"No results found for {serotype}, please check the blast results file")
+                logging.error(
+                    f"No results found for {serotype}, please check the blast results file"
+                )
                 raise SystemExit(1)
 
         # get reference with best hit length to total length ratio, 'best guess' to determine serotype
@@ -89,19 +101,18 @@ class Blast:
                 seq_length = int(result["seq_length"])
                 ref_length = int(result["reference_length"])
                 seq_ratio = seq_length / ref_length
-                print(f"{result['hit_def']} {seq_ratio}")
                 if seq_ratio > max_seq_ratio:
                     max_seq_ratio = seq_ratio
                     best_serotype = result["hit_def"].strip().split()[0]
-                    print(best_serotype)
 
             for result in final_blast_results:
-                if best_serotype in result["hit_def"] and result["e_value"] < float(10**-50):
+                if best_serotype in result["hit_def"] and result["e_value"] < float(
+                    10**-50
+                ):
                     best_serotype_results.append(result)
 
         for result in best_serotype_results:
             seq_length = int(result["seq_length"])
-            print(f"{seq_length} {result['hit_def']}")
             if seq_length > max_seq_length:
                 max_seq_length = seq_length
                 max_hit_def = result["hit_def"]
@@ -115,6 +126,14 @@ class Blast:
         blast_results = [
             item for item in blast_results if item["hit_def"] == largest_hit_ref
         ]
+        # sort hits based on start position, and reverse positions of reverse hits for sorting
+        for i in range(0, len(blast_results)):
+            if blast_results[i]["hit_frame"] == -1:
+                end = blast_results[i]["hit_start"]
+                start = blast_results[i]["hit_end"]
+                blast_results[i]["hit_start"] = start
+                blast_results[i]["hit_end"] = end
+        blast_results = sorted(blast_results, key=lambda x: x["hit_start"])
 
         # check for any sequences that are contained entirely by larger hits and remove them
         for i in range(len(blast_results)):
@@ -146,21 +165,14 @@ class Blast:
         )
         return reverse_complement_sequence
 
-    def sort_and_reverse_complement_hits(self, blast_hits_dict: list) -> list:
-        # sort hits based on start position, remove gaps and rev comp if needed
+    def reverse_complement_hits(self, blast_hits_dict: list) -> list:
+        # reverse complement hits if needed
         for i in range(0, len(blast_hits_dict)):
-            # rev comp if needed
             if blast_hits_dict[i]["hit_frame"] == -1:
-                end = blast_hits_dict[i]["hit_start"]
-                start = blast_hits_dict[i]["hit_end"]
                 rc = self.reverse_complement(blast_hits_dict[i]["seq"])
-                blast_hits_dict[i]["hit_start"] = start
-                blast_hits_dict[i]["hit_end"] = end
                 blast_hits_dict[i]["seq"] = rc
 
-        # sort the data list on start pos
-        sorted_data = sorted(blast_hits_dict, key=lambda x: x["hit_start"])
-        return sorted_data
+        return blast_hits_dict
 
     def curate_sequence(self, sorted_data: list) -> str:
         # curate blast sequence from final blast results
@@ -207,11 +219,10 @@ class Blast:
                             )
                             seq += sorted_data[i + 1]["seq"][overlap_index::]
                         else:
-                            overlap_index = (
-                                1
-                                + int(sorted_data[i]["hit_end"])
-                                - int(sorted_data[i + 1]["hit_start"])
+                            overlap_index = int(sorted_data[i]["hit_end"]) - int(
+                                sorted_data[i + 1]["hit_start"]
                             )
+                            print(overlap_index)
                             seq = seq[:-overlap_index]
                             seq += sorted_data[i + 1]["seq"]
 
@@ -231,41 +242,9 @@ class Blast:
             fasta.write(f">{fasta_output}_cps\n")
             fasta.write(sequence)
 
-    def parse_blast_results_dev(self) -> list:
-        blast_results = list()
-
-        tree = ET.parse(self.blast_results_file)
-        root = tree.getroot()
-
-        for query in root.findall(".//Iteration"):
-            query_id = query.find(".//Iteration_query-def").text
-
-            for hit in query.findall(".//Hit"):
-                hit_length = int(hit.find(".//Hit_len").text)
-                hit_def = hit.find(".//Hit_def").text
-                if int(hit_length) >= self.hit_length:
-                    for hsp in hit.findall(".//Hsp"):
-                        e_value = float(hsp.find(".//Hsp_evalue").text)
-                        hit_start = int(hsp.find(".//Hsp_hit-from").text)
-                        hit_end = int(hsp.find(".//Hsp_hit-to").text)
-                        aln_len = hsp.find(".//Hsp_align-len").text
-                        if hit_start < hit_end:
-                            seq_length = int(hit_end) - int(hit_start) + 1
-                        else:
-                            seq_length = int(hit_start) - int(hit_end) + 1
-                        hit_frame = hsp.find(".//Hsp_hit-frame").text
-                        if int(aln_len) >= self.hit_length:
-                            blast_result = {
-                                "hit_start": hit_start,
-                                "hit_end": hit_end,
-                                "hit_frame": int(hit_frame),
-                                "seq_length": seq_length,
-                                "query_id": query_id,
-                                "hit_def": hit_def,
-                                "reference_length": hit_length,
-                                "e_value": e_value,
-                            }
-
-                            blast_results.append(blast_result)
+    def parse_blast_results_dev(self, blast_results) -> list:
+        # function to pass the blast results to a log file without the sequences for readablility
+        for result in blast_results:
+            del result["seq"]
         logging.info(blast_results)
         return blast_results
