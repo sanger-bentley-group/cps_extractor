@@ -13,6 +13,7 @@ validParams = [
     singularity_cachedir: 'path',
     maxretries: 'int',
     prodigal_training_file: 'path_exist',
+    min_contig_length: 'int',
     serotype: 'string'
 ]
 
@@ -121,6 +122,7 @@ void validate(Map params) {
                     invalidValues[key] = [value, 'directory path (invalid path or insufficient permissions)']
                 }
                 break
+
             case 'path_blast_db':
                 // check blast db exists with glob matching
 
@@ -149,7 +151,6 @@ void validate(Map params) {
                         invalidValues[key] = [value, 'Blast db does not exist']
                     }
                 }
-
                 break
 
             case 'path_fasta':

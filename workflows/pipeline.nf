@@ -1,3 +1,4 @@
+include { ASSEMBLY_SHOVILL } from "$projectDir/modules/assembly"
 include { BAKTA } from "$projectDir/modules/bakta"
 include { BLASTN } from "$projectDir/modules/blast"
 include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
@@ -14,10 +15,11 @@ workflow PIPELINE {
 
         bakta_db = Channel.fromPath( params.bakta_db )
 
-        input_ch = Channel.fromPath( "$params.input/*.{fa,fasta}", checkIfExists: true )
-                   .map { tuple( it.name.split('.fa')[0], it ) }
+        reads_ch = Channel.fromFilePairs( "$params.input/*_{,R}{1,2}{,_001}.{fq.gz,fastq.gz}", checkIfExists: true )
 
-        BLASTN( input_ch, blast_db_ch.first() )
+        assembly_ch = ASSEMBLY_SHOVILL( reads_ch, params.min_contig_length )
+
+        BLASTN( assembly_ch, blast_db_ch.first() )
 
         CURATE_CPS_SEQUENCE( BLASTN.out.blast_results_ch )
 

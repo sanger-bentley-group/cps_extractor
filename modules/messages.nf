@@ -5,12 +5,12 @@ void startMessage(String pipelineVersion) {
         |
         |╔══════════════════════════════════════════════════════════════════════════════════════════╗
         |║                                                                                          ║░
-        |║  ____  _            _ _             ║░
-        |║ |  _ \(_)_ __   ___| (_)_ __   ___  ║░
-        |║ | |_) | | '_ \ / _ | | | '_ \ / _ \ ║░
-        |║ |  __/| | |_) |  __| | | | | |  __/ ║░
-        |║ |_|   |_| .__/ \___|_|_|_| |_|\___| ║░
-        |${String.format('║  v %-57s |_|                         ║░', pipelineVersion)}
+        |║  ____  _            _ _                                                                  ║░
+        |║ |  _ \(_)_ __   ___| (_)_ __   ___                                                       ║░
+        |║ | |_) | | '_ \ / _ | | | '_ \ / _ \                                                      ║░
+        |║ |  __/| | |_) |  __| | | | | |  __/                                                      ║░
+        |║ |_|   |_| .__/ \___|_|_|_| |_|\___|                                                      ║░
+        |${String.format('║  v %-57s |_|                                                            ║░', pipelineVersion)}
         |╚══════════════════════════════════════════════════════════════════════════════════════════╝░
         |  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
        /$.stripMargin()
@@ -28,7 +28,7 @@ void helpMessage() {
         |
         |--bakta_db [PATH]               Path to bakta database. Default: /data/pam/software/bakta/v5
         |--blastdb [PATH]                Path to blast database. Default: cps_blastdb
-        |--input [PATH]                  Path to the input directory that contains the sequences to be processed {.fa,.fasta}. Default: input
+        |--input [PATH]                  Path to the input directory that contains reads to be processed. Default: ./input
         |--output [PATH]                 Path to the output directory that save the results. Default: output
         |--serotype [STR]                Serotype (if known). Default: None
         |--prodigal_training_file [PATH] Path to prodigal training file used in annotation. Default: all.trn

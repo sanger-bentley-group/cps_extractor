@@ -11,4 +11,5 @@ jq -n \
     --argjson bwa "$(add_version "$BWA_VERSION")" \
     --argjson python "$(add_version "$PYTHON_VERSION")" \
     --argjson samtools "$(add_version "$SAMTOOLS_VERSION")" \
+    --argjson shovill "$(add_version "$SHOVILL_VERSION")" \
     '$ARGS.named' > "$JSON_FILE"
