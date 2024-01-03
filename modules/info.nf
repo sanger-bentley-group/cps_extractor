@@ -34,6 +34,7 @@ process TOOLS {
     val bwa_version
     val python_version
     val samtools_version
+    val shovill_version
 
     output:
     path(json), emit: json
@@ -47,6 +48,7 @@ process TOOLS {
     SAMTOOLS_VERSION="$samtools_version"
     BLAST_VERSION="$blast_version"
     PYTHON_VERSION="$python_version"
+    SHOVILL_VERSION="$shovill_version"
     JSON_FILE="$json"
                 
     source save_tools_info.sh
@@ -138,6 +140,7 @@ process PARSE {
         |${toolTextRow('BWA', 'bwa')}
         |${toolTextRow('python', 'python')}
         |${toolTextRow('SAMtools', 'samtools')}
+        |${toolTextRow('Shovill', 'shovill')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
 
@@ -164,6 +167,7 @@ process PARSE {
         |${imageTextRow('BWA', 'bwa')}
         |${imageTextRow('CPS extractor python', 'cps_extractor_python')}
         |${imageTextRow('SAMtools', 'samtools')}
+        |${imageTextRow('Shovill', 'shovill')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
 }
@@ -329,5 +333,18 @@ process BAKTA_VERSION {
     shell:
     '''
     VERSION=$(bakta --version | awk '{ print $NF }')
+    '''
+}
+
+process SHOVILL_VERSION {
+    label 'shovill_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(shovill --version | awk '{ print $NF }')
     '''
 }

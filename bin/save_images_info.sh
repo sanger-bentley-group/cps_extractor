@@ -8,8 +8,9 @@ BAKTA=$(find_image bakta)
 BASH=$(find_image bash)
 BLAST=$(find_image blast)
 BWA=$(find_image bwa)
-SAMTOOLS=$(find_image samtools)
 CPS_EXTRACTOR_PYTHON=$(find_image cps_extractor_python)
+SAMTOOLS=$(find_image samtools)
+SHOVILL=$(find_image shovill)
 
 add_container () {
     jq -n --arg container "$1" '.container = $container'
@@ -22,4 +23,5 @@ jq -n \
     --argjson bwa "$(add_container "$BWA")" \
     --argjson cps_extractor_python "$(add_container "$CPS_EXTRACTOR_PYTHON")" \
     --argjson samtools "$(add_container "$SAMTOOLS")" \
+    --argjson shovill "$(add_container "$SHOVILL")" \
     '$ARGS.named' > "$JSON_FILE"
