@@ -10,6 +10,7 @@ BLAST=$(find_image blast)
 BWA=$(find_image bwa)
 CPS_EXTRACTOR_PYTHON=$(find_image cps_extractor_python)
 SAMTOOLS=$(find_image samtools)
+SEROBA=$(find_image seroba)
 SHOVILL=$(find_image shovill)
 
 add_container () {
@@ -23,5 +24,6 @@ jq -n \
     --argjson bwa "$(add_container "$BWA")" \
     --argjson cps_extractor_python "$(add_container "$CPS_EXTRACTOR_PYTHON")" \
     --argjson samtools "$(add_container "$SAMTOOLS")" \
+    --argjson seroba "$(add_container "$SEROBA")" \
     --argjson shovill "$(add_container "$SHOVILL")" \
     '$ARGS.named' > "$JSON_FILE"

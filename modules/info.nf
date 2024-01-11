@@ -34,6 +34,7 @@ process TOOLS {
     val bwa_version
     val python_version
     val samtools_version
+    val seroba_version
     val shovill_version
 
     output:
@@ -48,6 +49,7 @@ process TOOLS {
     SAMTOOLS_VERSION="$samtools_version"
     BLAST_VERSION="$blast_version"
     PYTHON_VERSION="$python_version"
+    SEROBA_VERSION="$seroba_version"
     SHOVILL_VERSION="$shovill_version"
     JSON_FILE="$json"
                 
@@ -140,6 +142,7 @@ process PARSE {
         |${toolTextRow('BWA', 'bwa')}
         |${toolTextRow('python', 'python')}
         |${toolTextRow('SAMtools', 'samtools')}
+        |${toolTextRow('SeroBA', 'seroba')}
         |${toolTextRow('Shovill', 'shovill')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
@@ -167,6 +170,7 @@ process PARSE {
         |${imageTextRow('BWA', 'bwa')}
         |${imageTextRow('CPS extractor python', 'cps_extractor_python')}
         |${imageTextRow('SAMtools', 'samtools')}
+        |${imageTextRow('SeroBA', 'seroba')}
         |${imageTextRow('Shovill', 'shovill')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
@@ -346,5 +350,18 @@ process SHOVILL_VERSION {
     shell:
     '''
     VERSION=$(shovill --version | awk '{ print $NF }')
+    '''
+}
+
+process SEROBA_VERSION {
+    label 'seroba_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(seroba version)
     '''
 }

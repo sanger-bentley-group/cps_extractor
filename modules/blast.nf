@@ -8,11 +8,11 @@ process BLASTN {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(assembly)
+    tuple val(sample_id), path(assembly), val(sero)
     val(blast_db)
 
     output:
-    tuple val(sample_id), path(assembly), path(blast_results), emit: blast_results_ch
+    tuple val(sample_id), path(assembly), path(blast_results), val(sero), emit: blast_results_ch
 
     script:
     blast_results="${sample_id}_blast_results.xml"

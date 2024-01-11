@@ -608,7 +608,7 @@ def test_curate_sequence_remove_n_gaps(blast):
 
 
 def test_write_fasta(blast, tmp_path):
-    output_file = f"{tmp_path}/test.fa"
+    output_file = f"{tmp_path}/test_cps.fa"
     sequence = "AAATTTCCCGGG"
     blast.write_fasta(sequence, output_file)
 
