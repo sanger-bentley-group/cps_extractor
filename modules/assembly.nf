@@ -7,11 +7,11 @@ process ASSEMBLY_SHOVILL {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(reads)
+    tuple val(sample_id), path(reads), val(sero)
     val min_contig_length
 
     output:
-    tuple val(sample_id), path(fasta), emit: assembly_ch
+    tuple val(sample_id), path(fasta), val(sero), emit: assembly_ch
 
     script:
     read1="${reads[0]}"

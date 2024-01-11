@@ -239,7 +239,7 @@ class Blast:
         if "/" in fasta_output:
             fasta_output = fasta_output.split("/")[-1]
         with open(output_file, "w") as fasta:
-            fasta.write(f">{fasta_output}_cps\n")
+            fasta.write(f">{fasta_output}\n")
             fasta.write(sequence)
 
     def parse_blast_results_dev(self, blast_results) -> list:

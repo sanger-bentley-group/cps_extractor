@@ -14,7 +14,7 @@ validParams = [
     maxretries: 'int',
     prodigal_training_file: 'path_exist',
     min_contig_length: 'int',
-    serotype: 'string'
+    serotype: 'int_str'
 ]
 
 // Validate whether all provided parameters are valid
@@ -94,6 +94,12 @@ void validate(Map params) {
             case 'string':
                 if (value !instanceof String) {
                     invalidValues[key] = [value, 'string value']
+                }
+                break
+
+            case 'int_str':
+                if (value !instanceof String && value !instanceof Integer) {
+                    invalidValues[key] = [value, 'serotype value']
                 }
                 break
 

@@ -1,4 +1,4 @@
-include { IMAGES; TOOLS; COMBINE_INFO; PARSE; PRINT; SAVE; PYTHON_VERSION; BWA_VERSION; SAMTOOLS_VERSION; BLAST_VERSION; BEDTOOLS_VERSION; BAKTA_VERSION; SHOVILL_VERSION } from "$projectDir/modules/info"
+include { IMAGES; TOOLS; COMBINE_INFO; PARSE; PRINT; SAVE; PYTHON_VERSION; BWA_VERSION; SAMTOOLS_VERSION; BLAST_VERSION; BEDTOOLS_VERSION; BAKTA_VERSION; SHOVILL_VERSION; SEROBA_VERSION } from "$projectDir/modules/info"
 
 // Alternative workflow that prints versions of pipeline and tools
 workflow PRINT_VERSION {
@@ -42,6 +42,7 @@ workflow GET_VERSION {
         BWA_VERSION()
         PYTHON_VERSION()
         SAMTOOLS_VERSION()
+        SEROBA_VERSION()
         SHOVILL_VERSION()
 
         TOOLS(
@@ -51,6 +52,7 @@ workflow GET_VERSION {
             BWA_VERSION.out,
             PYTHON_VERSION.out,
             SAMTOOLS_VERSION.out,
+            SEROBA_VERSION.out,
             SHOVILL_VERSION.out
         )
 

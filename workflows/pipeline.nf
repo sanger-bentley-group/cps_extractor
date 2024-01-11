@@ -3,7 +3,7 @@ include { BAKTA } from "$projectDir/modules/bakta"
 include { BLASTN } from "$projectDir/modules/blast"
 include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
 include { CURATE_CPS_SEQUENCE } from "$projectDir/modules/curate_cps_sequence"
-
+include { SEROBA } from "$projectDir/modules/serotyping"
 // Main pipeline workflow
 workflow PIPELINE {
 
@@ -17,7 +17,15 @@ workflow PIPELINE {
 
         reads_ch = Channel.fromFilePairs( "$params.input/*_{,R}{1,2}{,_001}.{fq.gz,fastq.gz}", checkIfExists: true )
 
-        assembly_ch = ASSEMBLY_SHOVILL( reads_ch, params.min_contig_length )
+        if (!params.serotype) {
+            SEROBA( reads_ch )
+            reads_sero_ch = SEROBA.out.reads_sero_ch
+        } else {
+            println(params.serotype)
+            reads_sero_ch = reads_ch.map { it -> it + "$params.serotype" }
+        }
+
+        assembly_ch = ASSEMBLY_SHOVILL( reads_sero_ch, params.min_contig_length )
 
         BLASTN( assembly_ch, blast_db_ch.first() )
 
