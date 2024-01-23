@@ -1,7 +1,7 @@
 process GAP_FILLER {
     publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*_cps.fa"
 
-    label 'gap_filler'
+    label 'gap_filler_container'
     label 'farm_mid'
 
     tag "$sample_id"

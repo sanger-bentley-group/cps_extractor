@@ -41,7 +41,7 @@ workflow {
     } else {
         workflowSelectMessage('pipeline')
         PIPELINE()
-        //SAVE_INFO(pipelineVersion)
+        SAVE_INFO(pipelineVersion)
     }
 }
 

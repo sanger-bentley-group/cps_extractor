@@ -2,7 +2,7 @@
 process CHECK_CPS_SEQUENCE {
     publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.{csv,gff3}"
 
-    label 'cps_extractor_python'
+    label 'cps_extractor_python_container'
     label 'farm_low'
 
     tag "$sample_id"

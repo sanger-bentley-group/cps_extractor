@@ -19,7 +19,7 @@ workflow PIPELINE {
 
         reads_ch = Channel.fromFilePairs( "$params.input/*_{,R}{1,2}{,_001}.{fq.gz,fastq.gz}", checkIfExists: true )
 
-        reference_db_ch = Channel.fromPath ( params.reference_database )
+        reference_db_ch = Channel.fromPath( params.reference_database )
 
         if ( !params.serotype ) {
             SEROBA( reads_ch )
@@ -36,7 +36,7 @@ workflow PIPELINE {
 
         GAP_FILLER( CURATE_CPS_SEQUENCE.out.cps_sequence_ch, CURATE_CPS_SEQUENCE.out.log_ch, reference_db_ch.first() )
 
-        //BAKTA( GAP_FILLER.out.gap_filled_ch, prodigal_training_file.first(), bakta_db.first() )
+        BAKTA( GAP_FILLER.out.gap_filled_ch, prodigal_training_file.first(), bakta_db.first() )
 
-        //CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch )
+        CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch )
 }

@@ -2,7 +2,7 @@
 process CURATE_CPS_SEQUENCE {
     publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.log"
 
-    label 'cps_extractor_python'
+    label 'cps_extractor_python_container'
     label 'farm_low_fallible'
 
     tag "$sample_id"
