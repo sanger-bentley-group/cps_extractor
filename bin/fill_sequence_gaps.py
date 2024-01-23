@@ -17,7 +17,7 @@ def check_gaps(args, gap_filler) -> list:
 def fill_gaps(args, gap_filler, gaps_to_fill):
     gap_length = 0
     gap_added = 0
-    print(gaps_to_fill)
+    print(f"filling gaps: {gaps_to_fill}")
     for i in range(0, len(gaps_to_fill)):
         gap_length = gap_filler.get_gap_length(gaps_to_fill[i])
         reference = gap_filler.get_sequence(gap_filler.reference)
@@ -28,7 +28,7 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
         # check there is a useful number of reads from mapping before proceeding to assembly
         print(f"read count: {gap_filler.count_reads_bam(bam_file)}")
         if gap_filler.count_reads_bam(bam_file) < args.minimum_reads:
-            logging.info(f"Too few reads for {gaps_to_fill[i]}")
+            print(f"Too few reads for {gaps_to_fill[i]}")
             continue
 
         # filtered_reads = gap_filler.bam_to_fastq(bam_file)
@@ -55,7 +55,7 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
         )
 
         gap_added += len(str(gap_filling_seq))
-        print(f"gap added: {gap_added}")
+
         with open("gap_filled_seq.fa", "w") as f:
             f.write(">gap_filled_seq\n")
             f.write(gap_fill_seq)
@@ -75,6 +75,8 @@ def main(args):
 
     if len(gaps_to_fill) > 0:
         fill_gaps(args, gap_filler, gaps_to_fill)
+    else:
+        print("No gaps to fill")
 
 
 if __name__ == "__main__":

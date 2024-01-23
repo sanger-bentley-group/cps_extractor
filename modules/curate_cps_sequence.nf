@@ -1,18 +1,17 @@
 // Curate CPS sequence
 process CURATE_CPS_SEQUENCE {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*{_cps.fa,log}"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.log"
 
     label 'cps_extractor_python'
-    label 'farm_low'
-    // ignore samples which don't have a CPS sequence so the pipeline doesn't terminate
-    errorStrategy 'ignore'
+    label 'farm_low_fallible'
+
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(assembly), path(blast_results), val(serotype)
+    tuple val(sample_id), path(assembly), path(blast_results), val(serotype), path(reads)
 
     output:
-    tuple val(sample_id), path(cps_sequence), emit: cps_sequence_ch
+    tuple val(sample_id), path(cps_sequence), path(reads), val(serotype), emit: cps_sequence_ch
     path("*.log"), emit: log_ch
 
     script:
