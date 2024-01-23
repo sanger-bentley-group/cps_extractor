@@ -167,9 +167,8 @@ process PARSE {
         |${imageTextRow('Bakta', 'bakta')}
         |${imageTextRow('Bash', 'bash')}
         |${imageTextRow('Blast', 'blast')}
-        |${imageTextRow('BWA', 'bwa')}
         |${imageTextRow('CPS extractor python', 'cps_extractor_python')}
-        |${imageTextRow('SAMtools', 'samtools')}
+        |${imageTextRow('Gap Filler', 'gap_filler')}
         |${imageTextRow('SeroBA', 'seroba')}
         |${imageTextRow('Shovill', 'shovill')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
@@ -263,7 +262,7 @@ process SAVE {
 // Below processes get tool versions within container images by running their containers
 
 process PYTHON_VERSION {
-    label 'cps_extractor_python'
+    label 'cps_extractor_python_container'
     label 'farm_low'
 
     output:
@@ -276,7 +275,7 @@ process PYTHON_VERSION {
 }
 
 process BWA_VERSION {
-    label 'bwa_container'
+    label 'gap_filler_container'
     label 'farm_low'
 
     output:
@@ -289,7 +288,7 @@ process BWA_VERSION {
 }
 
 process SAMTOOLS_VERSION {
-    label 'samtools_container'
+    label 'gap_filler_container'
     label 'farm_low'
 
     output:
@@ -315,7 +314,7 @@ process BLAST_VERSION {
 }
 
 process BEDTOOLS_VERSION {
-    label 'cps_extractor_python'
+    label 'cps_extractor_python_container'
     label 'farm_low'
 
     output:

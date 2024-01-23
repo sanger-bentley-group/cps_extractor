@@ -223,9 +223,6 @@ class GapFiller:
         filled_seq = str()
         for k, v in gap_data[iteration].items():
             # remove any trailing sequence if the sequence is longer than the gap
-            print(f"[0: {k - 1} + {seq_added}]")
-            print(f"[{k - 1} + {seq_added}:]")
-            print(f"seq added {seq_added}")
             ref_seq_start = seq_to_fill[0 : (k + seq_added)]
             ref_seq_end = seq_to_fill[(k + seq_added) :]
             filled_seq = f"{ref_seq_start}{gap_seq}{ref_seq_end}"

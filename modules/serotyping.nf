@@ -25,6 +25,6 @@ process SEROBA {
     SEROTYPE_REPORT="$serotype_report"
 
     source get_serotype.sh
-    SEROTYPE=\$(tail -1 $serotype_report)
+    SEROTYPE=\$(tail -1 $serotype_report | sed 's/^0*//')
     """
 }

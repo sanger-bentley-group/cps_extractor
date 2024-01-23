@@ -2,8 +2,6 @@ process ASSEMBLY_SHOVILL {
     label 'shovill_container'
     label 'farm_high_fallible'
 
-    errorStrategy 'ignore'
-
     tag "$sample_id"
 
     input:
@@ -11,7 +9,7 @@ process ASSEMBLY_SHOVILL {
     val min_contig_length
 
     output:
-    tuple val(sample_id), path(fasta), val(sero), emit: assembly_ch
+    tuple val(sample_id), path(fasta), val(sero), path(reads), emit: assembly_ch
 
     script:
     read1="${reads[0]}"

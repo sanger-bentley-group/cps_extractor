@@ -10,6 +10,7 @@ validParams = [
     input: 'path_exist',
     output: 'path',
     lite: 'boolean',
+    reference_database: 'path_exist',
     singularity_cachedir: 'path',
     maxretries: 'int',
     prodigal_training_file: 'path_exist',
