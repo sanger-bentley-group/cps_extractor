@@ -1,6 +1,6 @@
 // Return blast results
 process BLASTN {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*{_blast_results.xml,_cps.fa}"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*_blast_results.xml"
 
     label 'blast_container'
     label 'farm_low'
