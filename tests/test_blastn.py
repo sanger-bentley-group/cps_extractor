@@ -61,6 +61,12 @@ def overlapping_blast_results():
     return overlapping_results
 
 
+@pytest.fixture
+def blast_results_no_overlap(blast_2_hits):
+    blast_results = blast_2_hits.parse_blast_results()
+    return blast_results
+
+
 def test_parse_blast_results_1_hit(blast):
     blast_results = blast.parse_blast_results()
     assert blast_results == [
@@ -76,12 +82,6 @@ def test_parse_blast_results_1_hit(blast):
             "e_value": 0.0,
         }
     ]
-
-
-@pytest.fixture
-def blast_results_no_overlap(blast_2_hits):
-    blast_results = blast_2_hits.parse_blast_results()
-    return blast_results
 
 
 def test_parse_blast_results_2_hits(blast_2_hits):

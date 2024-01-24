@@ -31,7 +31,6 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
             print(f"Too few reads for {gaps_to_fill[i]}")
             continue
 
-        # filtered_reads = gap_filler.bam_to_fastq(bam_file)
         consensus_sequence = gap_filler.samtools_consensus(bam_file)
         consensus_seq = gap_filler.get_sequence(consensus_sequence)
 
