@@ -2,7 +2,8 @@
 process DOWNLOAD_REFERENCE_DATABASE {
     publishDir "$projectDir", mode: 'copy', overwrite: true, pattern: "cps_reference_database"
     label 'git_container'
-    label 'farm_local'
+    label 'farm_scratchless'
+    label 'farm_low'
 
 
     output:
