@@ -4,8 +4,10 @@ import groovy.json.JsonSlurper
 validParams = [
     help: 'boolean',
     version: 'boolean',
-    bakta_db: 'path_exist',
+    setup: 'boolean',
+    bakta_db_path: 'path',
     bakta_threads: 'int',
+    bakta_db: 'path_exist',
     blastdb: 'path_blast_db',
     input: 'path_exist',
     output: 'path',
@@ -21,10 +23,10 @@ validParams = [
 // Validate whether all provided parameters are valid
 void validate(Map params) {
     // Ensure only one or none of the alternative workflows is selected
-    if ([params.help, params.version].count { it } > 1) {
+    if ([params.help, params.version, params.setup].count { it } > 1) {
         log.error('''
             |More than one alternative workflow is selected, please only select one of them
-            |(Only one of --version, --help should be used at one time)
+            |(Only one of --version, --help, --setup should be used at one time)
             '''.stripMargin())
         System.exit(1)
 }
@@ -36,6 +38,11 @@ void validate(Map params) {
 
     // Skip validation when version option is used
     if (params.version) {
+        return
+    }
+
+    // Skip validation when setup option is used
+    if (params.setup) {
         return
     }
 
