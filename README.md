@@ -201,6 +201,9 @@ Each results folder will contain the following:
   | `--serotype` | Any valid serotype string <br />(Default: None) | Manually set the serotype of your input sequences instead of having it determined by SeroBA |  
 
 
+## Default database
+  The default database is stored at: https://github.com/Oliver-Lorenz-dev/cps_reference_database
+  
 ## Credits
   See `Citations.MD` for the full list of citations.
 
