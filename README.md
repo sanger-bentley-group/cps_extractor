@@ -19,8 +19,18 @@ The development of this pipeline is part of the GPS Project ([Global Pneumococca
 - [Usage](#usage)
   - [Requirements](#requirements)
   - [Accepted Inputs](#accepted-inputs)
-  - [Profile](#profile)
+  - [Setup](#setup)
+  - [Running the pipeline](#run)
   - [Options](#options)
+  - [Profile](#profile)
+  - [Resuming the pipeline](#resume)
+  - [Clean up](#clean-up)
+- [Pipeline options](#pipeline-options)
+  - [Alternative workflows](#alternative-workflows)
+  - [Pipeline parameters](#general-options)
+  - [Default database](#default-database)
+- [Credits](#credits) 
+
 
 # Workflow
 The current pipeline workflow is as follows:
@@ -58,7 +68,8 @@ Each results folder will contain the following:
 - A POSIX-compatible system (e.g. Linux, macOS, Windows with [WSL](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)) with Bash 3.2 or later
 - Java 11 or later (up to 21) ([OpenJDK](https://openjdk.org/)/[Oracle Java](https://www.oracle.com/java/))
 - [Docker](https://www.docker.com/) or [Singularity](https://sylabs.io/singularity/)/[Apptainer](https://apptainer.org/)
-  - For Linux, [Singularity](https://sylabs.io/singularity/)/[Apptainer](https://apptainer.org/) or [Docker Engine](https://docs.docker.com/engine/) is recommended over [Docker Desktop for Linux](https://docs.docker.com/desktop/). The latter is known to cause permission issues when running the pipeline on Linux. 
+  - For Linux, [Singularity](https://sylabs.io/singularity/)/[Apptainer](https://apptainer.org/) or [Docker Engine](https://docs.docker.com/engine/) is recommended over [Docker Desktop for Linux](https://docs.docker.com/desktop/). The latter is known to cause permission issues when running the pipeline on Linux.
+- [Nextflow](https://www.nextflow.io) >= 23.04
 
 ## Accepted Inputs
 - Only Illumina paired-end short reads are supported
@@ -204,7 +215,7 @@ Each results folder will contain the following:
 ## Default database
   The default database is stored at: https://github.com/Oliver-Lorenz-dev/cps_reference_database
   
-## Credits
+# Credits
   See `Citations.MD` for the full list of citations.
 
   Thanks to Harry Hung for his excellent NextFlow code architecture which this pipeline also uses
