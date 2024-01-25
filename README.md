@@ -15,14 +15,42 @@ The development of this pipeline is part of the GPS Project ([Global Pneumococca
 &nbsp;
 # Table of contents <!-- omit in toc -->
 - [Workflow](#workflow)
+  - [Output](#Output)
 - [Usage](#usage)
   - [Requirements](#requirements)
   - [Accepted Inputs](#accepted-inputs)
   - [Profile](#profile)
   - [Options](#options)
 
+# Workflow
+The current pipeline workflow is as follows:
 
+The pipeline takes S.pneumoniae reads and uses SeroBA to determine their serotype. It then assembles the reads using Shovill.
+Following this, a blast search is performed to compare the assembly to a database of reference CPS sequences.
+Python code is used to extract the CPS sequence with the best blast hit for the given serotype. 
+If any gaps are determined, these are filled in using a consensus sequence method. Finally, the CPS sequence is annotated using Bakta and checked for any disruptive mutations.
 
+## Output
+Each sample will have its own results folder.
+
+For example the sample `15277_1#56`:
+```
+15277_1#56
+├── 15277_1#56_blast_results.xml
+├── 15277_1#56_cps.fa
+├── 15277_1#56_cps.gff3
+├── 15277_1#56_cps_mutations.csv
+├── cps_extractor_2024-01-25-13:47.log
+└── seroba_serotype_report.csv
+```
+
+Each results folder will contain the following:
+  - Blast result XML file (`sample_blast_results.xml`)
+  - The CPS sequence (`sample_cps.fa`)
+  - The CPS annotation (`sample_cps.gff3`)
+  - Disruptive mutations file (`sample_cps_mutations.csv`)
+  - A log file (`cps_extractor_YYYY_MM_DD_HH:SS.log`) containing the logs from the CPS extraction
+  - A serotype report (`seroba_serotype_report.csv`)
 
 &nbsp;
 # Usage
@@ -40,8 +68,7 @@ The development of this pipeline is part of the GPS Project ([Global Pneumococca
     - example 2: SampleName_1.fastq.gz, SampleName_2.fastq.gz
     - example 3: SampleName_R1.fq, SampleName_R2.fq
     
-
-
+  
 ## Setup 
 1. Clone the repository (if Git is installed on your system)
     ```
@@ -155,9 +182,26 @@ The development of this pipeline is part of the GPS Project ([Global Pneumococca
 > ℹ️ Pipeline options are not built-in Nextflow options, they are lead with `--` instead of `-`
 
 ## Alternative Workflows
-  | Option      | Values | Description |
--------------| --- | ---| --- |
-  | `--setup`   | `true` or `false`<br />(Default: `false`) | Use alternative workflow for initialisation, which means downloading all required additional files and container images, and creating databases.<br />Can be enabled by including `--setup` without value. |
+  | Option | Values | Description |
+  | --- | ---| --- |
+  | `--setup` | `true` or `false`<br />(Default: `false`) | Use alternative workflow for initialisation, which means downloading all required additional files and container images, and creating databases.<br />Can be enabled by including `--setup` without value. |
   | `--version` | `true` or `false`<br />(Default: `false`)| Use alternative workflow for showing versions of pipeline, container images, tools and databases.<br />Can be enabled by including `--version` without value.<br /> (This workflow pulls the required container images if they are not yet available locally) |
-  | `--help`    | `true` or `false`<br />(Default: `false`)| Show help message.<br />Can be enabled by including `--help` without value. |
+  | `--help` | `true` or `false`<br />(Default: `false`)| Show help message.<br />Can be enabled by including `--help` without value. |
 
+## General options
+  | Option | Values | Description |
+  | --- | ---| --- |
+  | `--input` | Any valid path containing paired end fastq.gz files <br />(Default: `$projectDir/input`) | Input folder containing S.pneumoniae reads |
+  | `--output` | Any valid path <br />(Default: `$projectDir/output`) | Output folder which stores the pipeline results |
+  | `--blastdb` | Any valid blast database path `.n*` <br />(Default: `$projectDir/cps_reference_database/cps_blastdb`| Path to blast database containing CPS references |
+  | `--prodigal_training_file` | Any valid path containing a prodigal training file <br />(Default: `$projectDir/cps_reference_database/all.trn` | Training file for improved annotation |
+  | `--bakta_db` | Any valid path containing a bakta database <br />(Default: `$projectDir/cps_reference_database/bakta_db`) | Path to bakta database used for annotation |
+  | `--bakta_threads` | Any valid integer value <br />(Default: 4) | Threads used for bakta annotation
+  | `--reference_database` | Any valid reference database path <br />(Default: `$projectDir/cps_reference_database`) | Full reference database used by the pipeline |
+  | `--serotype` | Any valid serotype string <br />(Default: None) | Manually set the serotype of your input sequences instead of having it determined by SeroBA |  
+
+
+## Credits
+  See `Citations.MD` for the full list of citations.
+
+  Thanks to Harry Hung for his excellent NextFlow code architecture which this pipeline also uses
