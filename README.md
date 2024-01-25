@@ -216,6 +216,6 @@ Each results folder will contain the following:
   The default database is stored at: https://github.com/Oliver-Lorenz-dev/cps_reference_database
   
 # Credits
-  See [Citations.MD](#./CITATIONS.md) for the full list of citations.
+  See [`Citations.MD`](CITATIONS.md) for the full list of citations.
 
   Thanks to Harry Hung for his excellent NextFlow code architecture which this pipeline also uses
