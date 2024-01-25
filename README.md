@@ -184,7 +184,7 @@ Each results folder will contain the following:
 - The tables below contain the available options that can be used when you run the pipeline
 - Usage:
   ```
-  ./run_pipeline [option] [value]
+  ./run_cps_extractor [option] [value]
   ```
 > ℹ️ To permanently change the value of an option, edit the `nextflow.config` file inside the `cps_nf` local directory.
 <!-- -->
@@ -216,6 +216,6 @@ Each results folder will contain the following:
   The default database is stored at: https://github.com/Oliver-Lorenz-dev/cps_reference_database
   
 # Credits
-  See `Citations.MD` for the full list of citations.
+  See [Citations.MD](#CITATIONS.md) for the full list of citations.
 
   Thanks to Harry Hung for his excellent NextFlow code architecture which this pipeline also uses
