@@ -77,38 +77,12 @@ class GapFiller:
         # identify gaps from the blast hits results >= n bases
         gaps = list()
         for i in range(0, (len(hits_list) - 1)):
-            if hits_list[i]["hit_frame"] == 1 and hits_list[i + 1]["hit_frame"] == 1:
-                if (
-                    hits_list[i + 1]["hit_start"] - hits_list[i]["hit_end"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_start"]}
-                    gaps.append(gaps_dict)
-            elif (
-                hits_list[i]["hit_frame"] == -1 and hits_list[i + 1]["hit_frame"] == -1
+            if (
+                hits_list[i + 1]["hit_start"] - hits_list[i]["hit_end"]
+                >= min_gap_length
             ):
-                if (
-                    hits_list[i + 1]["hit_end"] - hits_list[i]["hit_start"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {hits_list[i]["hit_start"]: hits_list[i + 1]["hit_end"]}
-                    gaps.append(gaps_dict)
-            elif hits_list[i]["hit_frame"] > hits_list[i + 1]["hit_frame"]:
-                if (
-                    hits_list[i + 1]["hit_end"] - hits_list[i]["hit_end"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_end"]}
-                    gaps.append(gaps_dict)
-            else:
-                if (
-                    hits_list[i + 1]["hit_start"] - hits_list[i]["hit_start"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {
-                        hits_list[i]["hit_start"]: hits_list[i + 1]["hit_start"]
-                    }
-                    gaps.append(gaps_dict)
+                gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_start"]}
+                gaps.append(gaps_dict)
         return gaps
 
     def do_dicts_overlap(self, dict1: dict, dict2: dict) -> bool:

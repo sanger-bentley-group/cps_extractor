@@ -101,44 +101,7 @@ def test_get_cps_cds_regions(gap_filler):
     ]
 
 
-def test_get_gaps_reverse(gap_filler):
-    hits_list = gap_filler.read_hits_list()
-    gaps = gap_filler.get_gaps(100, hits_list)
-    assert gaps == [{5094: 7590}, {10563: 12214}]
-
-
-def test_get_gaps_mixed(gap_filler):
-    hits_list = [
-        {
-            "hit_start": 5094,
-            "hit_end": 1,
-            "hit_frame": -1,
-            "seq_length": 5093,
-            "query_id": ".15682_4_63.10",
-            "hit_def": "12F",
-        },
-        {
-            "hit_start": 7590,
-            "hit_end": 10563,
-            "hit_frame": 1,
-            "seq_length": 2973,
-            "query_id": ".15682_4_63.185",
-            "hit_def": "12F",
-        },
-        {
-            "hit_start": 19081,
-            "hit_end": 12214,
-            "hit_frame": -1,
-            "seq_length": 6867,
-            "query_id": ".15682_4_63.76",
-            "hit_def": "12F",
-        },
-    ]
-    gaps = gap_filler.get_gaps(100, hits_list)
-    assert gaps == [{5094: 7590}, {10563: 12214}]
-
-
-def test_get_gaps_fwd(gap_filler):
+def test_get_gaps(gap_filler):
     hits_list = [
         {
             "hit_start": 1,
