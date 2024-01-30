@@ -31,7 +31,10 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
             print(f"Too few reads for {gaps_to_fill[i]}")
             continue
 
-        consensus_sequence = gap_filler.samtools_consensus(bam_file)
+        vcf_file = gap_filler.bcftools_mpileup(bam_file)
+        filtered_vcf_file = gap_filler.bcftools_filter(vcf_file)
+        gap_filler.index_vcf(filtered_vcf_file)
+        consensus_sequence = gap_filler.bcftools_consensus(filtered_vcf_file)
         consensus_seq = gap_filler.get_sequence(consensus_sequence)
 
         # basic check to see if there is a useful number of bases in the consensus to fill a gap

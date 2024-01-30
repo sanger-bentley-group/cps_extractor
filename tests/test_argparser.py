@@ -151,7 +151,7 @@ def test_gap_filler_args_default_values():
     args = GapFillerParser.parse_args(vargs)
 
     assert args.gap_length == 100
-    assert args.minimum_reads == 50
+    assert args.minimum_reads == 500
 
 
 def test_gap_filler_args_invalid_gap_length():
