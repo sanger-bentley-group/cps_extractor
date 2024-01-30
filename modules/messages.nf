@@ -2,17 +2,14 @@
 void startMessage(String pipelineVersion) {
     log.info( 
         $/
-        |
-        |╔══════════════════════════════════════════════════════════════════════════════════════════╗
-        |║                                                                                          ║░
-        |║  ____  _            _ _                                                                  ║░
-        |║ |  _ \(_)_ __   ___| (_)_ __   ___                                                       ║░
-        |║ | |_) | | '_ \ / _ | | | '_ \ / _ \                                                      ║░
-        |║ |  __/| | |_) |  __| | | | | |  __/                                                      ║░
-        |║ |_|   |_| .__/ \___|_|_|_| |_|\___|                                                      ║░
-        |${String.format('║  v %-57s |_|                                                            ║░', pipelineVersion)}
-        |╚══════════════════════════════════════════════════════════════════════════════════════════╝░
-        |  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+        |╔═════════════════════════════════════════════════════════════════════════════╗
+        |║   ____ ____  ____    _______  _______ ____      _    ____ _____ ___  ____   ║
+        |║  / ___|  _ \/ ___|  | ____\ \/ /_   _|  _ \    / \  / ___|_   _/ _ \|  _ \  ║
+        |║ | |   | |_) \___ \  |  _|  \  /  | | | |_) |  / _ \| |     | || | | | |_) | ║
+        |║ | |___|  __/ ___) | | |___ /  \  | | |  _ <  / ___ \ |___  | || |_| |  _ <  ║
+        |║  \____|_|   |____/  |_____/_/\_\ |_| |_| \_\/_/   \_\____| |_| \___/|_| \_\ ║
+        |${String.format('║  v %-57s                ║', pipelineVersion)}
+        |╚═════════════════════════════════════════════════════════════════════════════╝
        /$.stripMargin()
     )
 }
@@ -21,17 +18,15 @@ void startMessage(String pipelineVersion) {
 void helpMessage() {
     log.info(
         '''
-        |This is a Nextflow Pipeline for extracting CPS sequences from S pneumoniae genome assemblies
+        |This is a Nextflow Pipeline for extracting CPS sequences from S pneumoniae reads
         |
         |Usage:
-        |nextflow run . [option] [value]
+        |./run_cps_extractor [option] [value]
         |
-        |--bakta_db [PATH]               Path to bakta database. Default: /data/pam/software/bakta/v5
-        |--blastdb [PATH]                Path to blast database. Default: cps_blastdb
         |--input [PATH]                  Path to the input directory that contains reads to be processed. Default: ./input
         |--output [PATH]                 Path to the output directory that save the results. Default: output
         |--serotype [STR]                Serotype (if known). Default: None
-        |--prodigal_training_file [PATH] Path to prodigal training file used in annotation. Default: all.trn
+        |--setup                         Alternative workflow for setting up the required databases.
         |--version                       Alternative workflow for getting versions of pipeline, container images, tools and databases
         |--help                          Print this help message
         |
@@ -58,6 +53,11 @@ void workflowSelectMessage(String selectedWorkflow) {
         case 'version':
             message = '''
             |The alternative workflow for getting versions of pipeline, tools and databases has been selected.
+            '''.stripMargin()
+            break
+        case 'setup':
+            message = '''
+            |The alternative workflow for setting up the database has been selected.
             '''.stripMargin()
             break
     }
@@ -99,6 +99,15 @@ void endMessage(String selectedWorkflow) {
                 '''.stripMargin()
             failMessage = '''
                 |Failed to get version information on pipeline, tools or databases.
+                |If you think it is caused by a bug, contact Oliver Lorenz (ol6@sanger.ac.uk)\"
+                '''.stripMargin()
+            break
+        case 'setup':
+            successMessage = '''
+                |The databases have been correctly setup.
+                '''.stripMargin()
+            failMessage = '''
+                |Failed to setup the database.
                 |If you think it is caused by a bug, contact Oliver Lorenz (ol6@sanger.ac.uk)\"
                 '''.stripMargin()
             break

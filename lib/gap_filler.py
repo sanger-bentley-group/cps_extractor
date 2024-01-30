@@ -77,38 +77,12 @@ class GapFiller:
         # identify gaps from the blast hits results >= n bases
         gaps = list()
         for i in range(0, (len(hits_list) - 1)):
-            if hits_list[i]["hit_frame"] == 1 and hits_list[i + 1]["hit_frame"] == 1:
-                if (
-                    hits_list[i + 1]["hit_start"] - hits_list[i]["hit_end"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_start"]}
-                    gaps.append(gaps_dict)
-            elif (
-                hits_list[i]["hit_frame"] == -1 and hits_list[i + 1]["hit_frame"] == -1
+            if (
+                hits_list[i + 1]["hit_start"] - hits_list[i]["hit_end"]
+                >= min_gap_length
             ):
-                if (
-                    hits_list[i + 1]["hit_end"] - hits_list[i]["hit_start"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {hits_list[i]["hit_start"]: hits_list[i + 1]["hit_end"]}
-                    gaps.append(gaps_dict)
-            elif hits_list[i]["hit_frame"] > hits_list[i + 1]["hit_frame"]:
-                if (
-                    hits_list[i + 1]["hit_end"] - hits_list[i]["hit_end"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_end"]}
-                    gaps.append(gaps_dict)
-            else:
-                if (
-                    hits_list[i + 1]["hit_start"] - hits_list[i]["hit_start"]
-                    >= min_gap_length
-                ):
-                    gaps_dict = {
-                        hits_list[i]["hit_start"]: hits_list[i + 1]["hit_start"]
-                    }
-                    gaps.append(gaps_dict)
+                gaps_dict = {hits_list[i]["hit_end"]: hits_list[i + 1]["hit_start"]}
+                gaps.append(gaps_dict)
         return gaps
 
     def do_dicts_overlap(self, dict1: dict, dict2: dict) -> bool:
@@ -181,22 +155,45 @@ class GapFiller:
     def filter_mapping(self, sam_file: str) -> str:
         sample_id = sam_file.split(".sam")[0]
         bam_file = f"{sample_id}_filtered.bam"
-        filter_cmd = f"samtools view -h -f 0x2 -q 30 -F 4 {sam_file} | samtools sort -o {bam_file}"
+        filter_cmd = f"samtools view -h -f 0x2 -q 60 -F 4 {sam_file} | samtools sort -o {bam_file}"
         print(filter_cmd)
         subprocess.check_output(filter_cmd, shell=True)
         return bam_file
 
     def count_reads_bam(self, bam_file: str) -> int:
         read_count_cmd = f"samtools view -c {bam_file}"
+        print(read_count_cmd)
         read_count = subprocess.check_output(read_count_cmd, shell=True)
         return int(read_count.strip())
 
-    def samtools_consensus(self, bam_file: str) -> str:
+    def bcftools_mpileup(self, bam_file: str) -> str:
         sample_id = bam_file.split("_filtered.bam")[0]
-        samtools_cmd = (
-            f"samtools consensus -f fasta {bam_file} -o {sample_id}_gap_fill.fa"
+        bcftools_mpileup_cmd = f"bcftools mpileup -Ou -f subset_ref.fa {bam_file} | bcftools call --ploidy 1 -Ou -mv | bcftools norm -f subset_ref.fa -Oz -o {sample_id}.vcf.gz"
+        print(bcftools_mpileup_cmd)
+        subprocess.check_output(bcftools_mpileup_cmd, shell=True)
+
+        return f"{sample_id}.vcf.gz"
+
+    def bcftools_filter(self, vcf_file: str) -> str:
+        sample_id = vcf_file.split(".vcf.gz")[0]
+        bcftools_filter_cmd = f"bcftools view -i 'QUAL >= 50 || DP > 100 || MQBZ > -3 || RPBZ > -3 || RPBZ < 3 || SCBZ < 3' {vcf_file} | bgzip > {sample_id}_filtered.vcf.gz"
+        print(bcftools_filter_cmd)
+        subprocess.check_output(bcftools_filter_cmd, shell=True)
+
+        return f"{sample_id}_filtered.vcf.gz"
+
+    def index_vcf(self, vcf_file: str):
+        index_cmd = f"tabix {vcf_file}"
+        subprocess.check_output(index_cmd, shell=True)
+
+    def bcftools_consensus(self, vcf_file: str) -> str:
+        sample_id = vcf_file.split("_filtered.vcf.gz")[0]
+        bcftools_consensus_cmd = (
+            f"bcftools consensus -f subset_ref.fa {vcf_file} > {sample_id}_gap_fill.fa"
         )
-        subprocess.check_output(samtools_cmd, shell=True)
+        print(bcftools_consensus_cmd)
+        subprocess.check_output(bcftools_consensus_cmd, shell=True)
+
         return f"{sample_id}_gap_fill.fa"
 
     def get_gap_length(self, gaps: dict) -> int:

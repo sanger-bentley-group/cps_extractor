@@ -8,3 +8,4 @@ venv*
 *.log
 *.fai
 output
+cps_reference_database

@@ -2,7 +2,7 @@
 process BAKTA {
 
     label 'bakta_container'
-    label 'farm_mid'
+    label 'farm_high_mem'
 
     tag "$sample_id"
 

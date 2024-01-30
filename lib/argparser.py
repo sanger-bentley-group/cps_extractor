@@ -130,7 +130,7 @@ class GapFillerParser:
             "--minimum-reads",
             required=False,
             help="Minimum number of mapped reads required to fill gap",
-            default=50,
+            default=500,
             type=int,
         )
 
