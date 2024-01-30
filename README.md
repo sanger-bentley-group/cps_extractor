@@ -83,14 +83,14 @@ Each results folder will contain the following:
 ## Setup 
 1. Clone the repository (if Git is installed on your system)
     ```
-    git clone https://github.com/Oliver-Lorenz-dev/cps_nf.git
+    git clone https://github.com/sanger-bentley-group/cps_extractor.git
     ```
     or 
     
-    Download and unzip/extract the [latest release](https://github.com/Oliver-Lorenz-dev/cps_nf/releases)
+    Download and unzip/extract the [latest release](https://github.com/sanger-bentley-group/cps_extractor/releases)
 2. Go into the local directory of the pipeline and it is ready to use without installation (the directory name might be different)
     ```
-    cd cps_nf
+    cd cps_extractor
     ```
 3. Run the database setup to download all required additional files and container images, so the pipeline can be used at any time with or without the Internet afterwards.
     > ⚠️ Docker or Singularity must be running, and an Internet connection is required.
@@ -107,7 +107,7 @@ Each results folder will contain the following:
 > ⚠️ Docker or Singularity must be running.
 <!-- -->
 > ℹ️ By default, Docker is used as the container engine and all the processes are executed by the local machine. See [Profile](#profile) for details on running the pipeline with Singularity or on a HPC cluster.
-- You can run the pipeline without options. It will attempt to get the raw reads from the default location (i.e. `input` directory inside the `cps_nf` local directory)
+- You can run the pipeline without options. It will attempt to get the raw reads from the default location (i.e. `input` directory inside the `cps_extractor` local directory)
   ```
   ./run_cps_extractor
   ```
@@ -161,12 +161,12 @@ Each results folder will contain the following:
 - If the run has been completed and you do not intend to use the `-resume` option or those intermediate files, you can remove the intermediate files using one of the following ways:
   - Run the included `clean_pipeline` script
     - It runs the commands in manual removal for you
-    - It removes the `work` directory and log files within the `cps_nf` local directory
+    - It removes the `work` directory and log files within the `cps_extractor` local directory
     ```
     ./clean_pipeline
     ```
   - Manual removal 
-    - Remove the `work` directory and log files within the `cps_nf` local directory
+    - Remove the `work` directory and log files within the `cps_extractor` local directory
     ```
     rm -rf work
     rm -rf .nextflow.log*
@@ -186,7 +186,7 @@ Each results folder will contain the following:
   ```
   ./run_cps_extractor [option] [value]
   ```
-> ℹ️ To permanently change the value of an option, edit the `nextflow.config` file inside the `cps_nf` local directory.
+> ℹ️ To permanently change the value of an option, edit the `nextflow.config` file inside the `cps_extractor` local directory.
 <!-- -->
 > ℹ️ `$projectDir` is a [Nextflow built-in implicit variables](https://www.nextflow.io/docs/latest/script.html?highlight=projectdir#implicit-variables), it is defined as the local directory of `gps-pipeline`.
 <!-- -->
