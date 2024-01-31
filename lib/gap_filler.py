@@ -147,7 +147,7 @@ class GapFiller:
 
     def bcftools_filter(self, vcf_file: str) -> str:
         sample_id = vcf_file.split(".vcf.gz")[0]
-        bcftools_filter_cmd = f"bcftools view -i 'QUAL >= 50 || DP > 100 || MQBZ > -3 || RPBZ > -3 || RPBZ < 3 || SCBZ < 3' {vcf_file} | bgzip > {sample_id}_filtered.vcf.gz"
+        bcftools_filter_cmd = f"bcftools view -e 'QUAL <= 10 || DP < 35 || MQBZ < -3 || RPBZ < -3 || RPBZ > 3 || SCBZ > 3' {vcf_file} | bgzip > {sample_id}_filtered.vcf.gz"
         subprocess.check_output(bcftools_filter_cmd, shell=True)
 
         return f"{sample_id}_filtered.vcf.gz"
