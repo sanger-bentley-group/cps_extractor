@@ -6,6 +6,7 @@ add_version () {
 
 jq -n \
     --argjson bakta "$(add_version "$BAKTA_VERSION")" \
+    --argjson bcftools "$(add_version "$BCFTOOLS_VERSION")" \
     --argjson bedtools "$(add_version "$BEDTOOLS_VERSION")" \
     --argjson blast "$(add_version "$BLAST_VERSION")" \
     --argjson bwa "$(add_version "$BWA_VERSION")" \
