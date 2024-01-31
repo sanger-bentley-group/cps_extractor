@@ -4,7 +4,6 @@ import ast
 import csv
 import subprocess
 from Bio import SeqIO
-from operator import itemgetter
 
 
 class GapFiller:
@@ -24,28 +23,6 @@ class GapFiller:
         self.read_2 = read_2
         self.cps_sequence = cps_sequence
 
-    def sort_hits_list(self, hits_list: list) -> list:
-        # order the blast hits list, so a sequential comparison can be done to find gaps
-        hits_list_copy = hits_list
-        # switch round reverse hit positions
-        for i in range(0, len(hits_list)):
-            if hits_list[i]["hit_frame"] == -1:
-                start = hits_list[i]["hit_end"]
-                end = hits_list[i]["hit_start"]
-                hits_list_copy[i]["hit_start"] = start
-                hits_list_copy[i]["hit_end"] = end
-        # sort hits
-        sorted_hits_list = sorted(hits_list_copy, key=itemgetter("hit_start"))
-
-        # switch back reverse positions
-        for i in range(0, len(sorted_hits_list)):
-            if sorted_hits_list[i]["hit_frame"] == -1:
-                start = sorted_hits_list[i]["hit_end"]
-                end = sorted_hits_list[i]["hit_start"]
-                sorted_hits_list[i]["hit_start"] = start
-                sorted_hits_list[i]["hit_end"] = end
-        return sorted_hits_list
-
     def read_hits_list(self) -> list:
         with open(self.logging_file, "r") as f:
             content = f.read()
@@ -54,8 +31,7 @@ class GapFiller:
             # remove sequence from dict as it no longer necessary
             for d in hits_list:
                 del d["seq"]
-            sorted_hits_list = self.sort_hits_list(hits_list)
-            return sorted_hits_list
+            return hits_list
 
     def get_cps_cds_regions(self) -> list:
         # extract cps CDS regions
@@ -145,10 +121,8 @@ class GapFiller:
         sample_id = self.read_1.split("_1.fastq.gz")[0]
         sam_file = f"{sample_id}.sam"
         index_cmd = f"bwa index {subset_ref_file}"
-        print(index_cmd)
         subprocess.check_output(index_cmd, shell=True)
         map_cmd = f"bwa mem {subset_ref_file} {self.read_1} {self.read_2} > {sam_file}"
-        print(map_cmd)
         subprocess.check_output(map_cmd, shell=True)
         return sam_file
 
@@ -156,28 +130,24 @@ class GapFiller:
         sample_id = sam_file.split(".sam")[0]
         bam_file = f"{sample_id}_filtered.bam"
         filter_cmd = f"samtools view -h -f 0x2 -q 60 -F 4 {sam_file} | samtools sort -o {bam_file}"
-        print(filter_cmd)
         subprocess.check_output(filter_cmd, shell=True)
         return bam_file
 
     def count_reads_bam(self, bam_file: str) -> int:
         read_count_cmd = f"samtools view -c {bam_file}"
-        print(read_count_cmd)
         read_count = subprocess.check_output(read_count_cmd, shell=True)
         return int(read_count.strip())
 
     def bcftools_mpileup(self, bam_file: str) -> str:
         sample_id = bam_file.split("_filtered.bam")[0]
         bcftools_mpileup_cmd = f"bcftools mpileup -Ou -f subset_ref.fa {bam_file} | bcftools call --ploidy 1 -Ou -mv | bcftools norm -f subset_ref.fa -Oz -o {sample_id}.vcf.gz"
-        print(bcftools_mpileup_cmd)
         subprocess.check_output(bcftools_mpileup_cmd, shell=True)
 
         return f"{sample_id}.vcf.gz"
 
     def bcftools_filter(self, vcf_file: str) -> str:
         sample_id = vcf_file.split(".vcf.gz")[0]
-        bcftools_filter_cmd = f"bcftools view -i 'QUAL >= 50 || DP > 100 || MQBZ > -3 || RPBZ > -3 || RPBZ < 3 || SCBZ < 3' {vcf_file} | bgzip > {sample_id}_filtered.vcf.gz"
-        print(bcftools_filter_cmd)
+        bcftools_filter_cmd = f"bcftools view -e 'QUAL <= 10 || DP < 35 || MQBZ < -3 || RPBZ < -3 || RPBZ > 3 || SCBZ > 3' {vcf_file} | bgzip > {sample_id}_filtered.vcf.gz"
         subprocess.check_output(bcftools_filter_cmd, shell=True)
 
         return f"{sample_id}_filtered.vcf.gz"
@@ -191,7 +161,6 @@ class GapFiller:
         bcftools_consensus_cmd = (
             f"bcftools consensus -f subset_ref.fa {vcf_file} > {sample_id}_gap_fill.fa"
         )
-        print(bcftools_consensus_cmd)
         subprocess.check_output(bcftools_consensus_cmd, shell=True)
 
         return f"{sample_id}_gap_fill.fa"
