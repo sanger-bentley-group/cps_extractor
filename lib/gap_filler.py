@@ -4,7 +4,6 @@ import ast
 import csv
 import subprocess
 from Bio import SeqIO
-from operator import itemgetter
 
 
 class GapFiller:
