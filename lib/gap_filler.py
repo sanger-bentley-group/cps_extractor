@@ -24,28 +24,6 @@ class GapFiller:
         self.read_2 = read_2
         self.cps_sequence = cps_sequence
 
-    def sort_hits_list(self, hits_list: list) -> list:
-        # order the blast hits list, so a sequential comparison can be done to find gaps
-        hits_list_copy = hits_list
-        # switch round reverse hit positions
-        for i in range(0, len(hits_list)):
-            if hits_list[i]["hit_frame"] == -1:
-                start = hits_list[i]["hit_end"]
-                end = hits_list[i]["hit_start"]
-                hits_list_copy[i]["hit_start"] = start
-                hits_list_copy[i]["hit_end"] = end
-        # sort hits
-        sorted_hits_list = sorted(hits_list_copy, key=itemgetter("hit_start"))
-
-        # switch back reverse positions
-        for i in range(0, len(sorted_hits_list)):
-            if sorted_hits_list[i]["hit_frame"] == -1:
-                start = sorted_hits_list[i]["hit_end"]
-                end = sorted_hits_list[i]["hit_start"]
-                sorted_hits_list[i]["hit_start"] = start
-                sorted_hits_list[i]["hit_end"] = end
-        return sorted_hits_list
-
     def read_hits_list(self) -> list:
         with open(self.logging_file, "r") as f:
             content = f.read()
@@ -54,8 +32,7 @@ class GapFiller:
             # remove sequence from dict as it no longer necessary
             for d in hits_list:
                 del d["seq"]
-            sorted_hits_list = self.sort_hits_list(hits_list)
-            return sorted_hits_list
+            return hits_list
 
     def get_cps_cds_regions(self) -> list:
         # extract cps CDS regions

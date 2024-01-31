@@ -29,29 +29,6 @@ def cps_cds_regions(gap_filler):
     return cps_cds_regions
 
 
-def test_sort_hits_list(gap_filler):
-    unsorted_list = [
-        {
-            "hit_start": 10563,
-            "hit_end": 7590,
-            "hit_frame": -1,
-            "seq_length": 2973,
-            "query_id": ".15682_4_63.185",
-            "hit_def": "12F",
-        },
-        {
-            "hit_start": 5094,
-            "hit_end": 1,
-            "hit_frame": -1,
-            "seq_length": 5093,
-            "query_id": ".15682_4_63.10",
-            "hit_def": "12F",
-        },
-    ]
-    sorted_list = gap_filler.sort_hits_list(unsorted_list)
-    assert sorted_list == unsorted_list[::-1]
-
-
 def test_read_hits_list(gap_filler):
     hits_list = gap_filler.read_hits_list()
     assert hits_list == [
@@ -64,19 +41,19 @@ def test_read_hits_list(gap_filler):
             "hit_def": "12F",
         },
         {
-            "hit_start": 10563,
-            "hit_end": 7590,
-            "hit_frame": -1,
-            "seq_length": 2973,
-            "query_id": ".15682_4_63.185",
-            "hit_def": "12F",
-        },
-        {
             "hit_start": 19081,
             "hit_end": 12214,
             "hit_frame": -1,
             "seq_length": 6867,
             "query_id": ".15682_4_63.76",
+            "hit_def": "12F",
+        },
+        {
+            "hit_start": 10563,
+            "hit_end": 7590,
+            "hit_frame": -1,
+            "seq_length": 2973,
+            "query_id": ".15682_4_63.185",
             "hit_def": "12F",
         },
     ]
