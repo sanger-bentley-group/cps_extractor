@@ -122,10 +122,8 @@ class GapFiller:
         sample_id = self.read_1.split("_1.fastq.gz")[0]
         sam_file = f"{sample_id}.sam"
         index_cmd = f"bwa index {subset_ref_file}"
-        print(index_cmd)
         subprocess.check_output(index_cmd, shell=True)
         map_cmd = f"bwa mem {subset_ref_file} {self.read_1} {self.read_2} > {sam_file}"
-        print(map_cmd)
         subprocess.check_output(map_cmd, shell=True)
         return sam_file
 
@@ -133,20 +131,17 @@ class GapFiller:
         sample_id = sam_file.split(".sam")[0]
         bam_file = f"{sample_id}_filtered.bam"
         filter_cmd = f"samtools view -h -f 0x2 -q 60 -F 4 {sam_file} | samtools sort -o {bam_file}"
-        print(filter_cmd)
         subprocess.check_output(filter_cmd, shell=True)
         return bam_file
 
     def count_reads_bam(self, bam_file: str) -> int:
         read_count_cmd = f"samtools view -c {bam_file}"
-        print(read_count_cmd)
         read_count = subprocess.check_output(read_count_cmd, shell=True)
         return int(read_count.strip())
 
     def bcftools_mpileup(self, bam_file: str) -> str:
         sample_id = bam_file.split("_filtered.bam")[0]
         bcftools_mpileup_cmd = f"bcftools mpileup -Ou -f subset_ref.fa {bam_file} | bcftools call --ploidy 1 -Ou -mv | bcftools norm -f subset_ref.fa -Oz -o {sample_id}.vcf.gz"
-        print(bcftools_mpileup_cmd)
         subprocess.check_output(bcftools_mpileup_cmd, shell=True)
 
         return f"{sample_id}.vcf.gz"
@@ -154,7 +149,6 @@ class GapFiller:
     def bcftools_filter(self, vcf_file: str) -> str:
         sample_id = vcf_file.split(".vcf.gz")[0]
         bcftools_filter_cmd = f"bcftools view -i 'QUAL >= 50 || DP > 100 || MQBZ > -3 || RPBZ > -3 || RPBZ < 3 || SCBZ < 3' {vcf_file} | bgzip > {sample_id}_filtered.vcf.gz"
-        print(bcftools_filter_cmd)
         subprocess.check_output(bcftools_filter_cmd, shell=True)
 
         return f"{sample_id}_filtered.vcf.gz"
@@ -168,7 +162,6 @@ class GapFiller:
         bcftools_consensus_cmd = (
             f"bcftools consensus -f subset_ref.fa {vcf_file} > {sample_id}_gap_fill.fa"
         )
-        print(bcftools_consensus_cmd)
         subprocess.check_output(bcftools_consensus_cmd, shell=True)
 
         return f"{sample_id}_gap_fill.fa"
