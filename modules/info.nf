@@ -29,6 +29,7 @@ process TOOLS {
 
     input:
     val bakta_version
+    val bcftools_version
     val bedtools_version
     val blast_version
     val bwa_version
@@ -44,6 +45,7 @@ process TOOLS {
     json='tools.json'
     """
     BAKTA_VERSION="$bakta_version"
+    BCFTOOLS_VERSION="$bcftools_version"
     BEDTOOLS_VERSION="$bedtools_version"
     BWA_VERSION="$bwa_version"
     SAMTOOLS_VERSION="$samtools_version"
@@ -137,6 +139,7 @@ process PARSE {
         |${textRow(30, 62, 'Tool', 'Version')}
         |╠════════════════════════════════╪════════════════════════════════════════════════════════════════╣
         |${toolTextRow('Bakta', 'bakta')}
+        |${toolTextRow('Bcftools', 'bcftools')}
         |${toolTextRow('Bedtools', 'bedtools')}
         |${toolTextRow('Blast', 'blast')}
         |${toolTextRow('BWA', 'bwa')}
@@ -297,6 +300,19 @@ process SAMTOOLS_VERSION {
     shell:
     $/
     VERSION=$(samtools 2>&1 | grep Version | sed -r "s/.*:\s(.+)\s\(.+/\1/")
+    /$
+}
+
+process BCFTOOLS_VERSION {
+    label 'gap_filler_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    $/
+    VERSION=$(bcftools 2>&1 | grep Version | sed -r "s/.*:\s(.+)\s\(.+/\1/")
     /$
 }
 
