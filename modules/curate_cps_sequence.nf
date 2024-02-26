@@ -5,6 +5,8 @@ process CURATE_CPS_SEQUENCE {
     label 'cps_extractor_python_container'
     label 'farm_low_fallible'
 
+    errorStrategy 'ignore'
+
     tag "$sample_id"
 
     input:
