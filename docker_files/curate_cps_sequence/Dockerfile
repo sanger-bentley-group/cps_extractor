@@ -1,4 +1,4 @@
-FROM ubuntu:23.04
+FROM ubuntu:22.04
 
 RUN apt-get update -qq -y && apt-get upgrade -qq -y && \
     apt-get install -y  \
@@ -11,5 +11,5 @@ RUN apt-get update -qq -y && apt-get upgrade -qq -y && \
 
 COPY requirements.txt .
 
-RUN pip3 install -r requirements.txt --break-system-packages && \
+RUN pip3 install -r requirements.txt && \
     rm requirements.txt

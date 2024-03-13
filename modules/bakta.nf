@@ -7,12 +7,12 @@ process BAKTA {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(cps_sequence)
+    tuple val(sample_id), path(cps_sequence), val(reference)
     path(prodigal_training_file)
     path(bakta_db)
 
     output:
-    tuple val(sample_id), path(bakta_results), path(cps_sequence), emit: bakta_results_ch
+    tuple val(sample_id), path(bakta_results), path(cps_sequence), val(reference), emit: bakta_results_ch
 
     script:
     bakta_results="${sample_id}_bakta"

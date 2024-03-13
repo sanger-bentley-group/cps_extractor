@@ -1,0 +1,23 @@
+name,uniref_id,product,location,name_ref,uniref_id_ref,product_ref,location_ref,equal_gene
+cps2a,UniRef100_Q9AH98,"Anionic cell wall polymer biosynthesis enzyme TagV/TagU, LytR-Cps2A-Psr (LCP) family (peptidoglycan teichoic acid transferase)",[0:1446](+),cps2a,UniRef100_Q9AH98,"Anionic cell wall polymer biosynthesis enzyme TagV/TagU, LytR-Cps2A-Psr (LCP) family (peptidoglycan teichoic acid transferase)",[0:1446](+),Y
+cps4B,UniRef100_Q4K157,capsular polysaccharide biosynthesis protein Cps4B,[1447:2179](+),cps4B,UniRef100_Q4K157,capsular polysaccharide biosynthesis protein Cps4B,[1447:2179](+),Y
+cpsC,UniRef100_Q4K177,capsular polysaccharide biosynthesis protein CpsC,[2187:2880](+),cpsC,UniRef100_Q4K177,capsular polysaccharide biosynthesis protein CpsC,[2187:2880](+),Y
+cps4D,UniRef100_Q9AH95,capsular polysaccharide biosynthesis protein Cps4D,[2889:3573](+),cps4D,UniRef100_Q9AH95,capsular polysaccharide biosynthesis protein Cps4D,[2889:3573](+),Y
+unidentified,SO:0001217,Glucosyl-1-phosphate transferase,[3588:4956](+),unidentified,UniRef100_Q9AH94,Glucosyl-1-phosphate transferase,[3588:4956](+),Y
+unidentified,EC:2.4.1.-,Glycosyl transferase,[4986:6159](+),unidentified,UniRef100_Q9AH93,Cps23fF,[4986:6159](+),N
+unidentified,UniRef100_Q9AH92,Glycosyltransferase,[6155:7427](+),unidentified,UniRef100_Q9AH92,Glycosyltransferase,[6155:7427](+),Y
+unidentified,UniRef100_Q9AH91,Family 2 glycosyl transferase,[7444:8497](+),unidentified,UniRef100_Q9AH91,Family 2 glycosyl transferase,[7444:8497](+),Y
+unidentified,UniRef100_Q9AH90,Glycosyl transferase,[8502:9414](+),unidentified,UniRef100_Q9AH90,Glycosyl transferase,[8502:9414](+),Y
+unidentified,UniRef100_Q4K149,Flippase Wzx,[9425:10883](+),unidentified,UniRef100_Q4K149,Flippase Wzx,[9425:10883](+),Y
+unidentified,UniRef100_Q4K148,O-Antigen ligase,[10885:12160](+),unidentified,UniRef100_Q4K148,O-Antigen ligase,[10885:12160](+),Y
+unidentified,UniRef100_UPI0005E19987,acyltransferase family protein,[12213:12687](+),unidentified,NA,hypothetical protein,[12213:12384](+),N
+unidentified,NA,hypothetical protein,[12764:13058](+),unidentified,SO:0001217,acyltransferase,[12444:13215](+),N
+wchX,UniRef100_Q9AH86,Glycerol phosphotransferase WchX,[13209:14370](+),wchX,UniRef100_Q9AH86,Glycerol phosphotransferase WchX,[13211:14372](+),Y
+tagD,UniRef100_Q9AH85,glycerol-3-phosphate cytidylyltransferase,[14411:14804](+),tagD,UniRef100_Q9AH85,glycerol-3-phosphate cytidylyltransferase,[14413:14806](+),Y
+unidentified,UniRef100_A0A9P1QGJ7,Heme-based aerotactic transducer,[14900:15014](+),unidentified,UniRef100_A0A9P1QGJ7,Heme-based aerotactic transducer,[14902:15016](+),Y
+rfbA,UniRef100_Q9AH84,glucose-1-phosphate thymidylyltransferase RfbA,[15643:16513](+),rfbA,UniRef100_Q9AH84,glucose-1-phosphate thymidylyltransferase RfbA,[15645:16515](+),Y
+unidentified,UniRef100_Q9AH83,"dTDP-4-dehydrorhamnose 3,5-epimerase",[16513:17107](+),unidentified,UniRef100_Q9AH83,"dTDP-4-dehydrorhamnose 3,5-epimerase",[16515:17109](+),Y
+rfbB,UniRef100_Q9AH82,"dTDP-glucose 4,6-dehydratase",[17119:18169](+),rfbB,UniRef100_Q9AH82,"dTDP-glucose 4,6-dehydratase",[17121:18171](+),Y
+rfbD,UniRef100_Q9AH81,dTDP-4-dehydrorhamnose reductase,[18234:19086](+),rfbD,UniRef100_Q9AH81,dTDP-4-dehydrorhamnose reductase,[18236:19088](+),Y
+unidentified,UniRef100_A0A9Q9R4P9,UDP-galactopyranose mutase,[19255:19774](+),unidentified,UniRef100_A0A9Q9R4P9,UDP-galactopyranose mutase,[19257:19776](+),Y
+glf,UniRef100_Q4K161,UDP-galactopyranose mutase,[19746:20250](+),glf,UniRef100_Q4K161,UDP-galactopyranose mutase,[19748:20252](+),Y
