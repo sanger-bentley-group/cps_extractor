@@ -4,7 +4,7 @@ include { BLASTN } from "$projectDir/modules/blast"
 include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
 include { CURATE_CPS_SEQUENCE } from "$projectDir/modules/curate_cps_sequence"
 include { GAP_FILLER } from "$projectDir/modules/gap_filler"
-include { CHECK_GENE_ORDER; PANAROO_REF_COMPARISON } from "$projectDir/modules/panaroo"
+include { CHECK_GENE_ORDER; PANAROO_REF_COMPARISON; SNP_DISTS } from "$projectDir/modules/gene_comparison"
 include { SEROBA } from "$projectDir/modules/serotyping"
 
 
@@ -42,7 +42,9 @@ workflow PIPELINE {
 
         CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch )
 
+        CHECK_GENE_ORDER( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
+
         PANAROO_REF_COMPARISON( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
 
-        CHECK_GENE_ORDER( PANAROO_REF_COMPARISON.out.panaroo_results_ch, reference_db_ch.first() )
+        SNP_DISTS( PANAROO_REF_COMPARISON.out.gene_alignment_results.transpose() )
 }
