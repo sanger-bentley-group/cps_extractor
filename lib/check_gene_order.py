@@ -103,25 +103,26 @@ class CheckGeneOrder:
 
     def gene_comparison(self, combined_df: pd.DataFrame) -> pd.DataFrame:
         # direct gene content comparison
-        combined_df["equal_gene"] = "N"
+        comparison_df = combined_df.copy()
+        comparison_df["equal_gene"] = "N"
         # are the names and IDs identical?
-        combined_df.loc[
-            (combined_df["uniref_id"] == combined_df["uniref_id_ref"])
-            & (combined_df["uniref_id"] != "NA"),
+        comparison_df.loc[
+            (comparison_df["uniref_id"] == comparison_df["uniref_id_ref"])
+            & (comparison_df["uniref_id"] != "NA"),
             "equal_gene",
         ] = "Y"
         # are the products identical?
-        combined_df.loc[
-            (combined_df["product"] == combined_df["product_ref"]),
+        comparison_df.loc[
+            (comparison_df["product"] == comparison_df["product_ref"]),
             "equal_gene",
         ] = "Y"
         # if the genes are not the same, is the gene found elsewhere in the reference?
-        combined_df["gene_in_ref_and_sample"] = combined_df.apply(
-            self.check_gene_in_ref_and_sample, args=(combined_df,), axis=1
+        comparison_df["gene_in_ref_and_sample"] = comparison_df.apply(
+            self.check_gene_in_ref_and_sample, args=(comparison_df,), axis=1
         )
         # sanity check to ensure if the genes are equal it is always found in the ref
-        combined_df.loc[
-            combined_df["equal_gene"] == "Y",
+        comparison_df.loc[
+            comparison_df["equal_gene"] == "Y",
             "gene_in_ref_and_sample",
         ] = "Y"
-        return combined_df
+        return comparison_df
