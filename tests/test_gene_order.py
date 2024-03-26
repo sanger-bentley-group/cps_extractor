@@ -1,7 +1,7 @@
 import pytest
+import pandas as pd
 
 from lib.check_gene_order import CheckGeneOrder
-import pandas as pd
 
 
 @pytest.fixture
