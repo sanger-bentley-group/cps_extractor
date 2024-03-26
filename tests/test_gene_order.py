@@ -311,13 +311,6 @@ def test_gene_comparison(gene_checker, data_df):
     assert compared_df["gene_in_ref_and_sample"].iloc[0] == "Y"
 
 
-def test_gene_comparison(gene_checker, data_df):
-    first_row_df = data_df.head(1)
-    compared_df = gene_checker.gene_comparison(first_row_df)
-    assert compared_df["equal_gene"].iloc[0] == "Y"
-    assert compared_df["gene_in_ref_and_sample"].iloc[0] == "Y"
-
-
 def test_gene_comparison_full(gene_checker, data_df):
     compared_df = gene_checker.gene_comparison(data_df)
     assert compared_df["equal_gene"].iloc[12] == "N"
