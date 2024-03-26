@@ -24,12 +24,12 @@ def data_df():
 
 
 def test_sort_for_unifref100(gene_checker):
-    uniref_sorted = gene_checker.sort_for_uniref100("UniRef:UniRef100_A0A9Q9R4P9")
+    uniref_sorted = gene_checker.sort_for_uniref("UniRef:UniRef100_A0A9Q9R4P9")
     assert uniref_sorted == (0, "UniRef:UniRef100_A0A9Q9R4P9")
 
 
 def test_sort_for_unifref100_not_uniref(gene_checker):
-    uniref_sorted = gene_checker.sort_for_uniref100("blah")
+    uniref_sorted = gene_checker.sort_for_uniref("blah")
     assert uniref_sorted == (1, "blah")
 
 

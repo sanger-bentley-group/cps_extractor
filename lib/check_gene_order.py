@@ -9,8 +9,12 @@ class CheckGeneOrder:
         self.sample_annotation = sample_annotation
         self.reference_annotation = reference_annotation
 
-    def sort_for_uniref100(self, item: str) -> tuple:
+    def sort_for_uniref(self, item: str) -> tuple:
         if item.startswith("UniRef:UniRef100"):
+            return (0, item)
+        elif item.startswith("UniRef:UniRef90"):
+            return (0, item)
+        elif item.startswith("UniRef:UniRef50"):
             return (0, item)
         else:
             return (1, item)
@@ -30,7 +34,7 @@ class CheckGeneOrder:
                         try:
                             db_references = sorted(
                                 feature.qualifiers["Dbxref"],
-                                key=self.sort_for_uniref100,
+                                key=self.sort_for_uniref,
                             )
                             refseq_id = db_references[0].split("UniRef:")[-1]
                         except KeyError:
@@ -72,7 +76,6 @@ class CheckGeneOrder:
     def check_gene_in_ref_and_sample(
         self, row: pd.Series, combined_df: pd.DataFrame
     ) -> str:
-        print(row.to_list())
         # if the genes are not in the same order, is the gene somewhere else in the reference? (id)
         if row["uniref_id"] != row["uniref_id_ref"] and row["uniref_id"] != "NA":
             contains_ref = any(
@@ -90,6 +93,17 @@ class CheckGeneOrder:
                     ]
                 )
                 if contains_name:
+                    return "Y"
+                else:
+                    return "N"
+            # does the EXACT product appear elsewhere, assume same gene in such case - usually if name is "unidentified"
+            elif row["product"] != "NA" and row["product"] != "unidentified":
+                contains_product = any(
+                    combined_df[
+                        combined_df["product_ref"].str.contains(row["product"])
+                    ]["product_ref"]
+                )
+                if contains_product:
                     return "Y"
                 else:
                     return "N"
