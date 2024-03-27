@@ -1,6 +1,11 @@
 import pytest
 
-from lib.argparser import AnnotationParser, BlastParser, GapFillerParser
+from lib.argparser import (
+    AnnotationParser,
+    BlastParser,
+    GapFillerParser,
+    GeneOrderParser,
+)
 
 
 def test_annotation_args_valid():
@@ -212,3 +217,26 @@ def test_gap_filler_args_invalid_args():
     # Use pytest.raises to catch the argparse error when an invalid argument is provided
     with pytest.raises(SystemExit):
         GapFillerParser.parse_args(vargs)
+
+
+def test_gene_order_args_no_args():
+    # Test with no arguments
+    with pytest.raises(SystemExit):
+        GeneOrderParser.parse_args()
+
+
+def test_gene_order_args_invalid_args():
+    vargs = ["-x", "invalid_argument"]
+
+    # Use pytest.raises to catch the argparse error when an invalid argument is provided
+    with pytest.raises(SystemExit):
+        GeneOrderParser.parse_args(vargs)
+
+
+def test_gene_order_args_valid():
+    vargs = ["-i", "input.gff", "-r", "reference.gff", "-o", "output_folder"]
+    args = GeneOrderParser.parse_args(vargs)
+
+    assert args.input_annotation == "input.gff"
+    assert args.reference_annotation == "reference.gff"
+    assert args.output == "output_folder"

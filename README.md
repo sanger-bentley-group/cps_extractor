@@ -38,20 +38,25 @@ The current pipeline workflow is as follows:
 The pipeline takes S.pneumoniae reads and uses SeroBA to determine their serotype. It then assembles the reads using Shovill.
 Following this, a blast search is performed to compare the assembly to a database of reference CPS sequences.
 Python code is used to extract the CPS sequence with the best blast hit for the given serotype. 
-If any gaps are determined, these are filled in using a consensus sequence method. Finally, the CPS sequence is annotated using Bakta and checked for any disruptive mutations.
+If any gaps are determined, these are filled in using a consensus sequence method. The CPS sequence is annotated using Bakta and checked for any disruptive mutations.
+Finally, Panaroo is used to assess gene content difference for individual genes in the CPS sequence.
 
 ## Output
 Each sample will have its own results folder.
 
 For example the sample `15277_1#56`:
 ```
-15277_1#56
-├── 15277_1#56_blast_results.xml
-├── 15277_1#56_cps.fa
-├── 15277_1#56_cps.gff3
-├── 15277_1#56_cps_mutations.csv
-├── cps_extractor_2024-01-25-13:47.log
-└── seroba_serotype_report.csv
+11826_1#37
+├── 11826_1#37_blast_results.xml
+├── 11826_1#37_cps.fa
+├── 11826_1#37_cps.gff3
+├── 11826_1#37_cps_mutations.csv
+├── 11826_1#37_gene_comparison.csv
+├── cps_extractor_2024-03-27-10:23.log
+├── seroba_serotype_report.csv
+└── snp_dists
+    ├── cps4B_snp_dists.csv
+    ├── cps4D_snp_dists.csv
 ```
 
 Each results folder will contain the following:
@@ -61,6 +66,8 @@ Each results folder will contain the following:
   - Disruptive mutations file (`sample_cps_mutations.csv`)
   - A log file (`cps_extractor_YYYY_MM_DD_HH:SS.log`) containing the logs from the CPS extraction
   - A serotype report (`seroba_serotype_report.csv`)
+  - A gene comparison file (`sample_gene_comparison.csv`) showing any differences in gene order between the sample and reference
+  - A `snp_dists` folder which contains snp distance CSV files for each gene in the sample and reference CPS annotations
 
 &nbsp;
 # Usage

@@ -2,12 +2,8 @@ FROM ubuntu:22.04
 
 RUN apt-get update -qq -y && apt-get upgrade -qq -y && \
     apt-get install -y  \
-    bcftools \
-    bwa \
     python-is-python3 \
-    python3-pip \
-    samtools \
-    tabix && \
+    python3-pip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

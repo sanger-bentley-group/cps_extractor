@@ -12,7 +12,7 @@ process GAP_FILLER {
     path reference_database
 
     output:
-    tuple val(sample_id), path(cps_sequence), emit: gap_filled_ch
+    tuple val(sample_id), path(cps_sequence), env(reference), emit: gap_filled_ch
 
     script:
     read1="${reads[0]}"

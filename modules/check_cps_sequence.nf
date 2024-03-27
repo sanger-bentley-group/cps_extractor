@@ -8,10 +8,10 @@ process CHECK_CPS_SEQUENCE {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(bakta_results), path(cps_sequence)
+    tuple val(sample_id), path(bakta_results), path(cps_sequence), val(reference)
 
     output:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), emit: results_ch
+    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference), emit: results_ch
 
     script:
     annotation_file="${sample_id}_cps.gff3"
