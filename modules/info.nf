@@ -33,10 +33,12 @@ process TOOLS {
     val bedtools_version
     val blast_version
     val bwa_version
+    val panaroo_version
     val python_version
     val samtools_version
     val seroba_version
     val shovill_version
+    val snpdists_version
 
     output:
     path(json), emit: json
@@ -50,9 +52,11 @@ process TOOLS {
     BWA_VERSION="$bwa_version"
     SAMTOOLS_VERSION="$samtools_version"
     BLAST_VERSION="$blast_version"
+    PANAROO_VERSION="$panaroo_version"
     PYTHON_VERSION="$python_version"
     SEROBA_VERSION="$seroba_version"
     SHOVILL_VERSION="$shovill_version"
+    SNPDISTS_VERSION="$snpdists_version"
     JSON_FILE="$json"
                 
     source save_tools_info.sh
@@ -143,10 +147,12 @@ process PARSE {
         |${toolTextRow('Bedtools', 'bedtools')}
         |${toolTextRow('Blast', 'blast')}
         |${toolTextRow('BWA', 'bwa')}
+        |${toolTextRow('Panaroo', 'panaroo')}
         |${toolTextRow('python', 'python')}
         |${toolTextRow('SAMtools', 'samtools')}
         |${toolTextRow('SeroBA', 'seroba')}
         |${toolTextRow('Shovill', 'shovill')}
+        |${toolTextRow('SNP_Dists', 'snpdists')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
 
@@ -170,10 +176,13 @@ process PARSE {
         |${imageTextRow('Bakta', 'bakta')}
         |${imageTextRow('Bash', 'bash')}
         |${imageTextRow('Blast', 'blast')}
+        |${imageTextRow('Check Gene Content', 'check_gene_content')}
         |${imageTextRow('CPS extractor python', 'cps_extractor_python')}
         |${imageTextRow('Gap Filler', 'gap_filler')}
+        |${imageTextRow('Panaroo', 'panaroo')}
         |${imageTextRow('SeroBA', 'seroba')}
         |${imageTextRow('Shovill', 'shovill')}
+        |${imageTextRow('SNP_Dists', 'snp_dists')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
 }
@@ -275,6 +284,32 @@ process PYTHON_VERSION {
     $/
     VERSION=$(python3 --version | sed -r "s/.*\s(.+)/\1/")
     /$
+}
+
+process PANAROO_VERSION {
+    label 'panaroo_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(panaroo --version | awk '{ print $NF }')
+    '''
+}
+
+process SNP_DISTS_VERSION {
+    label 'snp_dists_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(snp-dists -v | awk '{ print $NF }')
+    '''
 }
 
 process BWA_VERSION {
