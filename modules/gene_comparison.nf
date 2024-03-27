@@ -14,13 +14,38 @@ process PANAROO_REF_COMPARISON {
 
     output:
     tuple val(sample_id), path(panaroo_results), val(reference), path(annotation_file), emit: panaroo_results_ch
-    tuple val(sample_id), path(gene_alignment_results), emit: gene_alignment_results
 
     script:
     panaroo_results="${sample_id}_panaroo_results"
-    gene_alignment_results="${sample_id}_panaroo_results/aligned_gene_sequences/*.fas"
     """
     panaroo -i ${annotation_file} ${reference_database}/annotation/${reference}.gff -o ${sample_id}_panaroo_results --clean-mode strict -a core
+    """
+}
+
+// Rename panaroo .aln files so they can be looked up in the annotation file
+process RENAME_PANAROO_ALIGNMENTS {
+
+    label 'bash_container'
+    label 'farm_low'
+
+    tag "$sample_id"
+
+    input:
+    tuple val(sample_id), path(panaroo_results), val(reference), path(annotation_file)
+
+    output:
+    tuple val(sample_id), path(gene_alignment_results), emit: gene_alignment_results
+
+    script:
+    gene_alignment_results="${sample_id}_panaroo_results/aligned_gene_sequences/*.fas"
+    """
+    GENE_DATA_FILE="${sample_id}_panaroo_results/gene_data.csv"
+    ALIGNMENT_FOLDER="${sample_id}_panaroo_results/aligned_gene_sequences"
+    SAMPLE="${sample_id}"
+    if compgen -G "${sample_id}_panaroo_results/aligned_gene_sequences/group_*" > /dev/null
+    then
+      source rename_snp_dists.sh
+    fi
     """
 }
 
