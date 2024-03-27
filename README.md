@@ -52,7 +52,7 @@ For example the sample `15277_1#56`:
 ├── 11826_1#37_cps.gff3
 ├── 11826_1#37_cps_mutations.csv
 ├── 11826_1#37_gene_comparison.csv
-├── cps_extractor_2024-03-27-10:23.log
+├── cps_extractor.log
 ├── seroba_serotype_report.csv
 └── snp_dists
     ├── cps4B_snp_dists.csv
@@ -64,7 +64,7 @@ Each results folder will contain the following:
   - The CPS sequence (`sample_cps.fa`)
   - The CPS annotation (`sample_cps.gff3`)
   - Disruptive mutations file (`sample_cps_mutations.csv`)
-  - A log file (`cps_extractor_YYYY_MM_DD_HH:SS.log`) containing the logs from the CPS extraction
+  - A log file (`cps_extractor.log`) containing the logs from the CPS extraction
   - A serotype report (`seroba_serotype_report.csv`)
   - A gene comparison file (`sample_gene_comparison.csv`) showing any differences in gene order between the sample and reference
   - A `snp_dists` folder which contains snp distance CSV files for each gene in the sample and reference CPS annotations
