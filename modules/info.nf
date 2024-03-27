@@ -176,6 +176,7 @@ process PARSE {
         |${imageTextRow('Bakta', 'bakta')}
         |${imageTextRow('Bash', 'bash')}
         |${imageTextRow('Blast', 'blast')}
+        |${imageTextRow('Check Gene Content', 'check_gene_content')}
         |${imageTextRow('CPS extractor python', 'cps_extractor_python')}
         |${imageTextRow('Gap Filler', 'gap_filler')}
         |${imageTextRow('Panaroo', 'panaroo')}
