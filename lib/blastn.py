@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import xml.etree.ElementTree as ET
 import logging
-import datetime
 
 logging.basicConfig(
-    filename=f"cps_extractor_{datetime.datetime.now().strftime('%Y-%m-%d %H:%M').replace(' ','-')}.log",
+    filename=f"cps_extractor.log",
     encoding="utf-8",
     level=logging.INFO,
 )
