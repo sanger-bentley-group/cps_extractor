@@ -3,7 +3,6 @@
 for f in ${ALIGNMENT_FOLDER}/group_*
 do
   marker=$(grep -w ${SAMPLE}_cps ${f} | awk -F ";" '{ print $NF }')
-  echo $marker
   # account for edge case where panaroo has found extra genes that are in the reference only
   # in this case the annotation ID from the reference is in the name rather than the sample
   if [[ ${marker} == *"refound"* ]]
