@@ -40,7 +40,7 @@ Following this, a blast search is performed to compare the assembly to a databas
 Python code is used to extract the CPS sequence with the best blast hit for the given serotype. 
 If any gaps are determined, these are filled in using a consensus sequence method. The CPS sequence is annotated using Bakta and checked for any disruptive mutations.
 Finally, Panaroo is used to assess gene content difference for individual genes in the CPS sequence.
-
+Optionally, if you know the serotype of your samples, serotyping via SeroBA is be skipped and a pangenome analysis of all your samples is performed 
 ## Output
 Each sample will have its own results folder.
 
@@ -69,6 +69,7 @@ Each results folder will contain the following:
   - A gene comparison file (`sample_gene_comparison.csv`) showing any differences in gene order between the sample and reference
   - A `snp_dists` folder which contains snp distance CSV files for each gene in the sample and reference CPS annotations
 
+If you run the pipeline using the `--serotype` argument, the pangenome analysis results will be in the `panaroo_pangenome_results` folder
 &nbsp;
 # Usage
 ## Requirements
