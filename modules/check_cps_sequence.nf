@@ -14,10 +14,9 @@ process CHECK_CPS_SEQUENCE {
     tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference), emit: results_ch
 
     script:
-    annotation_file="${sample_id}_cps.gff3"
+    annotation_file="${bakta_results}/${sample_id}_cps.gff3"
     mutation_file="${sample_id}_cps_mutations.csv"
     """
     check_cps_sequence.py -c ${cps_sequence} -b ${bakta_results}
-    mv ${bakta_results}/${sample_id}_cps.gff3 .
     """
 }
