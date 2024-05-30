@@ -22,6 +22,28 @@ process PANAROO_REF_COMPARISON {
     """
 }
 
+process PANAROO_ALL {
+    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "panaroo_pangenome_results"
+
+    label 'panaroo_container'
+    label 'farm_high'
+
+    input:
+    path annotations
+    path reference_database
+    val serotype
+
+    output:
+    path(panaroo_results)
+
+    script:
+    panaroo_results="panaroo_pangenome_results"
+    """
+    cp ${reference_database}/annotation/${serotype}.gff ${serotype}.gff3
+    panaroo -i *.gff3 -o panaroo_pangenome_results --clean-mode strict -a pan --threads 32
+    """
+}
+
 // Rename panaroo .aln files so they can be looked up in the annotation file
 process RENAME_PANAROO_ALIGNMENTS {
 
