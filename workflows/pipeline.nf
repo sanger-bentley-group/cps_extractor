@@ -15,6 +15,8 @@ workflow PIPELINE {
         blast_db = file( "${params.blastdb}.n*" )
         blast_db_ch = Channel.fromPath( blast_db )
 
+        results_dir_ch = Channel.fromPath( params.output )
+
         prodigal_training_file = Channel.fromPath( params.prodigal_training_file )
 
         bakta_db = Channel.fromPath( params.bakta_db )
@@ -34,13 +36,13 @@ workflow PIPELINE {
 
         BLASTN( assembly_ch, blast_db_ch.first() )
 
-        CURATE_CPS_SEQUENCE( BLASTN.out.blast_results_ch )
+        CURATE_CPS_SEQUENCE( BLASTN.out.blast_results_ch, results_dir_ch.first() )
 
         GAP_FILLER( CURATE_CPS_SEQUENCE.out.cps_sequence_ch, CURATE_CPS_SEQUENCE.out.log_ch, reference_db_ch.first() )
 
         BAKTA( GAP_FILLER.out.gap_filled_ch, prodigal_training_file.first(), bakta_db.first() )
 
-        CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch )
+        CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch, results_dir_ch.first() )
 
         CHECK_GENE_ORDER( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
 

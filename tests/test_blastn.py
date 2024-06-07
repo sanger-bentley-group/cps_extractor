@@ -145,7 +145,7 @@ def test_get_best_hit_empty_blast_result(blast, caplog):
         with caplog.at_level(logging.ERROR):
             blast.get_best_hit(empty_blast_results, serotype)
     assert (
-        "The blast results file is empty, please check your blast database and input sequence"
+        "The blast results contain no hits, please check your blast database and input sequence. Your input sequence may be a non encapsulated strain."
         in caplog.text
     )
     assert exit_info.value.code == 1

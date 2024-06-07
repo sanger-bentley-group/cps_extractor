@@ -7,8 +7,12 @@ from lib.annotation import Annotation
 
 @pytest.fixture
 def annotator():
-    annotator = Annotation("tests/test_data/test_cps.fa", "tests/test_data")
+    annotator = Annotation("tests/test_data/cps_seq.fa", "tests/test_data")
     return annotator
+
+
+def test_check_seq_length(annotator):
+    assert annotator.check_seq_length() == 14936
 
 
 def test_check_sequence_completeness_no_mutations(annotator):

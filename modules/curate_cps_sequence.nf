@@ -11,6 +11,7 @@ process CURATE_CPS_SEQUENCE {
 
     input:
     tuple val(sample_id), path(assembly), path(blast_results), val(serotype), path(reads)
+    val (results_dir)
 
     output:
     tuple val(sample_id), path(cps_sequence), path(reads), val(serotype), emit: cps_sequence_ch
@@ -30,10 +31,10 @@ process CURATE_CPS_SEQUENCE {
         if ! curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa -s \${sero_final}
         then
           echo "No cps sequence found for \${sero_final}, running without specifying the serotype, please check the log file for more information."
-          curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa
+          curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa || { cp cps_extractor.log ${results_dir}/${sample_id}; exit 1; }
         fi
     else
-        curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa
+        curate_cps_sequence.py -b ${blast_results} -o ${sample_id}_cps.fa || { cp cps_extractor.log ${results_dir}/${sample_id}; exit 1; }
     fi
     """
 }

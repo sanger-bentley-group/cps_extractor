@@ -77,7 +77,7 @@ class Blast:
         # basic check to see if there are any blast hits before running the code
         if len(final_blast_results) == 0:
             logging.error(
-                "The blast results file is empty, please check your blast database and input sequence"
+                "The blast results contain no hits, please check your blast database and input sequence. Your input sequence may be a non encapsulated strain."
             )
             raise SystemExit(1)
 
