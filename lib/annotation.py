@@ -13,6 +13,12 @@ class Annotation:
         self.bakta_outdir = bakta_outdir
         self.reference_basename = self.cps_fasta.split(".fa")[0]
 
+    def check_seq_length(self) -> int:
+        # basic check to see if the CPS sequence length is at least 10000 bases
+        sequence = SeqIO.parse(self.cps_fasta, "fasta")
+        for record in sequence:
+            return len(record.seq)
+
     def check_sequence_completeness(
         self, sequence: str, sequence_id: str
     ) -> (bool, str):
