@@ -1,6 +1,7 @@
 // Check CPS sequence for disruptive mutations
 process CHECK_CPS_SEQUENCE {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.{csv,gff3}"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.csv"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "**_cps.gff3", saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
 
     label 'cps_extractor_python_container'
     label 'farm_low_fallible'
