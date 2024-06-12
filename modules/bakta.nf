@@ -10,6 +10,7 @@ process BAKTA {
     tuple val(sample_id), path(cps_sequence), val(reference)
     path(prodigal_training_file)
     path(bakta_db)
+    path(reference_database)
 
     output:
     tuple val(sample_id), path(bakta_results), path(cps_sequence), val(reference), emit: bakta_results_ch
@@ -17,6 +18,6 @@ process BAKTA {
     script:
     bakta_results="${sample_id}_bakta"
     """
-    bakta --db ${bakta_db} -t ${params.bakta_threads} -o ${sample_id}_bakta --prodigal-tf ${prodigal_training_file} --skip-plot ${cps_sequence}
+    bakta --db ${bakta_db} -t ${params.bakta_threads} -o ${sample_id}_bakta --prodigal-tf ${prodigal_training_file} --proteins ${reference_database}/proteins/${reference}_proteins.txt --skip-plot ${cps_sequence}
     """
 }
