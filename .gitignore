@@ -9,3 +9,4 @@ venv*
 *.fai
 output
 cps_reference_database
+*.img
