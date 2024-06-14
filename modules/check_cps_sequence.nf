@@ -15,7 +15,7 @@ process CHECK_CPS_SEQUENCE {
     val(results_dir)
 
     output:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference), emit: results_ch
+    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference), path(cps_sequence), emit: results_ch
 
     script:
     annotation_file="${bakta_results}/${sample_id}_cps.gff3"

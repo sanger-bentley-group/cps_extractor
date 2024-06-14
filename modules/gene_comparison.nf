@@ -97,6 +97,7 @@ process SNP_DISTS {
     publishDir "${params.output}/${sample_id}/snp_dists", mode: 'copy', overwrite: true, pattern: "*.csv"
     label 'snp_dists_container'
     label 'farm_low'
+    label 'farm_scratchless'
 
     tag "$sample_id"
 

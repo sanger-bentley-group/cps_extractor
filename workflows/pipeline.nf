@@ -5,6 +5,7 @@ include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
 include { CURATE_CPS_SEQUENCE } from "$projectDir/modules/curate_cps_sequence"
 include { GAP_FILLER } from "$projectDir/modules/gap_filler"
 include { CHECK_GENE_ORDER; PANAROO_ALL; PANAROO_REF_COMPARISON; RENAME_PANAROO_ALIGNMENTS; SNP_DISTS } from "$projectDir/modules/gene_comparison"
+include { CREATE_PROTEIN_FILES; EXTRACT_PROTEIN_SEQUENCES } from "$projectDir/modules/proteins"
 include { SEROBA } from "$projectDir/modules/serotyping"
 
 
@@ -44,9 +45,15 @@ workflow PIPELINE {
 
         CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch, results_dir_ch.first() )
 
-        CHECK_GENE_ORDER( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
+        EXTRACT_PROTEIN_SEQUENCES( CHECK_CPS_SEQUENCE.out.results_ch )
 
-        PANAROO_REF_COMPARISON( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
+        CREATE_PROTEIN_FILES( EXTRACT_PROTEIN_SEQUENCES.out.proteins_ch )
+
+        CREATE_PROTEIN_FILES.out.proteins_ch.view()
+
+        CHECK_GENE_ORDER( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
+
+        PANAROO_REF_COMPARISON( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
 
         RENAME_PANAROO_ALIGNMENTS( PANAROO_REF_COMPARISON.out.panaroo_results_ch )
 
