@@ -40,11 +40,12 @@ Following this, a blast search is performed to compare the assembly to a databas
 Python code is used to extract the CPS sequence with the best blast hit for the given serotype. 
 If any gaps are determined, these are filled in using a consensus sequence method. The CPS sequence is annotated using Bakta and checked for any disruptive mutations.
 Finally, Panaroo is used to assess gene content difference for individual genes in the CPS sequence.
-Optionally, if you know the serotype of your samples, serotyping via SeroBA is skipped and a pangenome analysis of all your samples is performed using panaroo.
+Optionally, if you know the serotype of your samples, serotyping via SeroBA is skipped, a pangenome analysis of all your samples is performed using panaroo and all amino
+acid sequences for each gene will be concatenated for easy alignment and tree building.
 ## Output
 Each sample will have its own results folder.
 
-For example the sample `15277_1#56`:
+For example the sample `11826_1#37`:
 ```
 11826_1#37
 ├── 11826_1#37_blast_results.xml
@@ -54,6 +55,9 @@ For example the sample `15277_1#56`:
 ├── 11826_1#37_gene_comparison.csv
 ├── cps_extractor.log
 ├── seroba_serotype_report.csv
+├── proteins
+│   ├── 11826_1#37-cpsC_protein.fa
+│   ├── 11826_1#37-cpsD_protein.fa
 └── snp_dists
     ├── cps4B_snp_dists.csv
     ├── cps4D_snp_dists.csv
@@ -68,8 +72,9 @@ Each results folder will contain the following:
   - A serotype report (`seroba_serotype_report.csv`)
   - A gene comparison file (`sample_gene_comparison.csv`) showing any differences in gene order between the sample and reference
   - A `snp_dists` folder which contains snp distance CSV files for each gene in the sample and reference CPS annotations
+  - A `proteins` folder which contains the amino acid sequence for each gene in the sample
 
-If you run the pipeline using the `--serotype` argument, the pangenome analysis results will be in the `panaroo_pangenome_results` folder
+If you run the pipeline using the `--serotype` argument, the pangenome analysis results will be in the `panaroo_pangenome_results` folder and there will be a `proteins` folder containing amino acid sequences per gene for all samples
 &nbsp;
 # Usage
 ## Requirements
