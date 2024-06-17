@@ -3,6 +3,7 @@
 # script to create files containing amino acid sequences for each gene in the CPS region from gffread output file
 
 proteins_file=$1
+sample=$2
 
 # get unique ids
 ids=$(grep ">" ${proteins_file} | awk '{ print $1 }')
@@ -53,17 +54,17 @@ make_protein_files() {
       # otherwise, write the gene name and id in the filename for duplicate genes
       if [ "$match" -eq 0 ]
       then
-        echo ${identifier} > ${gene}_protein.fa
-        echo ${aa_seq} >> ${gene}_protein.fa
+        echo ${identifier} > ${sample}-${gene}_protein.fa
+        echo ${aa_seq} >> ${sample}-${gene}_protein.fa
       else
         id_str=$(echo ${id} | sed 's|>||g')
-        echo ${identifier} > ${gene}_${id_str}_protein.fa
-        echo ${aa_seq} >> ${gene}_${id_str}_protein.fa
+        echo ${identifier} > ${sample}-${gene}_${id_str}_protein.fa
+        echo ${aa_seq} >> ${sample}-${gene}_${id_str}_protein.fa
       fi
     else
       id_str=$(echo ${id} | sed 's|>||g')
-      echo ${identifier} > ${id_str}_protein.fa
-      echo ${aa_seq} >> ${id_str}_protein.fa
+      echo ${identifier} > ${sample}-${id_str}_protein.fa
+      echo ${aa_seq} >> ${sample}-${id_str}_protein.fa
     fi
   done
 }

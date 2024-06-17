@@ -39,6 +39,38 @@ process CREATE_PROTEIN_FILES {
 
     script:
     """
-    create_amino_acid_files.sh ${proteins_file}
+    create_amino_acid_files.sh ${proteins_file} ${sample_id}
+    """
+}
+
+// Extract protein sequences for each gene
+process CONCAT_PROTEIN_SEQUENCES {
+    publishDir "${params.output}/proteins", mode: 'copy', overwrite: true, pattern: "*.fasta"
+
+    label 'bash_container'
+    label 'farm_low'
+    label 'farm_scratchless'
+
+    tag "$protein_name"
+
+    input:
+    tuple val(protein_name), path(files)
+
+    output:
+    path("*.fasta")
+
+    script:
+
+    """
+    # reheader the protein files for the concatenated file to include the sample (rather than have the annotation as the header)
+    for f in *.fa
+    do
+      separator="-${protein_name}.fa"
+      echo \${separator}
+      sample=\$(echo \${f} | awk -v FS="\${separator}" '{ print \$1 }')
+      sed -i "1s/.*/>\${sample}/" \${f}
+    done
+
+    cat *.fa > ${protein_name}s.fasta
     """
 }
