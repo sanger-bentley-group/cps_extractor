@@ -3,7 +3,6 @@ process EXTRACT_PROTEIN_SEQUENCES {
 
     label 'gffread_container'
     label 'farm_low'
-    label 'farm_scratchless'
 
     tag "$sample_id"
 
@@ -27,7 +26,6 @@ process CREATE_PROTEIN_FILES {
 
     label 'bash_container'
     label 'farm_low'
-    label 'farm_scratchless'
 
     tag "$sample_id"
 
@@ -49,7 +47,6 @@ process CONCAT_PROTEIN_SEQUENCES {
 
     label 'bash_container'
     label 'farm_low'
-    label 'farm_scratchless'
 
     tag "$protein_name"
 
