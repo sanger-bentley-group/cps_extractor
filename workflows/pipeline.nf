@@ -49,13 +49,6 @@ workflow PIPELINE {
 
         CREATE_PROTEIN_FILES( EXTRACT_PROTEIN_SEQUENCES.out.proteins_ch )
 
-        proteins_ch = CREATE_PROTEIN_FILES.out.proteins_ch.collect()
-                                                          .flatten()
-                                                          .map { file -> tuple(file.baseName.split('-')[-1], file) }
-                                                          .groupTuple()
-
-        CONCAT_PROTEIN_SEQUENCES( proteins_ch )
-
         CHECK_GENE_ORDER( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
 
         PANAROO_REF_COMPARISON( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
@@ -68,5 +61,14 @@ workflow PIPELINE {
             // Collect all annotations and run panaroo on them
             annotation_ch = CHECK_CPS_SEQUENCE.out.results_ch.map { it -> it[1] }.collect()
             PANAROO_ALL( annotation_ch, reference_db_ch, params.serotype )
+
+            // Collect all protein sequences and concatenate them
+            proteins_ch = CREATE_PROTEIN_FILES.out.proteins_ch
+                                                              .collect()
+                                                              .flatten()
+                                                              .map { file -> tuple(file.baseName.split('-')[-1], file) }
+                                                              .groupTuple()
+                                                              
+            CONCAT_PROTEIN_SEQUENCES( proteins_ch )
         }
 }
