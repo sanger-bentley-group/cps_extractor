@@ -10,3 +10,6 @@ venv*
 output
 cps_reference_database
 *.img
+launch.json
+settings.json
+python3

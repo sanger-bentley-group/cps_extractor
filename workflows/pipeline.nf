@@ -5,6 +5,7 @@ include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
 include { CURATE_CPS_SEQUENCE } from "$projectDir/modules/curate_cps_sequence"
 include { GAP_FILLER } from "$projectDir/modules/gap_filler"
 include { CHECK_GENE_ORDER; PANAROO_ALL; PANAROO_REF_COMPARISON; RENAME_PANAROO_ALIGNMENTS; SNP_DISTS } from "$projectDir/modules/gene_comparison"
+include { CONCAT_PROTEIN_SEQUENCES; CREATE_PROTEIN_FILES; EXTRACT_PROTEIN_SEQUENCES } from "$projectDir/modules/proteins"
 include { SEROBA } from "$projectDir/modules/serotyping"
 
 
@@ -44,9 +45,13 @@ workflow PIPELINE {
 
         CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch, results_dir_ch.first() )
 
-        CHECK_GENE_ORDER( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
+        EXTRACT_PROTEIN_SEQUENCES( CHECK_CPS_SEQUENCE.out.results_ch )
 
-        PANAROO_REF_COMPARISON( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
+        CREATE_PROTEIN_FILES( EXTRACT_PROTEIN_SEQUENCES.out.proteins_ch )
+
+        CHECK_GENE_ORDER( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
+
+        PANAROO_REF_COMPARISON( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
 
         RENAME_PANAROO_ALIGNMENTS( PANAROO_REF_COMPARISON.out.panaroo_results_ch )
 
@@ -56,5 +61,14 @@ workflow PIPELINE {
             // Collect all annotations and run panaroo on them
             annotation_ch = CHECK_CPS_SEQUENCE.out.results_ch.map { it -> it[1] }.collect()
             PANAROO_ALL( annotation_ch, reference_db_ch, params.serotype )
+
+            // Collect all protein sequences and concatenate them
+            proteins_ch = CREATE_PROTEIN_FILES.out.proteins_ch
+                                                              .collect()
+                                                              .flatten()
+                                                              .map { file -> tuple(file.baseName.split('-')[-1], file) }
+                                                              .groupTuple()
+                                                              
+            CONCAT_PROTEIN_SEQUENCES( proteins_ch )
         }
 }
