@@ -15,10 +15,11 @@ process CHECK_CPS_SEQUENCE {
     val(results_dir)
 
     output:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference), path(cps_sequence), emit: results_ch
+    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference), path(cps_sequence), emit: results_ch
 
     script:
     annotation_file="${bakta_results}/${sample_id}_cps.gff3"
+    gb_file="${bakta_results}/${sample_id}_cps.gbff"
     mutation_file="${sample_id}_cps_mutations.csv"
     """
     # catch the sanity check for sequence length and append the error message to the log file

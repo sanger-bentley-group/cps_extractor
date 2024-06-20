@@ -111,3 +111,24 @@ process SNP_DISTS {
     snp-dists -c ${gene_alignment_file} > \${gene_name}_snp_dists.csv
     """
 }
+
+// Create a plot of gene alignments using clinker
+process CLINKER {
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.html"
+    label 'clinker_container'
+    label 'farm_low'
+    label 'farm_scratchless'
+
+    tag "$sample_id"
+
+    input:
+    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference)
+    path reference_database
+
+    output:
+    path("*.html")
+    script:
+    """
+    clinker ${reference_database}/genbank/${reference}.gb ${gb_file} -p ${sample_id}_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv
+    """
+}
