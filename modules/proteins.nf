@@ -7,7 +7,7 @@ process EXTRACT_PROTEIN_SEQUENCES {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference), path(cps_sequence)
+    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference), path(cps_sequence)
 
     output:
     tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference), emit: results_ch
