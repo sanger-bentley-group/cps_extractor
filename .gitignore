@@ -13,3 +13,5 @@ cps_reference_database
 launch.json
 settings.json
 python3
+*.e
+*.o
