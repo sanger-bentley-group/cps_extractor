@@ -10,6 +10,7 @@ stages:
 
 Pytest:
   stage: test
+  image: python:3.10
   only:
     - branches
   except:
