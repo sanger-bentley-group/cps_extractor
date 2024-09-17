@@ -229,7 +229,7 @@ If you run the pipeline using the `--serotype` argument, the pangenome analysis 
 
 
 ## Default database
-  The default database is stored at: https://github.com/Oliver-Lorenz-dev/cps_reference_database
+  The default database is stored at: https://gitlab.internal.sanger.ac.uk/sanger-bentley-group/cps_reference_database
   
 # Credits
   See [`Citations.MD`](CITATIONS.md) for the full list of citations.
