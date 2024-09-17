@@ -28,4 +28,4 @@ Pytest:
     - pip install -r requirements.txt
     - apt-get update -y
     - apt-get install -y bedtools
-    - python -m pytest --cov=lib --cov-fail-under=90 tests
+    - pytest --cov=lib --cov-fail-under=90 tests
