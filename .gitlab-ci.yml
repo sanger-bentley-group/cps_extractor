@@ -5,8 +5,18 @@ workflow:
     - when: always
 
 stages:
-
+  - format
   - test
+
+Check Black format:
+  stage: format
+  only:
+    - branches
+  except:
+    - tags
+  script:
+    - pip install black
+    - black . --check --diff --color
 
 Pytest:
   stage: test
