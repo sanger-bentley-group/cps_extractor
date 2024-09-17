@@ -20,7 +20,6 @@ Check Black format:
 
 Pytest:
   stage: test
-  image: python3.11
   only:
     - branches
   except:
