@@ -99,11 +99,11 @@ If you run the pipeline using the `--serotype` argument, the pangenome analysis 
 ## Setup 
 1. Clone the repository (if Git is installed on your system)
     ```
-    git clone https://github.com/sanger-bentley-group/cps_extractor.git
+    git clone https://gitlab.internal.sanger.ac.uk/sanger-bentley-group/cps_extractor.git
     ```
     or 
     
-    Download and unzip/extract the [latest release](https://github.com/sanger-bentley-group/cps_extractor/releases)
+    Download and unzip/extract the [latest release](https://gitlab.internal.sanger.ac.uk/sanger-bentley-group/cps_extractor/-/tags)
 2. Go into the local directory of the pipeline and it is ready to use without installation (the directory name might be different)
     ```
     cd cps_extractor
@@ -229,7 +229,7 @@ If you run the pipeline using the `--serotype` argument, the pangenome analysis 
 
 
 ## Default database
-  The default database is stored at: https://github.com/Oliver-Lorenz-dev/cps_reference_database
+  The default database is stored at: https://gitlab.internal.sanger.ac.uk/sanger-bentley-group/cps_reference_database
   
 # Credits
   See [`Citations.MD`](CITATIONS.md) for the full list of citations.
