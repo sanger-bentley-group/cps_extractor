@@ -65,7 +65,15 @@ class AnnotationParser:
             required=True,
             help="Path to bakta input folder",
         )
-
+        optional = parser.add_argument_group("optional")
+        optional.add_argument(
+            "-m",
+            "--min-length",
+            required=False,
+            help="Minimum length of CPS sequence to pass quality check",
+            default=8000,
+            type=int,
+        )
         args = parser.parse_args(vargs)
 
         return args

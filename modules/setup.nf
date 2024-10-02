@@ -18,7 +18,6 @@ process DOWNLOAD_REFERENCE_DATABASE {
        [ ! -f "${projectDir}/cps_reference_database/all.trn" ] || \
        [ ! compgen -G "${projectDir}/cps_reference_database/cps_blastdb*" > /dev/null ]; then
          git clone https://github.com/Oliver-Lorenz-dev/cps_reference_database.git
-         rm -rf cps_reference_database/.git
     fi    
     """
 }

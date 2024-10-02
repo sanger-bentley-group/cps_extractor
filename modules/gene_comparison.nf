@@ -136,7 +136,7 @@ process CLINKER {
 process CLINKER_ALL {
     publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "*.html"
     label 'clinker_container'
-    label 'farm_low'
+    label 'farm_high_slow'
 
     input:
     path(gb_files)
