@@ -10,6 +10,7 @@ validParams = [
     bakta_db: 'path_exist',
     blastdb: 'path_blast_db',
     input: 'path_exist',
+    minimum_cps_length: 'int',
     output: 'path',
     lite: 'boolean',
     reference_database: 'path_exist',

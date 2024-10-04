@@ -9,11 +9,12 @@ from lib.argparser import (
 
 
 def test_annotation_args_valid():
-    vargs = ["-c", "cps_file.txt", "-b", "bakta_input_folder"]
+    vargs = ["-c", "cps_file.txt", "-b", "bakta_input_folder", "-m", "8000"]
     args = AnnotationParser.parse_args(vargs)
 
     assert args.cps_sequence == "cps_file.txt"
     assert args.bakta_input == "bakta_input_folder"
+    assert args.min_length == 8000
 
 
 def test_annotation_args_missing_required_argument():

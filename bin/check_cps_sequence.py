@@ -17,7 +17,7 @@ def main(args):
 
     cps_seq_length = Annotator.check_seq_length()
     # basic sanity check to make sure there is a genuine blast hit to the reference DB
-    if cps_seq_length < 8000:
+    if cps_seq_length < args.min_length:
         logging.error(
             f"The CPS sequence length is unusually low ({cps_seq_length} bases), please check the blast results file you may have a non capsulated sample or a pneumo 'like' sample"
         )
