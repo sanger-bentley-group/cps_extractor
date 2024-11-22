@@ -223,7 +223,7 @@ If you run the pipeline using the `--serotype` argument, the pangenome analysis 
   | `--blastdb` | Any valid blast database path `.n*` <br />(Default: `$projectDir/cps_reference_database/cps_blastdb`| Path to blast database containing CPS references |
   | `--prodigal_training_file` | Any valid path containing a prodigal training file <br />(Default: `$projectDir/cps_reference_database/all.trn` | Training file for improved annotation |
   | `--bakta_db` | Any valid path containing a bakta database <br />(Default: `$projectDir/cps_reference_database/bakta_db`) | Path to bakta database used for annotation |
-  | `--bakta_threads` | Any valid integer value <br />(Default: 4) | Threads used for bakta annotation
+  | `--bakta_threads` | Any valid integer value <br />(Default: 32) | Threads used for bakta annotation
   | `--reference_database` | Any valid reference database path <br />(Default: `$projectDir/cps_reference_database`) | Full reference database used by the pipeline |
   | `--serotype` | Any valid serotype string <br />(Default: None) | Manually set the serotype of your input sequences instead of having it determined by SeroBA |  
   | `--minimum_cps_length` | Any valid integer value <br />(Default: 8000) | Minimum length of CPS sequence to pass quality control
