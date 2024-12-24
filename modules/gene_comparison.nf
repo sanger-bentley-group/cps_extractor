@@ -121,7 +121,7 @@ process CLINKER {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference)
+    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference), path(cps_sequence)
     path reference_database
 
     output:
