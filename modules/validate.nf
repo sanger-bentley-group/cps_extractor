@@ -5,6 +5,7 @@ validParams = [
     help: 'boolean',
     version: 'boolean',
     setup: 'boolean',
+    ariba_db: 'path',
     bakta_db_path: 'path',
     bakta_threads: 'int',
     bakta_db: 'path_exist',

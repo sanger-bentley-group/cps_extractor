@@ -49,6 +49,7 @@ Each sample will have its own results folder.
 For example the sample `11826_1#37`:
 ```
 11826_1#37
+├── ariba_report.tsv
 ├── 11826_1#37_blast_results.xml
 ├── 11826_1#37_cps.fa
 ├── 11826_1#37_cps.gff3
@@ -66,6 +67,7 @@ For example the sample `11826_1#37`:
 ```
 
 Each results folder will contain the following:
+  - Ariba report file (`ariba_report.tsv`)
   - Blast result XML file (`sample_blast_results.xml`)
   - The CPS sequence (`sample_cps.fa`)
   - The CPS annotation (`sample_cps.gff3`)

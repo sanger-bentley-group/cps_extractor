@@ -1,3 +1,4 @@
+include { ARIBA } from "$projectDir/modules/ariba"
 include { ASSEMBLY_SHOVILL } from "$projectDir/modules/assembly"
 include { BAKTA } from "$projectDir/modules/bakta"
 include { BLASTN } from "$projectDir/modules/blast"
@@ -13,6 +14,8 @@ include { SEROBA } from "$projectDir/modules/serotyping"
 workflow PIPELINE {
 
     main:
+        ariba_db = Channel.fromPath( params.ariba_db )
+
         blast_db = file( "${params.blastdb}.n*" )
         blast_db_ch = Channel.fromPath( blast_db )
 
@@ -33,6 +36,11 @@ workflow PIPELINE {
             reads_sero_ch = reads_ch.map { it -> it + "$params.serotype" }
         }
 
+        // Filter out non encapsulated strains before running ARIBA
+        ariba_ch = reads_sero_ch.filter { it[-1] != 'NA' && it[-1] && !it[-1].contains('NCC') && it[-1] != "untypable" }
+
+        ARIBA( ariba_ch, ariba_db.first() )
+        
         assembly_ch = ASSEMBLY_SHOVILL( reads_sero_ch, params.min_contig_length )
 
         BLASTN( assembly_ch, blast_db_ch.first() )

@@ -28,6 +28,7 @@ process TOOLS {
     label 'farm_low'
 
     input:
+    val ariba_version
     val bakta_version
     val bcftools_version
     val bedtools_version
@@ -46,6 +47,7 @@ process TOOLS {
     script:
     json='tools.json'
     """
+    ARIBA_VERSION="$ariba_version"
     BAKTA_VERSION="$bakta_version"
     BCFTOOLS_VERSION="$bcftools_version"
     BEDTOOLS_VERSION="$bedtools_version"
@@ -142,6 +144,7 @@ process PARSE {
         |╔════════════════════════════════╤════════════════════════════════════════════════════════════════╗
         |${textRow(30, 62, 'Tool', 'Version')}
         |╠════════════════════════════════╪════════════════════════════════════════════════════════════════╣
+        |${toolTextRow('ARIBA', 'ariba')}
         |${toolTextRow('Bakta', 'bakta')}
         |${toolTextRow('Bcftools', 'bcftools')}
         |${toolTextRow('Bedtools', 'bedtools')}
@@ -173,8 +176,10 @@ process PARSE {
         |╔════════════════════════════════╤════════════════════════════════════════════════════════════════╗
         |${textRow(30, 62, 'Environment For', 'Image')}
         |╠════════════════════════════════╪════════════════════════════════════════════════════════════════╣
+        |${imageTextRow('ARIBA', 'ariba')}
         |${imageTextRow('Bakta', 'bakta')}
         |${imageTextRow('Bash', 'bash')}
+        |${imageTextRow('Bedtools', 'bedtools')}
         |${imageTextRow('Blast', 'blast')}
         |${imageTextRow('Check Gene Content', 'check_gene_content')}
         |${imageTextRow('CPS extractor python', 'cps_extractor_python')}
@@ -272,6 +277,19 @@ process SAVE {
 }
 
 // Below processes get tool versions within container images by running their containers
+
+process ARIBA_VERSION {
+    label 'ariba_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(ariba version | head -1 | awk '{ print $NF }')
+    '''
+}
 
 process PYTHON_VERSION {
     label 'cps_extractor_python_container'
