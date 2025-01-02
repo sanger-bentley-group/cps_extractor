@@ -1,4 +1,4 @@
-include { ARIBA } from "$projectDir/modules/ariba"
+include { ARIBA; FIND_KEY_MUTATIONS } from "$projectDir/modules/ariba"
 include { ASSEMBLY_SHOVILL } from "$projectDir/modules/assembly"
 include { BAKTA } from "$projectDir/modules/bakta"
 include { BLASTN } from "$projectDir/modules/blast"
@@ -40,6 +40,8 @@ workflow PIPELINE {
         ariba_ch = reads_sero_ch.filter { it[-1] != 'NA' && it[-1] && !it[-1].contains('NCC') && it[-1] != "untypable" }
 
         ARIBA( ariba_ch, ariba_db.first() )
+
+        FIND_KEY_MUTATIONS( ARIBA.out.ariba_results_ch )
         
         assembly_ch = ASSEMBLY_SHOVILL( reads_sero_ch, params.min_contig_length )
 

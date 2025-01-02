@@ -12,7 +12,7 @@ process ARIBA {
     val(ariba_db)
 
     output:
-    path(ariba_report), emit: ariba_results_ch
+    tuple val(sample_id), path(ariba_report), emit: ariba_results_ch
 
     script:
     read1="${reads[0]}"
@@ -27,5 +27,28 @@ process ARIBA {
     fi
     ariba_db_full="${ariba_db}/\${ariba_sero}_ariba_db"
     ariba run \${ariba_db_full} ${read1} ${read2} ${sample_id}_ariba_results --threads 4
+    """
+}
+
+process FIND_KEY_MUTATIONS {
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "key_ariba_mutations.tsv"
+
+    label 'bash_container'
+    label 'farm_low'
+
+    tag "$sample_id"
+
+    input:
+    tuple val(sample_id), path(ariba_report)
+
+    output:
+    path(ariba_key_mutations), emit: ariba_mutations_ch
+
+    script:
+    ariba_key_mutations="key_ariba_mutations.tsv"
+    """
+    head -1 ${ariba_report} > key_ariba_mutations.tsv
+    # catch exit 1 - grep exits with code 1 if there is no match
+    grep -i -e "fshift" -e "trunc" -e "ins" -e "del" -e "indels" ${ariba_report} >> key_ariba_mutations.tsv || [[ \$? == 1 ]]
     """
 }
