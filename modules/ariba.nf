@@ -12,12 +12,13 @@ process ARIBA {
     val(ariba_db)
 
     output:
-    tuple val(sample_id), path(ariba_report), emit: ariba_results_ch
+    tuple val(sample_id), path(ariba_report), path(ariba_genes_file), emit: ariba_results_ch
 
     script:
     read1="${reads[0]}"
     read2="${reads[1]}"
     ariba_report="${sample_id}_ariba_results/report.tsv"
+    ariba_genes_file="${sample_id}_ariba_results/assembled_genes.fa.gz"
     """
     # strip genetic variant back down to serotype, probably make into python script so it is tidier at some point..
     serotype=\$(echo ${sero} | awk -F "/" '{ print \$1 }' | awk -F "-" '{ print \$1 }' | awk -F "(" '{ print \$NF }' | sed 's|)||g' | awk -F "_" '{ print \$1 }' | awk '{if (\$0 ~ /[a-zA-Z][0-9]\$/) sub(/[0-9]\$/, ""); print}' | sed 's|19AF|19F|g')
@@ -39,7 +40,7 @@ process FIND_KEY_MUTATIONS {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(ariba_report)
+    tuple val(sample_id), path(ariba_report), path(ariba_genes_file)
 
     output:
     path(ariba_key_mutations), emit: ariba_mutations_ch
@@ -50,5 +51,26 @@ process FIND_KEY_MUTATIONS {
     head -1 ${ariba_report} > key_ariba_mutations.tsv
     # catch exit 1 - grep exits with code 1 if there is no match
     grep -i -e "fshift" -e "trunc" -e "ins" -e "del" -e "indels" ${ariba_report} >> key_ariba_mutations.tsv || [[ \$? == 1 ]]
+    """
+}
+
+process CHECK_GENE_INTEGRITY {
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "gene_integrity.csv"
+
+    label 'bash_container'
+    label 'farm_low'
+
+    tag "$sample_id"
+
+    input:
+    tuple val(sample_id), path(ariba_report), path(ariba_genes_file)
+
+    output:
+    path(gene_integrity), emit: gene_integrity_ch
+
+    script:
+    gene_integrity="gene_integrity.csv"
+    """
+    check_gene_integrity.sh ${ariba_genes_file} ${ariba_report} > gene_integrity.csv
     """
 }
