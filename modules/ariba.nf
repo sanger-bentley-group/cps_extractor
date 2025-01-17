@@ -1,6 +1,6 @@
 // Run ARIBA to check for mutations in key cps genes
 process ARIBA {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, saveAs: { filename -> "ariba_report.tsv" }
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: '*/report.tsv', saveAs: { filename -> "ariba_report.tsv" }
 
     label 'ariba_container'
     label 'farm_mid'
@@ -44,13 +44,45 @@ process FIND_KEY_MUTATIONS {
 
     output:
     path(ariba_key_mutations), emit: ariba_mutations_ch
+    path(key_mutations_per_sample), emit: key_mutations_sample_ch, optional: true
 
     script:
     ariba_key_mutations="key_ariba_mutations.tsv"
+    key_mutations_per_sample="${sample_id}_key_ariba_mutations.tsv"
     """
     head -1 ${ariba_report} > key_ariba_mutations.tsv
     # catch exit 1 - grep exits with code 1 if there is no match
     grep -i -e "fshift" -e "trunc" -e "ins" -e "del" -e "indels" ${ariba_report} >> key_ariba_mutations.tsv || [[ \$? == 1 ]]
+    if [[ \$(wc -l <key_ariba_mutations.tsv) -gt 1 ]]
+    then
+      tail +2 key_ariba_mutations.tsv | sed "s|^|${sample_id}\t|g" > ${sample_id}_key_ariba_mutations.tsv
+    fi
+    """
+}
+
+process COLLECT_KEY_MUTATIONS {
+    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "key_ariba_mutations.tsv"
+
+    label 'bash_container'
+    label 'farm_low'
+
+    input:
+    path(mutations)
+
+    output:
+    path(ariba_key_mutations), emit: ariba_mutations_ch
+
+    script:
+    ariba_key_mutations="key_ariba_mutations.tsv"
+    """
+    echo -e "sample\tariba_ref_name\tref_name\tgene\tvar_only\tflag\
+    \treads\tcluster\tref_len\tref_base_assembled\tpc_ident\tctg\
+    \tctg_len\tctg_cov\tknown_var\tvar_type\tvar_seq_type\
+    \tknown_var_change\thas_known_var\tref_ctg_change\t\
+    ref_ctg_effect\tref_start\tref_end\tref_nt\tctg_start\
+    \tctg_end\tctg_nt\tsmtls_total_depth\tsmtls_nts\
+    \tsmtls_nts_depth\tvar_description\tfree_text" > key_ariba_mutations.tsv
+    cat *_key_ariba_mutations.tsv >> key_ariba_mutations.tsv
     """
 }
 
@@ -67,10 +99,37 @@ process CHECK_GENE_INTEGRITY {
 
     output:
     path(gene_integrity), emit: gene_integrity_ch
+    path(disrupted_genes), emit: disrupted_genes_ch, optional: true
 
     script:
     gene_integrity="gene_integrity.csv"
+    disrupted_genes="${sample_id}_disrupted_genes.csv"
     """
     check_gene_integrity.sh ${ariba_genes_file} ${ariba_report} > gene_integrity.csv
+    if grep -q ",disrupted" gene_integrity.csv
+    then
+      grep ",disrupted" gene_integrity.csv | awk -v sample="${sample_id}" '{print sample"," \$0}' >> ${sample_id}_disrupted_genes.csv
+    fi
     """
 }
+
+process COLLATE_DISRUPTED_GENES {
+    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "disrupted_genes.csv"
+
+    label 'bash_container'
+    label 'farm_low'
+
+    input:
+    path(disrupted_genes)
+
+    output:
+    path(disrupted_genes_file), emit: disrupted_genes_ch
+
+    script:
+    disrupted_genes_file="disrupted_genes.csv"
+    """
+    echo "sample,gene,gene_integrity" > disrupted_genes.csv
+    cat *_disrupted_genes.csv >> disrupted_genes.csv
+    """
+}
+

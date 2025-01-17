@@ -1,4 +1,4 @@
-include { ARIBA; CHECK_GENE_INTEGRITY; FIND_KEY_MUTATIONS } from "$projectDir/modules/ariba"
+include { ARIBA; CHECK_GENE_INTEGRITY; COLLATE_DISRUPTED_GENES; COLLECT_KEY_MUTATIONS; FIND_KEY_MUTATIONS } from "$projectDir/modules/ariba"
 include { ASSEMBLY_SHOVILL } from "$projectDir/modules/assembly"
 include { BAKTA } from "$projectDir/modules/bakta"
 include { BLASTN } from "$projectDir/modules/blast"
@@ -43,7 +43,15 @@ workflow PIPELINE {
 
         CHECK_GENE_INTEGRITY( ARIBA.out.ariba_results_ch )
 
+        disrupted_genes_ch = CHECK_GENE_INTEGRITY.out.disrupted_genes_ch.collect()
+
+        COLLATE_DISRUPTED_GENES(disrupted_genes_ch)
+
         FIND_KEY_MUTATIONS( ARIBA.out.ariba_results_ch )
+
+        key_mutations_ch = FIND_KEY_MUTATIONS.out.key_mutations_sample_ch.collect()
+
+        COLLECT_KEY_MUTATIONS( key_mutations_ch )
         
         assembly_ch = ASSEMBLY_SHOVILL( reads_sero_ch, params.min_contig_length )
 
