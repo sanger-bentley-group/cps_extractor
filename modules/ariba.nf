@@ -61,7 +61,7 @@ process FIND_KEY_MUTATIONS {
 }
 
 process COLLECT_KEY_MUTATIONS {
-    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "key_ariba_mutations.tsv"
+    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "key_ariba_mutations_all_samples.tsv"
 
     label 'bash_container'
     label 'farm_low'
@@ -73,7 +73,7 @@ process COLLECT_KEY_MUTATIONS {
     path(ariba_key_mutations), emit: ariba_mutations_ch
 
     script:
-    ariba_key_mutations="key_ariba_mutations.tsv"
+    ariba_key_mutations="key_ariba_mutations_all_samples.tsv"
     """
     echo -e "sample\tariba_ref_name\tref_name\tgene\tvar_only\tflag\
     \treads\tcluster\tref_len\tref_base_assembled\tpc_ident\tctg\
@@ -81,13 +81,13 @@ process COLLECT_KEY_MUTATIONS {
     \tknown_var_change\thas_known_var\tref_ctg_change\t\
     ref_ctg_effect\tref_start\tref_end\tref_nt\tctg_start\
     \tctg_end\tctg_nt\tsmtls_total_depth\tsmtls_nts\
-    \tsmtls_nts_depth\tvar_description\tfree_text" > key_ariba_mutations.tsv
-    cat *_key_ariba_mutations.tsv >> key_ariba_mutations.tsv
+    \tsmtls_nts_depth\tvar_description\tfree_text" > key_ariba_mutations_all_samples.tsv
+    cat *_key_ariba_mutations.tsv >> key_ariba_mutations_all_samples.tsv
     """
 }
 
 process CHECK_GENE_INTEGRITY {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "gene_integrity.csv"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "gene_integrity_all_samples.csv"
 
     label 'bash_container'
     label 'farm_low'
@@ -114,7 +114,7 @@ process CHECK_GENE_INTEGRITY {
 }
 
 process COLLATE_DISRUPTED_GENES {
-    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "disrupted_genes.csv"
+    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "disrupted_genes_all_samples.csv"
 
     label 'bash_container'
     label 'farm_low'
@@ -126,10 +126,10 @@ process COLLATE_DISRUPTED_GENES {
     path(disrupted_genes_file), emit: disrupted_genes_ch
 
     script:
-    disrupted_genes_file="disrupted_genes.csv"
+    disrupted_genes_file="disrupted_genes_all_samples.csv"
     """
-    echo "sample,gene,gene_integrity" > disrupted_genes.csv
-    cat *_disrupted_genes.csv >> disrupted_genes.csv
+    echo "sample,gene,gene_integrity" > disrupted_genes_all_samples.csv
+    cat *_disrupted_genes.csv >> disrupted_genes_all_samples.csv
     """
 }
 
