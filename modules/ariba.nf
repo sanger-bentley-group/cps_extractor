@@ -87,7 +87,7 @@ process COLLECT_KEY_MUTATIONS {
 }
 
 process CHECK_GENE_INTEGRITY {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "gene_integrity_all_samples.csv"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "gene_integrity.csv"
 
     label 'bash_container'
     label 'farm_low'
