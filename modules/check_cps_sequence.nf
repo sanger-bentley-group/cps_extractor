@@ -1,9 +1,7 @@
 // Check CPS sequence for disruptive mutations
 process CHECK_CPS_SEQUENCE {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.csv"
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "**_cps.gff3", saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-
-    label 'cps_extractor_python_container'
+    
+    label 'bash_container'
     label 'farm_low_fallible'
 
     errorStrategy 'ignore'
@@ -11,18 +9,20 @@ process CHECK_CPS_SEQUENCE {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(bakta_results), path(cps_sequence), val(reference)
-    val(results_dir)
+    tuple val(sample_id), path(cps_sequence), val(reference)
+    path(results_dir)
 
     output:
-    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference), path(cps_sequence), emit: results_ch
+    tuple val(sample_id), path(cps_sequence), val(reference), emit: results_ch
 
     script:
-    annotation_file="${bakta_results}/${sample_id}_cps.gff3"
-    gb_file="${bakta_results}/${sample_id}_cps.gbff"
-    mutation_file="${sample_id}_cps_mutations.csv"
     """
-    # catch the sanity check for sequence length and append the error message to the log file
-    check_cps_sequence.py -c ${cps_sequence} -b ${bakta_results} -m ${params.minimum_cps_length} || { cat cps_extractor.log >> ${results_dir}/${sample_id}/cps_extractor.log; exit 1; }
+    # check length of cps sequence is not unusually low before carrying on with the main pipeline
+    base_count=\$(grep -v ">" ${cps_sequence} | grep -o -e "A" -e "C" -e "G" -e "T" | wc -l)
+    if [ "\${base_count}" -lt "${params.minimum_cps_length}" ]
+    then
+      # echo "The CPS sequence length is unusually low ({cps_seq_length} bases), please check the blast results file you may have a non capsulated sample or a pneumo 'like' sample" >> ${results_dir}/${sample_id}/cps_extractor.log
+      exit 1
+    fi
     """
 }

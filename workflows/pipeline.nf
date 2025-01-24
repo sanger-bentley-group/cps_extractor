@@ -61,17 +61,17 @@ workflow PIPELINE {
 
         GAP_FILLER( CURATE_CPS_SEQUENCE.out.cps_sequence_ch, CURATE_CPS_SEQUENCE.out.log_ch, reference_db_ch.first() )
 
-        BAKTA( GAP_FILLER.out.gap_filled_ch, prodigal_training_file.first(), bakta_db.first(), reference_db_ch.first() )
+        CHECK_CPS_SEQUENCE( GAP_FILLER.out.gap_filled_ch, results_dir_ch.first() )
 
-        CHECK_CPS_SEQUENCE( BAKTA.out.bakta_results_ch, results_dir_ch.first() )
+        BAKTA( CHECK_CPS_SEQUENCE.out.results_ch, prodigal_training_file.first(), bakta_db.first(), reference_db_ch.first() )
 
-        EXTRACT_PROTEIN_SEQUENCES( CHECK_CPS_SEQUENCE.out.results_ch )
+        EXTRACT_PROTEIN_SEQUENCES( BAKTA.out.bakta_results_ch )
 
         CREATE_PROTEIN_FILES( EXTRACT_PROTEIN_SEQUENCES.out.proteins_ch )
 
         CHECK_GENE_ORDER( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
 
-        CLINKER( CHECK_CPS_SEQUENCE.out.results_ch, reference_db_ch.first() )
+        CLINKER( BAKTA.out.bakta_results_ch, reference_db_ch.first() )
 
         PANAROO_REF_COMPARISON( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
 
@@ -81,11 +81,11 @@ workflow PIPELINE {
 
         if ( params.serotype ) {
             // Collect all annotations and run panaroo on them
-            annotation_ch = CHECK_CPS_SEQUENCE.out.results_ch.map { it -> it[1] }.collect()
+            annotation_ch = BAKTA.out.bakta_results_ch.map { it -> it[3] }.collect()
             PANAROO_ALL( annotation_ch, reference_db_ch, params.serotype )
 
             // Collect all genbank files and generate plot using clinker
-            genbank_ch = CHECK_CPS_SEQUENCE.out.results_ch.map { it -> it[2] }.collect()
+            genbank_ch = CHECK_CPS_SEQUENCE.out.results_ch.map { it -> it[4] }.collect()
             CLINKER_ALL( genbank_ch, reference_db_ch, params.serotype )
 
             // Collect all protein sequences and concatenate them

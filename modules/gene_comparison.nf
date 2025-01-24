@@ -9,7 +9,7 @@ process PANAROO_REF_COMPARISON {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference)
+    tuple val(sample_id), path(annotation_file), val(reference)
     path reference_database
 
     output:
@@ -80,7 +80,7 @@ process CHECK_GENE_ORDER {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference)
+    tuple val(sample_id), path(annotation_file), val(reference)
     path reference_database
 
     output:
@@ -121,7 +121,7 @@ process CLINKER {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference), path(cps_sequence)
+    tuple val(sample_id), path(bakta_results), path(cps_sequence), path(annotation_file), path(gb_file), val(reference)
     path reference_database
 
     output:
