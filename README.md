@@ -55,7 +55,6 @@ For example the sample `11826_1#37`:
 ├── 11826_1#37_blast_results.xml
 ├── 11826_1#37_cps.fa
 ├── 11826_1#37_cps.gff3
-├── 11826_1#37_cps_mutations.csv
 ├── 11826_1#37_gene_comparison.csv
 ├── 11826_1#37_plot.html
 ├── cps_extractor.log
@@ -73,7 +72,6 @@ Each results folder will contain the following:
   - Blast result XML file (`sample_blast_results.xml`)
   - The CPS sequence (`sample_cps.fa`)
   - The CPS annotation (`sample_cps.gff3`)
-  - Disruptive mutations file (`sample_cps_mutations.csv`)
   - A log file (`cps_extractor.log`) containing the logs from the CPS extraction
   - A gene integrity file (`gene_integrity.csv`) which shows which genes (if any) contain disruptive mutations
   - Key mutations file (`key_ariba_mutations.tsv`) containing potentially important mutations in the cps genes (e.g frameshift mutations)
