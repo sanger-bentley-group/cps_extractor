@@ -1,5 +1,5 @@
 process GAP_FILLER {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*_cps.fa"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*_cps.fa", saveAs: { filename -> "${sample_id}_cps.fa" }
 
     label 'gap_filler_container'
     label 'farm_mid'
@@ -12,11 +12,12 @@ process GAP_FILLER {
     path reference_database
 
     output:
-    tuple val(sample_id), path(cps_sequence), env(reference), emit: gap_filled_ch
+    tuple val(sample_id), path(final_cps), env(reference), emit: gap_filled_ch
 
     script:
     read1="${reads[0]}"
     read2="${reads[1]}"
+    final_cps="${sample_id}_full_cps.fa"
     """
     reference=\$(grep -i -v error $log_file | head -1 | awk -F ":" '{ print \$9 }' | awk -F "," '{ print \$1 }' | sed "s|'||g" | sed 's| ||g')
     grep -i -v error $log_file | head -1 > blast_results.log
@@ -26,8 +27,10 @@ process GAP_FILLER {
     if [ -e "gap_filled_seq.fa" ]
     then
         tail -n +2 gap_filled_seq.fa > tmp.fa
-        echo -e ">${sample_id}_cps" > ${cps_sequence}
-        cat tmp.fa >> ${cps_sequence}
+        echo -e ">${sample_id}_cps" > ${final_cps}
+        cat tmp.fa >> ${final_cps}
+    else
+        cp ${cps_sequence} ${final_cps}
     fi
     """
 }
