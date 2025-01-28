@@ -20,7 +20,8 @@ process CHECK_CPS_SEQUENCE {
     script:
     """
     # check length of cps sequence is not unusually low before carrying on with the main pipeline
-    base_count=\$(grep -v ">" ${cps_sequence} | grep -o -e "A" -e "C" -e "G" -e "T" | wc -l)
+    base_count=\$(grep -v ">" ${cps_sequence} | grep -o -E "A|C|G|T" | wc -l)
+    echo \${base_count}
     if [ "\${base_count}" -lt "${params.minimum_cps_length}" ]
     then
       echo -e "The CPS sequence length is unusually low (\${base_count} bases), please check the blast results file you may have a non capsulated sample or a pneumo 'like' sample" >> ${results_dir}/${sample_id}/cps_extractor.log

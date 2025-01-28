@@ -85,7 +85,7 @@ workflow PIPELINE {
             PANAROO_ALL( annotation_ch, reference_db_ch, params.serotype )
 
             // Collect all genbank files and generate plot using clinker
-            genbank_ch = CHECK_CPS_SEQUENCE.out.results_ch.map { it -> it[4] }.collect()
+            genbank_ch = BAKTA.out.bakta_results_ch.map { it -> it[4] }.collect()
             CLINKER_ALL( genbank_ch, reference_db_ch, params.serotype )
 
             // Collect all protein sequences and concatenate them
