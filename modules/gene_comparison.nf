@@ -115,6 +115,7 @@ process SNP_DISTS {
 // Create a plot of gene alignments using clinker
 process CLINKER {
     publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.html"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "**_cps.gff3", saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
     label 'clinker_container'
     label 'farm_low'
 
@@ -126,6 +127,8 @@ process CLINKER {
 
     output:
     path("*.html")
+    path(annotation_file)
+
     script:
     """
     clinker ${reference_database}/genbank/${reference}.gb ${gb_file} -p ${sample_id}_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv
