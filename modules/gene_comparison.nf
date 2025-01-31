@@ -9,7 +9,7 @@ process PANAROO_REF_COMPARISON {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference)
+    tuple val(sample_id), path(annotation_file), val(reference)
     path reference_database
 
     output:
@@ -80,7 +80,7 @@ process CHECK_GENE_ORDER {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(mutation_file), val(reference)
+    tuple val(sample_id), path(annotation_file), val(reference)
     path reference_database
 
     output:
@@ -115,17 +115,20 @@ process SNP_DISTS {
 // Create a plot of gene alignments using clinker
 process CLINKER {
     publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "*.html"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "**_cps.gff3", saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
     label 'clinker_container'
     label 'farm_low'
 
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(annotation_file), path(gb_file), path(mutation_file), val(reference), path(cps_sequence)
+    tuple val(sample_id), path(bakta_results), path(cps_sequence), path(annotation_file), path(gb_file), val(reference)
     path reference_database
 
     output:
     path("*.html")
+    path(annotation_file)
+
     script:
     """
     clinker ${reference_database}/genbank/${reference}.gb ${gb_file} -p ${sample_id}_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv

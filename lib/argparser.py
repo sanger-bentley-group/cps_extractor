@@ -45,40 +45,6 @@ class BlastParser:
         return args
 
 
-class AnnotationParser:
-    @classmethod
-    def parse_args(cls, vargs=None):
-        parser = argparse.ArgumentParser(
-            description=__doc__,
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        )
-        required = parser.add_argument_group("required")
-        required.add_argument(
-            "-c",
-            "--cps-sequence",
-            required=True,
-            help="Path to cps sequence file",
-        )
-        required.add_argument(
-            "-b",
-            "--bakta-input",
-            required=True,
-            help="Path to bakta input folder",
-        )
-        optional = parser.add_argument_group("optional")
-        optional.add_argument(
-            "-m",
-            "--min-length",
-            required=False,
-            help="Minimum length of CPS sequence to pass quality check",
-            default=8000,
-            type=int,
-        )
-        args = parser.parse_args(vargs)
-
-        return args
-
-
 class GapFillerParser:
     @classmethod
     def parse_args(cls, vargs=None):

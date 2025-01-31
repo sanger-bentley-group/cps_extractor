@@ -1,34 +1,10 @@
 import pytest
 
 from lib.argparser import (
-    AnnotationParser,
     BlastParser,
     GapFillerParser,
     GeneOrderParser,
 )
-
-
-def test_annotation_args_valid():
-    vargs = ["-c", "cps_file.txt", "-b", "bakta_input_folder", "-m", "8000"]
-    args = AnnotationParser.parse_args(vargs)
-
-    assert args.cps_sequence == "cps_file.txt"
-    assert args.bakta_input == "bakta_input_folder"
-    assert args.min_length == 8000
-
-
-def test_annotation_args_missing_required_argument():
-    vargs = ["-c", "cps_file.txt"]
-
-    with pytest.raises(SystemExit):
-        AnnotationParser.parse_args(vargs)
-
-
-def test_annotation_args_invalid_args():
-    vargs = ["-c", "cps_file.txt", "-b", "bakta_input_folder", "--custom", "value"]
-
-    with pytest.raises(SystemExit):
-        AnnotationParser.parse_args(vargs)
 
 
 def test_blast_args_valid():
