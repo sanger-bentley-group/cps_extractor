@@ -169,13 +169,22 @@ def test_filter_consensus_seq(gap_filler):
 
 
 def test_fill_sequence_gap(gap_filler):
+    hits_list = [
+        {
+            "hit_start": 1,
+            "hit_end": 5094,
+            "hit_frame": 1,
+        },
+        {
+            "hit_start": 7590,
+            "hit_end": 10563,
+            "hit_frame": 1,
+        },
+    ]
     cps_seq = "AAACCCTTTGGG"
     gap_fill_seq = "GGG"
     gaps = [{3: 7}]
-    full_seq = gap_filler.fill_sequence_gap(cps_seq, gap_fill_seq, gaps, 0, 0)
+    full_seq = gap_filler.fill_sequence_gap(
+        cps_seq, gap_fill_seq, gaps, 0, 0, hits_list
+    )
     assert full_seq == "AAAGGGCCCTTTGGG"
-
-
-### missing unit tests for functions which call external programs (bwa, samtools)
-### these functions probably will change when the gap filling code is integrated into the main pipeline
-### if they don't, write some tests!

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import xml.etree.ElementTree as ET
 import logging
+import difflib
 
 logging.basicConfig(
     filename=f"cps_extractor.log",
@@ -173,60 +174,59 @@ class Blast:
 
         return blast_hits_dict
 
+    def join_overlap_sequences(self, s1: str, s2: str) -> str:
+        # blast hit positions are not always accurate, check if the sequences overlap with difflib
+        s1_end = str(s1[(len(s1) - 200) :])
+        s2_start = str(s2[:200])
+
+        # find the best sequence match between sequences
+        s = difflib.SequenceMatcher(None, s1_end, s2_start, autojunk=False)
+        pos_a, pos_b, size = s.find_longest_match(0, len(s1_end), 0, len(s2_start))
+        print(pos_a, pos_b, size)
+        best_overlap = s1_end[pos_a : pos_a + size]
+        print(best_overlap)
+        # if the best match is at the start of the second sequence, remove it so not to duplicate the sequence
+        if best_overlap == s2[: len(best_overlap)] and len(best_overlap) >= 5:
+            s2 = s2[len(best_overlap) :]
+
+        # join the sequences
+        joined_sequence = s1 + s2
+        return joined_sequence
+
     def curate_sequence(self, sorted_data: list) -> str:
         # curate blast sequence from final blast results
-        # if sequences don't overlap, join them together
-        # if sequences do overlap, prioritise the match from the sequence with the higher length in overlapping regions
+        # if there are more than 3 separate blast hits, the CPS sequence will not be constructed due to data quality issues in the assembly
         logging.info(sorted_data)
         seq = str()
         if len(sorted_data) == 0:
-            logging.error("No blast hits found, please check the blast XML file")
+            logging.error(
+                "No blast hits were found for the CPS region, please check the blast results file for more information.\
+                 You may have a non encapsulated strain of S.pneumoniae"
+            )
             raise SystemExit(1)
         elif len(sorted_data) == 1:
             seq = sorted_data[0]["seq"]
+        elif len(sorted_data) == 2:
+            seq = self.join_overlap_sequences(
+                sorted_data[0]["seq"], sorted_data[1]["seq"]
+            )
+            logging.info(
+                "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            )
+        elif len(sorted_data) == 3:
+            seq_1 = self.join_overlap_sequences(
+                sorted_data[0]["seq"], sorted_data[1]["seq"]
+            )
+            seq = self.join_overlap_sequences(seq_1, sorted_data[2]["seq"])
+            logging.info(
+                "Warning: The CPS sequence for this sample is fragmented across 3 contigs - there may be a data quality issue"
+            )
         else:
-            for i in range(0, (len(sorted_data) - 1)):
-                if i == 0:
-                    if self.check_partial_overlap(sorted_data[i], sorted_data[i + 1]):
-                        if int(sorted_data[i]["seq_length"]) > int(
-                            sorted_data[i + 1]["seq_length"]
-                        ):
-                            seq += sorted_data[i]["seq"]
-                            overlap_index = (
-                                1
-                                + int(sorted_data[i]["hit_end"])
-                                - int(sorted_data[i + 1]["hit_start"])
-                            )
-                            seq += sorted_data[i + 1]["seq"][overlap_index::]
-                        else:
-                            seq += sorted_data[i]["seq"][
-                                0 : int((sorted_data[i + 1]["hit_start"]) - 1)
-                            ]
-                            seq += sorted_data[i + 1]["seq"]
-                    else:
-                        seq += sorted_data[i]["seq"]
-                        seq += sorted_data[i + 1]["seq"]
-                else:
-                    if self.check_partial_overlap(sorted_data[i], sorted_data[i + 1]):
-                        if int(sorted_data[i]["seq_length"]) > int(
-                            sorted_data[i + 1]["seq_length"]
-                        ):
-                            overlap_index = (
-                                1
-                                + int(sorted_data[i]["hit_end"])
-                                - int(sorted_data[i + 1]["hit_start"])
-                            )
-                            seq += sorted_data[i + 1]["seq"][overlap_index::]
-                        else:
-                            overlap_index = int(sorted_data[i]["hit_end"]) - int(
-                                sorted_data[i + 1]["hit_start"]
-                            )
-                            print(overlap_index)
-                            seq = seq[:-overlap_index]
-                            seq += sorted_data[i + 1]["seq"]
-
-                    else:
-                        seq += sorted_data[i + 1]["seq"]
+            logging.error(
+                f"There are a large number of blast hits for the CPS region ({len(sorted_data)} hits),\
+            please check the quality of your input data"
+            )
+            raise SystemExit(1)
 
         # remove gaps and Ns
         seq = seq.replace("-", "")

@@ -440,77 +440,16 @@ def test_curate_sequence_empty_results(blast, caplog):
     with pytest.raises(SystemExit) as exit_info:
         with caplog.at_level(logging.ERROR):
             blast.curate_sequence(empty_results)
-    assert "No blast hits found, please check the blast XML file" in caplog.text
+    assert (
+        "No blast hits were found for the CPS region, please check the blast results file for more information.\
+                 You may have a non encapsulated strain of S.pneumoniae"
+        in caplog.text
+    )
     assert exit_info.value.code == 1
 
 
-def test_curate_sequence_1_hit(blast, blast_result_1_hit_reverse):
-    sequence = blast.curate_sequence(blast_result_1_hit_reverse)
-    assert sequence == blast_result_1_hit_reverse[0]["seq"]
-
-
-def test_curate_sequence_2_hit_no_overlap(blast):
-    non_overlapping_blast_results = [
-        {
-            "hit_start": 1,
-            "hit_end": 10,
-            "seq_length": 9,
-            "seq": "ATATAGTAA",
-        },
-        {
-            "hit_start": 20,
-            "hit_end": 33,
-            "seq_length": 13,
-            "seq": "CAATAATGTCACG",
-        },
-    ]
-
-    sequence = blast.curate_sequence(non_overlapping_blast_results)
-    assert sequence == "ATATAGTAACAATAATGTCACG"
-
-
-def test_curate_sequence_2_hit_overlap(blast):
-    overlapping_blast_results = [
-        {
-            "hit_start": 1,
-            "hit_end": 10,
-            "seq_length": 9,
-            "seq": "ATATAGTAA",
-        },
-        {
-            "hit_start": 8,
-            "hit_end": 21,
-            "seq_length": 13,
-            "seq": "CAATAATGTCACG",
-        },
-    ]
-
-    sequence = blast.curate_sequence(overlapping_blast_results)
-    assert sequence == "ATATAGTCAATAATGTCACG"
-
-
-def test_curate_sequence_2_hit_overlap_reverse(blast):
-    overlapping_blast_results = [
-        {
-            "hit_start": 1,
-            "hit_end": 21,
-            "seq_length": 13,
-            "seq": "CAATAATGTCACG",
-        },
-        {
-            "hit_start": 20,
-            "hit_end": 29,
-            "seq_length": 9,
-            "seq": "ATATAGTAA",
-        },
-    ]
-
-    sequence = blast.curate_sequence(overlapping_blast_results)
-    assert sequence == "CAATAATGTCACGATAGTAA"
-
-
-def test_curate_sequence_3_hit_overlap(blast):
-    overlapping_blast_results = [
+def test_curate_sequence_fragmented_assembly(blast, caplog):
+    fragmented_blast_results = [
         {
             "hit_start": 1,
             "hit_end": 10,
@@ -529,13 +468,133 @@ def test_curate_sequence_3_hit_overlap(blast):
             "seq_length": 3,
             "seq": "CAA",
         },
+        {
+            "hit_start": 27,
+            "hit_end": 30,
+            "seq_length": 3,
+            "seq": "CAA",
+        },
+    ]
+    with pytest.raises(SystemExit) as exit_info:
+        with caplog.at_level(logging.ERROR):
+            blast.curate_sequence(fragmented_blast_results)
+    assert (
+        "There are a large number of blast hits for the CPS region (4 hits),            please check the quality of your input data\n"
+        in caplog.text
+    )
+    assert exit_info.value.code == 1
+
+
+def test_curate_sequence_1_hit(blast, blast_result_1_hit_reverse):
+    sequence = blast.curate_sequence(blast_result_1_hit_reverse)
+    assert sequence == blast_result_1_hit_reverse[0]["seq"]
+
+
+def test_curate_sequence_2_hit_no_overlap(blast, caplog):
+    non_overlapping_blast_results = [
+        {
+            "hit_start": 1,
+            "hit_end": 10,
+            "seq_length": 9,
+            "seq": "ATATAGTAA",
+        },
+        {
+            "hit_start": 20,
+            "hit_end": 33,
+            "seq_length": 13,
+            "seq": "CAATAATGTCACG",
+        },
     ]
 
-    sequence = blast.curate_sequence(overlapping_blast_results)
-    assert sequence == "ATATAGTCAATAATGTCACGAA"
+    with caplog.at_level(logging.INFO):
+        sequence = blast.curate_sequence(non_overlapping_blast_results)
+        assert sequence == "ATATAGTAACAATAATGTCACG"
+        assert (
+            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            in caplog.text
+        )
 
 
-def test_curate_sequence_3_hit_overlap_reverse(blast):
+def test_curate_sequence_2_hit_overlap(blast, caplog):
+    overlapping_blast_results = [
+        {
+            "hit_start": 1,
+            "hit_end": 10,
+            "seq_length": 9,
+            "seq": "ATATAGTAA",
+        },
+        {
+            "hit_start": 8,
+            "hit_end": 21,
+            "seq_length": 13,
+            "seq": "CAATAATGTCACG",
+        },
+    ]
+    with caplog.at_level(logging.INFO):
+        sequence = blast.curate_sequence(overlapping_blast_results)
+        assert sequence == "ATATAGTAACAATAATGTCACG"
+        assert (
+            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            in caplog.text
+        )
+
+
+def test_curate_sequence_2_hit_overlap_reverse(blast, caplog):
+    overlapping_blast_results = [
+        {
+            "hit_start": 1,
+            "hit_end": 21,
+            "seq_length": 13,
+            "seq": "CAATAATGTCACG",
+        },
+        {
+            "hit_start": 20,
+            "hit_end": 29,
+            "seq_length": 9,
+            "seq": "AAAAAAAAAA",
+        },
+    ]
+
+    with caplog.at_level(logging.INFO):
+        sequence = blast.curate_sequence(overlapping_blast_results)
+        assert sequence == "CAATAATGTCACGAAAAAAAAAA"
+        assert (
+            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            in caplog.text
+        )
+
+
+def test_curate_sequence_3_hit_overlap(blast, caplog):
+    overlapping_blast_results = [
+        {
+            "hit_start": 1,
+            "hit_end": 10,
+            "seq_length": 9,
+            "seq": "ATATAGTAA",
+        },
+        {
+            "hit_start": 8,
+            "hit_end": 21,
+            "seq_length": 13,
+            "seq": "AAAAAAAAA",
+        },
+        {
+            "hit_start": 21,
+            "hit_end": 23,
+            "seq_length": 3,
+            "seq": "CAA",
+        },
+    ]
+    with caplog.at_level(logging.INFO):
+        sequence = blast.curate_sequence(overlapping_blast_results)
+        assert sequence == "ATATAGTAAAAAAAAAAACAA"
+        assert (
+            "Warning: The CPS sequence for this sample is fragmented across 3 contigs - there may be a data quality issue"
+            in caplog.text
+        )
+
+
+def test_curate_sequence_3_hit_overlap_reverse(blast, caplog):
     overlapping_blast_results = [
         {
             "hit_start": 1,
@@ -557,11 +616,16 @@ def test_curate_sequence_3_hit_overlap_reverse(blast):
         },
     ]
 
-    sequence = blast.curate_sequence(overlapping_blast_results)
-    assert sequence == "ATATAGTAACTTTTAATGTCACG"
+    with caplog.at_level(logging.INFO):
+        sequence = blast.curate_sequence(overlapping_blast_results)
+        assert sequence == "ATATAGTAACAATTTTAATGTCACG"
+        assert (
+            "Warning: The CPS sequence for this sample is fragmented across 3 contigs - there may be a data quality issue"
+            in caplog.text
+        )
 
 
-def test_curate_sequence_3_hit_2_overlap(blast):
+def test_curate_sequence_3_hit_2_overlap(blast, caplog):
     overlapping_blast_results = [
         {
             "hit_start": 1,
@@ -583,11 +647,12 @@ def test_curate_sequence_3_hit_2_overlap(blast):
         },
     ]
 
-    sequence = blast.curate_sequence(overlapping_blast_results)
-    assert sequence == "ATATAGTAACAATTTTAATGTCACG"
+    with caplog.at_level(logging.INFO):
+        sequence = blast.curate_sequence(overlapping_blast_results)
+        assert sequence == "ATATAGTAACAATTTTAATGTCACG"
 
 
-def test_curate_sequence_remove_n_gaps(blast):
+def test_curate_sequence_remove_n_gaps(blast, caplog):
     non_overlapping_blast_results = [
         {
             "hit_start": 1,
@@ -602,9 +667,13 @@ def test_curate_sequence_remove_n_gaps(blast):
             "seq": "CAA-AATGT-ACG",
         },
     ]
-
-    sequence = blast.curate_sequence(non_overlapping_blast_results)
-    assert sequence == "ATATATAACAAAATGTACG"
+    with caplog.at_level(logging.INFO):
+        sequence = blast.curate_sequence(non_overlapping_blast_results)
+        assert sequence == "ATATATAACAAAATGTACG"
+        assert (
+            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            in caplog.text
+        )
 
 
 def test_write_fasta(blast, tmp_path):
