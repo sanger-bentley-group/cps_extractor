@@ -99,15 +99,6 @@ class GapFillerParser:
             type=int,
         )
 
-        optional.add_argument(
-            "-m",
-            "--minimum-reads",
-            required=False,
-            help="Minimum number of mapped reads required to fill gap",
-            default=500,
-            type=int,
-        )
-
         args = parser.parse_args(vargs)
 
         return args

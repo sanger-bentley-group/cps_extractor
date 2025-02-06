@@ -17,9 +17,11 @@ def check_gaps(args, gap_filler) -> list:
 def fill_gaps(args, gap_filler, gaps_to_fill):
     gap_length = 0
     gap_added = 0
+    hits_list = gap_filler.read_hits_list()
     print(f"filling gaps: {gaps_to_fill}")
     for i in range(0, len(gaps_to_fill)):
         gap_length = gap_filler.get_gap_length(gaps_to_fill[i])
+        min_reads = int(gap_length / 15)
         reference = gap_filler.get_sequence(gap_filler.reference)
         ref_to_map = gap_filler.subset_reference(reference, gaps_to_fill[i])
         gap_filler.write_subset_file(ref_to_map)
@@ -27,7 +29,7 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
         bam_file = gap_filler.filter_mapping(sam_file)
         # check there is a useful number of reads from mapping before proceeding to assembly
         print(f"read count: {gap_filler.count_reads_bam(bam_file)}")
-        if gap_filler.count_reads_bam(bam_file) < args.minimum_reads:
+        if gap_filler.count_reads_bam(bam_file) < min_reads:
             print(f"Too few reads for {gaps_to_fill[i]}")
             continue
 
@@ -53,7 +55,7 @@ def fill_gaps(args, gap_filler, gaps_to_fill):
             cps_seq = gap_filler.get_sequence("gap_filled_seq.fa")
 
         gap_fill_seq = gap_filler.fill_sequence_gap(
-            cps_seq, gap_filling_seq, gaps_to_fill, i, gap_added
+            cps_seq, gap_filling_seq, gaps_to_fill, i, gap_added, hits_list
         )
 
         gap_added += len(str(gap_filling_seq))

@@ -77,8 +77,6 @@ def test_gap_filler_args_valid():
         "input_cps_sequence.txt",
         "-g",
         "150",
-        "-m",
-        "75",
     ]
     args = GapFillerParser.parse_args(vargs)
 
@@ -89,7 +87,6 @@ def test_gap_filler_args_valid():
     assert args.reference == "reference.fasta"
     assert args.input_sequence == "input_cps_sequence.txt"
     assert args.gap_length == 150
-    assert args.minimum_reads == 75
 
 
 def test_gap_filler_args_missing_required_argument():
@@ -106,8 +103,6 @@ def test_gap_filler_args_missing_required_argument():
         "reference.fasta",
         "-g",
         "150",
-        "-m",
-        "75",
     ]
 
     # Use pytest.raises to catch the argparse error when a required argument is missing
@@ -133,7 +128,6 @@ def test_gap_filler_args_default_values():
     args = GapFillerParser.parse_args(vargs)
 
     assert args.gap_length == 100
-    assert args.minimum_reads == 500
 
 
 def test_gap_filler_args_invalid_gap_length():
@@ -155,29 +149,6 @@ def test_gap_filler_args_invalid_gap_length():
     ]
 
     # Use pytest.raises to catch the argparse error when an invalid value is provided for gap_length
-    with pytest.raises(SystemExit):
-        GapFillerParser.parse_args(vargs)
-
-
-def test_gap_filler_args_invalid_minimum_reads():
-    vargs = [
-        "-l",
-        "cps_extractor.log",
-        "-a",
-        "reference_annotation.gff",
-        "-r1",
-        "read1.fastq",
-        "-r2",
-        "read2.fastq",
-        "-r",
-        "reference.fasta",
-        "-i",
-        "input_cps_sequence.txt",
-        "-m",
-        "invalid_value",
-    ]
-
-    # Use pytest.raises to catch the argparse error when an invalid value is provided for minimum_reads
     with pytest.raises(SystemExit):
         GapFillerParser.parse_args(vargs)
 

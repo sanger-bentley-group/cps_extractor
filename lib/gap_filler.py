@@ -185,11 +185,18 @@ class GapFiller:
         gap_data: list,
         iteration: int,
         seq_added: int,
+        hits_list: dict,
     ) -> str:
         filled_seq = str()
         for k, v in gap_data[iteration].items():
             # remove any trailing sequence if the sequence is longer than the gap
-            ref_seq_start = seq_to_fill[0 : (k + seq_added)]
-            ref_seq_end = seq_to_fill[(k + seq_added) :]
+            if hits_list[0]["hit_start"] > 1:
+                ref_seq_start = seq_to_fill[
+                    0 : (k + seq_added - hits_list[0]["hit_start"])
+                ]
+                ref_seq_end = seq_to_fill[(k + seq_added - hits_list[0]["hit_start"]) :]
+            else:
+                ref_seq_start = seq_to_fill[0 : (k + seq_added)]
+                ref_seq_end = seq_to_fill[(k + seq_added) :]
             filled_seq = f"{ref_seq_start}{gap_seq}{ref_seq_end}"
         return filled_seq
