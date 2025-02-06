@@ -182,9 +182,8 @@ class Blast:
         # find the best sequence match between sequences
         s = difflib.SequenceMatcher(None, s1_end, s2_start, autojunk=False)
         pos_a, pos_b, size = s.find_longest_match(0, len(s1_end), 0, len(s2_start))
-        print(pos_a, pos_b, size)
         best_overlap = s1_end[pos_a : pos_a + size]
-        print(best_overlap)
+
         # if the best match is at the start of the second sequence, remove it so not to duplicate the sequence
         if best_overlap == s2[: len(best_overlap)] and len(best_overlap) >= 5:
             s2 = s2[len(best_overlap) :]
