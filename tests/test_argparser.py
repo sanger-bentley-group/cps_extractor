@@ -4,6 +4,7 @@ from lib.argparser import (
     BlastParser,
     GapFillerParser,
     GeneOrderParser,
+    NewSerotypeParser,
 )
 
 
@@ -188,3 +189,26 @@ def test_gene_order_args_valid():
     assert args.input_annotation == "input.gff"
     assert args.reference_annotation == "reference.gff"
     assert args.output == "output_folder"
+
+
+def test_new_serotype_args_no_args():
+    # Test with no arguments
+    with pytest.raises(SystemExit):
+        NewSerotypeParser.parse_args()
+
+
+def test_new_serotype_args_invalid_args():
+    vargs = ["-x", "invalid_argument"]
+
+    # Use pytest.raises to catch the argparse error when an invalid argument is provided
+    with pytest.raises(SystemExit):
+        NewSerotypeParser.parse_args(vargs)
+
+
+def test_new_serotype_args_valid():
+    vargs = ["-s", "11A", "-d", "disrupted_genes.csv", "-k", "known_disruptions.csv"]
+    args = NewSerotypeParser.parse_args(vargs)
+
+    assert args.serotype == "11A"
+    assert args.disrupted_genes == "disrupted_genes.csv"
+    assert args.known_disruptions == "known_disruptions.csv"
