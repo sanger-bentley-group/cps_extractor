@@ -712,3 +712,17 @@ def test_parse_blast_results_dev(blast, overlapping_blast_results):
             "e_value": 0.0,
         },
     ]
+
+
+def test_join_overlap_sequences_no_overlap(blast):
+    seq1 = "AAAAAAAAAAAAAA"
+    seq2 = "TTTTTTTTTTTTTT"
+    joined_seq = blast.join_overlap_sequences(seq1, seq2)
+    assert joined_seq == "AAAAAAAAAAAAAATTTTTTTTTTTTTT"
+
+
+def test_join_overlap_sequences_overlap(blast):
+    seq1 = "AAAAAAAAAAAAAA"
+    seq2 = "AAAAAAATTTTTTTT"
+    joined_seq = blast.join_overlap_sequences(seq1, seq2)
+    assert joined_seq == "AAAAAAAAAAAAAATTTTTTTT"

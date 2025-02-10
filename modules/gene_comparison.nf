@@ -136,6 +136,24 @@ process CLINKER {
 }
 
 // Create a plot of gene alignments using clinker
+process FIND_POTENTIAL_NEW_SEROTYPES {
+    label 'check_gene_content_container'
+    label 'farm_low'
+
+    input:
+    path(disrupted_genes_file)
+    path(reference_database)
+
+    output:
+    path("potential_new_serotypes.txt"), emit: new_sero_ch
+
+    script:
+    """
+    check_new_serotype.py -s ${params.serotype} -k ${reference_database}/disrupted_genes.csv -d ${disrupted_genes_file} > potential_new_serotypes.txt
+    """
+}
+
+// Create a plot of gene alignments using clinker
 process CLINKER_ALL {
     publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "*.html"
     label 'clinker_container'
@@ -144,12 +162,18 @@ process CLINKER_ALL {
     input:
     path(gb_files)
     path(reference_database)
-    val reference
+    val(reference)
+    path(disrupted_sample_list)
 
     output:
-    path("*.html")
+    path("*.html"), optional: true
     script:
     """
-    clinker ${reference_database}/genbank/${reference}.gb *.gbff -p plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv
+    if [[ -s "${disrupted_sample_list}" ]]
+    then
+        sample_list=\$(cat potential_new_serotypes.txt | sed 's|\$|_cps.gbff|g')
+        echo \${sample_list}
+        clinker ${reference_database}/genbank/${reference}.gb \${sample_list} -p potential_new_serotypes_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv
+    fi
     """
 }

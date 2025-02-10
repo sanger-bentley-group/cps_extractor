@@ -134,3 +134,40 @@ class GeneOrderParser:
         args = parser.parse_args(vargs)
 
         return args
+
+
+class NewSerotypeParser:
+    @classmethod
+    def parse_args(cls, vargs=None):
+        parser = argparse.ArgumentParser(
+            description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
+        required = parser.add_argument_group("required")
+        required.add_argument(
+            "-s",
+            "--serotype",
+            required=True,
+            help="Serotype of your samples",
+            type=str,
+        )
+
+        required.add_argument(
+            "-d",
+            "--disrupted-genes",
+            required=True,
+            help="Disrupted genes file of your samples",
+            type=str,
+        )
+
+        required.add_argument(
+            "-k",
+            "--known-disruptions",
+            required=True,
+            help="File containing known disrupted genes",
+            type=str,
+        )
+
+        args = parser.parse_args(vargs)
+
+        return args
