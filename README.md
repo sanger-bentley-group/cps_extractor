@@ -42,7 +42,7 @@ If any gaps are determined, these are filled in using a consensus sequence metho
 A gene comparison plot for each sample versus the reference is made using clinker.
 Finally, Panaroo is used to assess gene content difference for individual genes in the CPS sequence.
 Optionally, if you know the serotype of your samples, serotyping via SeroBA is skipped, a pangenome analysis of all your samples is performed using panaroo and all amino
-acid sequences for each gene will be concatenated for easy alignment and tree building. Additionally, a gene comparison plot will be generated for all samples using clinker.
+acid sequences for each gene will be concatenated for easy alignment and tree building. Additionally, a gene comparison plot will be generated for samples containing disruptive mutations using clinker.
 ## Output
 Each sample will have its own results folder.
 
