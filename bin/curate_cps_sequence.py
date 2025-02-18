@@ -4,7 +4,7 @@ from lib.argparser import BlastParser
 
 
 def main(args):
-    blast = Blast(args.blast_results_file, args.hit_length)
+    blast = Blast(args.blast_results_file, args.assembly, args.hit_length)
 
     blast_results = blast.parse_blast_results()
 

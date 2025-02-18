@@ -2,6 +2,8 @@
 import xml.etree.ElementTree as ET
 import logging
 import difflib
+from Bio import SeqIO
+from Bio.Seq import Seq
 
 logging.basicConfig(
     filename=f"cps_extractor.log",
@@ -11,8 +13,9 @@ logging.basicConfig(
 
 
 class Blast:
-    def __init__(self, blast_results_file: str, hit_length: int):
+    def __init__(self, blast_results_file: str, assembly_file: str, hit_length: int):
         self.blast_results_file = blast_results_file
+        self.assembly_file = assembly_file
         self.hit_length = hit_length
 
     def parse_blast_results(self) -> list:
@@ -107,7 +110,7 @@ class Blast:
 
             for result in final_blast_results:
                 if best_serotype in result["hit_def"] and result["e_value"] < float(
-                    10**-50
+                    10**-1
                 ):
                     best_serotype_results.append(result)
 
@@ -192,11 +195,72 @@ class Blast:
         joined_sequence = s1 + s2
         return joined_sequence
 
+    def are_hits_same_contig(self, blast_results: list) -> bool:
+        results_length = len(blast_results)
+        if results_length == 2:
+            if blast_results[0]["query_id"] == blast_results[1]["query_id"]:
+                return True
+        if results_length == 3:
+            if (
+                blast_results[0]["query_id"] == blast_results[1]["query_id"]
+                and blast_results[1]["query_id"] == blast_results[2]["query_id"]
+            ):
+                return True
+        return False
+
+    def join_truncated_sequence(
+        self, start_seq: str, end_seq: str, query_id: str, hit_orientation: int
+    ) -> str:
+        start_seq = start_seq.replace("-", "")
+        end_seq = end_seq.replace("-", "")
+        # join up truncated sequences using the assembly (gene insertions come up as multiple blast hits to same contig)
+        for record in SeqIO.parse(self.assembly_file, "fasta"):
+            if hit_orientation == 1:
+                seq = str(record.seq)
+                start_index = seq.find(start_seq[:100])
+                end_index = seq.find(
+                    end_seq[(len(end_seq) - 100) :], start_index + len(start_seq)
+                )
+                end_index += 100
+                if record.name == query_id.split(" ")[0]:
+                    break
+            elif hit_orientation == -1:
+                seq = str(record.seq)
+                start_seq_rc = str(Seq(start_seq).reverse_complement())
+                end_seq_rc = str(Seq(end_seq).reverse_complement())
+                start_index = seq.find(end_seq_rc[:100])
+                end_index = seq.find(
+                    start_seq_rc[(len(start_seq_rc) - 100) :],
+                    start_index + len(end_seq_rc),
+                )
+                end_index += 100
+                if record.name == query_id.split(" ")[0]:
+                    break
+            else:
+                return str()
+
+        if start_index != -1 and end_index != -1:
+            if hit_orientation == 1:
+                extracted_region = seq[start_index:end_index]
+                # create an empty file to show gap is filled
+                with open("gap_filled", "w") as fp:
+                    pass
+                return extracted_region
+            else:
+                extracted_region = seq[start_index:end_index]
+                # create an empty file to show gap is filled
+                with open("gap_filled", "w") as fp:
+                    pass
+                return str(Seq(extracted_region).reverse_complement())
+
+        return str()
+
     def curate_sequence(self, sorted_data: list) -> str:
         # curate blast sequence from final blast results
         # if there are more than 3 separate blast hits, the CPS sequence will not be constructed due to data quality issues in the assembly
         logging.info(sorted_data)
         seq = str()
+        seq_1 = str()
         if len(sorted_data) == 0:
             logging.error(
                 "No blast hits were found for the CPS region, please check the blast results file for more information.\
@@ -206,19 +270,43 @@ class Blast:
         elif len(sorted_data) == 1:
             seq = sorted_data[0]["seq"]
         elif len(sorted_data) == 2:
-            seq = self.join_overlap_sequences(
-                sorted_data[0]["seq"], sorted_data[1]["seq"]
-            )
+            if self.are_hits_same_contig(sorted_data):
+                seq = self.join_truncated_sequence(
+                    sorted_data[0]["seq"],
+                    sorted_data[1]["seq"],
+                    sorted_data[0]["query_id"],
+                    sorted_data[0]["hit_frame"],
+                )
+            if not seq:
+                seq = self.join_overlap_sequences(
+                    sorted_data[0]["seq"], sorted_data[1]["seq"]
+                )
             logging.info(
-                "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+                "Warning: The CPS sequence for this sample is fragmented across 2 blast hits - there may be a data quality issue"
             )
         elif len(sorted_data) == 3:
-            seq_1 = self.join_overlap_sequences(
-                sorted_data[0]["seq"], sorted_data[1]["seq"]
-            )
-            seq = self.join_overlap_sequences(seq_1, sorted_data[2]["seq"])
+            if self.are_hits_same_contig(sorted_data[:2]):
+                seq_1 = self.join_truncated_sequence(
+                    sorted_data[0]["seq"],
+                    sorted_data[1]["seq"],
+                    sorted_data[0]["query_id"],
+                    sorted_data[0]["hit_frame"],
+                )
+            if not seq_1:
+                seq_1 = self.join_overlap_sequences(
+                    sorted_data[0]["seq"], sorted_data[1]["seq"]
+                )
+            if self.are_hits_same_contig(sorted_data[1:3]):
+                seq = self.join_truncated_sequence(
+                    seq_1,
+                    sorted_data[2]["seq"],
+                    sorted_data[2]["query_id"],
+                    sorted_data[2]["hit_frame"],
+                )
+            if not seq:
+                seq = self.join_overlap_sequences(seq_1, sorted_data[2]["seq"])
             logging.info(
-                "Warning: The CPS sequence for this sample is fragmented across 3 contigs - there may be a data quality issue"
+                "Warning: The CPS sequence for this sample is fragmented across 3 blast hits - there may be a data quality issue"
             )
         else:
             logging.error(

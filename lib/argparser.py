@@ -11,6 +11,13 @@ class BlastParser:
         )
         required = parser.add_argument_group("required")
         required.add_argument(
+            "-a",
+            "--assembly",
+            required=True,
+            help="Path to assembly file",
+        )
+
+        required.add_argument(
             "-b",
             "--blast-results-file",
             required=True,

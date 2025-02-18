@@ -1,5 +1,6 @@
 import pytest
 import logging
+import os
 
 from lib.blastn import Blast
 
@@ -7,13 +8,17 @@ from lib.blastn import Blast
 @pytest.fixture
 def blast():
     # this blast fixture has a truncated sequence in it for readability
-    blast_tester = Blast("tests/test_data/blast_1_hit.xml", 2500)
+    blast_tester = Blast(
+        "tests/test_data/blast_1_hit.xml", "tests/test_data/ref.fa", 2500
+    )
     return blast_tester
 
 
 @pytest.fixture
 def blast_real_results():
-    real_blast = Blast("tests/test_data/real_blast_results.xml", 2500)
+    real_blast = Blast(
+        "tests/test_data/real_blast_results.xml", "tests/test_data/ref.fa", 2500
+    )
     result = real_blast.parse_blast_results()
     result_no_sequence = real_blast.parse_blast_results_dev(result)
     return result_no_sequence
@@ -22,7 +27,9 @@ def blast_real_results():
 @pytest.fixture
 def blast_2_hits():
     # this blast fixture has a truncated sequence in it for readability
-    blast_tester = Blast("tests/test_data/blast_2_hits.xml", 2500)
+    blast_tester = Blast(
+        "tests/test_data/blast_2_hits.xml", "tests/test_data/ref.fa", 2500
+    )
     return blast_tester
 
 
@@ -497,12 +504,14 @@ def test_curate_sequence_2_hit_no_overlap(blast, caplog):
             "hit_end": 10,
             "seq_length": 9,
             "seq": "ATATAGTAA",
+            "query_id": "1",
         },
         {
             "hit_start": 20,
             "hit_end": 33,
             "seq_length": 13,
             "seq": "CAATAATGTCACG",
+            "query_id": "2",
         },
     ]
 
@@ -510,7 +519,7 @@ def test_curate_sequence_2_hit_no_overlap(blast, caplog):
         sequence = blast.curate_sequence(non_overlapping_blast_results)
         assert sequence == "ATATAGTAACAATAATGTCACG"
         assert (
-            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            "Warning: The CPS sequence for this sample is fragmented across 2 blast hits - there may be a data quality issue"
             in caplog.text
         )
 
@@ -522,19 +531,21 @@ def test_curate_sequence_2_hit_overlap(blast, caplog):
             "hit_end": 10,
             "seq_length": 9,
             "seq": "ATATAGTAA",
+            "query_id": "1",
         },
         {
             "hit_start": 8,
             "hit_end": 21,
             "seq_length": 13,
             "seq": "CAATAATGTCACG",
+            "query_id": "2",
         },
     ]
     with caplog.at_level(logging.INFO):
         sequence = blast.curate_sequence(overlapping_blast_results)
         assert sequence == "ATATAGTAACAATAATGTCACG"
         assert (
-            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            "Warning: The CPS sequence for this sample is fragmented across 2 blast hits - there may be a data quality issue"
             in caplog.text
         )
 
@@ -546,12 +557,14 @@ def test_curate_sequence_2_hit_overlap_reverse(blast, caplog):
             "hit_end": 21,
             "seq_length": 13,
             "seq": "CAATAATGTCACG",
+            "query_id": "1",
         },
         {
             "hit_start": 20,
             "hit_end": 29,
             "seq_length": 9,
             "seq": "AAAAAAAAAA",
+            "query_id": "2",
         },
     ]
 
@@ -559,7 +572,7 @@ def test_curate_sequence_2_hit_overlap_reverse(blast, caplog):
         sequence = blast.curate_sequence(overlapping_blast_results)
         assert sequence == "CAATAATGTCACGAAAAAAAAAA"
         assert (
-            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            "Warning: The CPS sequence for this sample is fragmented across 2 blast hits - there may be a data quality issue"
             in caplog.text
         )
 
@@ -571,25 +584,28 @@ def test_curate_sequence_3_hit_overlap(blast, caplog):
             "hit_end": 10,
             "seq_length": 9,
             "seq": "ATATAGTAA",
+            "query_id": "1",
         },
         {
             "hit_start": 8,
             "hit_end": 21,
             "seq_length": 13,
             "seq": "AAAAAAAAA",
+            "query_id": "2",
         },
         {
             "hit_start": 21,
             "hit_end": 23,
             "seq_length": 3,
             "seq": "CAA",
+            "query_id": "3",
         },
     ]
     with caplog.at_level(logging.INFO):
         sequence = blast.curate_sequence(overlapping_blast_results)
         assert sequence == "ATATAGTAAAAAAAAAAACAA"
         assert (
-            "Warning: The CPS sequence for this sample is fragmented across 3 contigs - there may be a data quality issue"
+            "Warning: The CPS sequence for this sample is fragmented across 3 blast hits - there may be a data quality issue"
             in caplog.text
         )
 
@@ -601,18 +617,21 @@ def test_curate_sequence_3_hit_overlap_reverse(blast, caplog):
             "hit_end": 10,
             "seq_length": 9,
             "seq": "ATATAGTAA",
+            "query_id": "1",
         },
         {
             "hit_start": 11,
             "hit_end": 14,
             "seq_length": 3,
             "seq": "CAA",
+            "query_id": "2",
         },
         {
             "hit_start": 12,
             "hit_end": 26,
             "seq_length": 13,
             "seq": "TTTTAATGTCACG",
+            "query_id": "3",
         },
     ]
 
@@ -620,7 +639,7 @@ def test_curate_sequence_3_hit_overlap_reverse(blast, caplog):
         sequence = blast.curate_sequence(overlapping_blast_results)
         assert sequence == "ATATAGTAACAATTTTAATGTCACG"
         assert (
-            "Warning: The CPS sequence for this sample is fragmented across 3 contigs - there may be a data quality issue"
+            "Warning: The CPS sequence for this sample is fragmented across 3 blast hits - there may be a data quality issue"
             in caplog.text
         )
 
@@ -632,18 +651,21 @@ def test_curate_sequence_3_hit_2_overlap(blast, caplog):
             "hit_end": 10,
             "seq_length": 9,
             "seq": "ATATAGTAA",
+            "query_id": "1",
         },
         {
             "hit_start": 11,
             "hit_end": 14,
             "seq_length": 3,
             "seq": "CAA",
+            "query_id": "2",
         },
         {
             "hit_start": 15,
             "hit_end": 29,
             "seq_length": 13,
             "seq": "TTTTAATGTCACG",
+            "query_id": "3",
         },
     ]
 
@@ -659,19 +681,21 @@ def test_curate_sequence_remove_n_gaps(blast, caplog):
             "hit_end": 10,
             "seq_length": 9,
             "seq": "ATATANTAA",
+            "query_id": "1",
         },
         {
             "hit_start": 20,
             "hit_end": 33,
             "seq_length": 13,
             "seq": "CAA-AATGT-ACG",
+            "query_id": "2",
         },
     ]
     with caplog.at_level(logging.INFO):
         sequence = blast.curate_sequence(non_overlapping_blast_results)
         assert sequence == "ATATATAACAAAATGTACG"
         assert (
-            "Warning: The CPS sequence for this sample is fragmented across 2 contigs - there may be a data quality issue"
+            "Warning: The CPS sequence for this sample is fragmented across 2 blast hits - there may be a data quality issue"
             in caplog.text
         )
 
@@ -726,3 +750,65 @@ def test_join_overlap_sequences_overlap(blast):
     seq2 = "AAAAAAATTTTTTTT"
     joined_seq = blast.join_overlap_sequences(seq1, seq2)
     assert joined_seq == "AAAAAAAAAAAAAATTTTTTTT"
+
+
+def test_hits_are_not_same_contig(blast):
+    blast_results = [
+        {
+            "hit_start": 1,
+            "hit_end": 10,
+            "seq_length": 9,
+            "seq": "ATATANTAA",
+            "query_id": "1",
+        },
+        {
+            "hit_start": 20,
+            "hit_end": 33,
+            "seq_length": 13,
+            "seq": "CAA-AATGT-ACG",
+            "query_id": "2",
+        },
+    ]
+    assert not blast.are_hits_same_contig(blast_results)
+
+
+def test_hits_are_same_contig(blast):
+    blast_results = [
+        {
+            "hit_start": 1,
+            "hit_end": 10,
+            "seq_length": 9,
+            "seq": "ATATANTAA",
+            "query_id": "1",
+        },
+        {
+            "hit_start": 20,
+            "hit_end": 33,
+            "seq_length": 13,
+            "seq": "CAA-AATGT-ACG",
+            "query_id": "1",
+        },
+    ]
+    assert blast.are_hits_same_contig(blast_results)
+
+
+def test_join_truncated_sequence(blast):
+    start_seq = "TAATCATGAGTAGACGTTTTAAAAAATCACGTTCACAGAAAGTGAAGCGAAGTGTTAATATCGTTTTGCTGACTATTTATTTATTGTTAGTTTGTTTTTTATTGTTCTTAATCTTTAAGTAC"
+    end_seq = "ATCCTTGCTTTTAGATATCTTAACCTAGTGGTAACTGCGTTAGTCCTACTAGTTGCCTTGGTAGGGCTACTCTTGATTATCTATAAAAAAGCTGAAAAGTTTACTATTTTTCTGTTGGTGTTCTCTATCCTTGTCAGCTCT"
+    seq = blast.join_truncated_sequence(start_seq, end_seq, "12F", 1)
+    assert (
+        seq
+        == "TAATCATGAGTAGACGTTTTAAAAAATCACGTTCACAGAAAGTGAAGCGAAGTGTTAATATCGTTTTGCTGACTATTTATTTATTGTTAGTTTGTTTTTTATTGTTCTTAATCTTTAAGTACAATATCCTTGCTTTTAGATATCTTAACCTAGTGGTAACTGCGTTAGTCCTACTAGTTGCCTTGGTAGGGCTACTCTTGATTATCTATAAAAAAGCTGAAAAGTTTACTATTTTTCTGTTGGTGTTCTCTATCCTTGTCAGCTCT"
+    )
+    assert os.path.isfile("gap_filled")
+
+
+def test_join_truncated_sequence_rev(blast):
+    end_seq = "GTACTTAAAGATTAAGAACAATAAAAAACAAACTAACAATAAATAAATAGTCAGCAAAACGATATTAACACTTCGCTTCACTTTCTGTGAACGTGATTTTTTAAAACGTCTACTCATGATTA"
+    start_seq = "AGAGCTGACAAGGATAGAGAACACCAACAGAAAAATAGTAAACTTTTCAGCTTTTTTATAGATAATCAAGAGTAGCCCTACCAAGGCAACTAGTAGGACTAACGCAGTTACCACTAGGTTAAGATATCTAAAAGCAAGGAT"
+    seq = blast.join_truncated_sequence(start_seq, end_seq, "12F", -1)
+    assert (
+        seq
+        == "AGAGCTGACAAGGATAGAGAACACCAACAGAAAAATAGTAAACTTTTCAGCTTTTTTATAGATAATCAAGAGTAGCCCTACCAAGGCAACTAGTAGGACTAACGCAGTTACCACTAGGTTAAGATATCTAAAAGCAAGGATATTGTACTTAAAGATTAAGAACAATAAAAAACAAACTAACAATAAATAAATAGTCAGCAAAACGATATTAACACTTCGCTTCACTTTCTGTGAACGTGATTTTTTAAAACGTCTACTCATGATTA"
+    )
+    assert os.path.isfile("gap_filled")
