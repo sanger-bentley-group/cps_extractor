@@ -7,7 +7,7 @@ process GAP_FILLER {
     tag "$sample_id"
 
     input:
-    tuple val(sample_id), path(cps_sequence), path(reads), val(serotype)
+    tuple val(sample_id), path(cps_sequence), path(reads), val(serotype), val(filled)
     path log_file
     path reference_database
 
@@ -20,9 +20,12 @@ process GAP_FILLER {
     final_cps="${sample_id}_full_cps.fa"
     """
     reference=\$(grep -i -v error $log_file | head -1 | awk -F ":" '{ print \$9 }' | awk -F "," '{ print \$1 }' | sed "s|'||g" | sed 's| ||g')
-    grep -i -v error $log_file | head -1 > blast_results.log
-    fill_sequence_gaps.py -l blast_results.log -a ${reference_database}/annotation/\${reference}.gff \
-    -r ${reference_database}/fasta/\${reference}.fasta -r1 $read1 -r2 $read2 -i $cps_sequence
+    if [ "${filled}" = "false" ]
+    then
+        grep -i -v error $log_file | head -1 > blast_results.log
+        fill_sequence_gaps.py -l blast_results.log -a ${reference_database}/annotation/\${reference}.gff \
+        -r ${reference_database}/fasta/\${reference}.fasta -r1 $read1 -r2 $read2 -i $cps_sequence
+    fi
 
     if [ -e "gap_filled_seq.fa" ]
     then

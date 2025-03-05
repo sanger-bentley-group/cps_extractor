@@ -18,6 +18,8 @@ def test_blast_args_valid():
         "2000",
         "-s",
         "01",
+        "-a",
+        "assembly.fa",
     ]
     args = BlastParser.parse_args(vargs)
 
@@ -36,7 +38,7 @@ def test_blast_args_missing_required_argument():
 
 
 def test_blast_args_default_values():
-    vargs = ["-b", "blast_results.txt", "-o", "output_file.txt"]
+    vargs = ["-b", "blast_results.txt", "-o", "output_file.txt", "-a", "assembly.fa"]
     args = BlastParser.parse_args(vargs)
 
     assert args.hit_length == 2500
