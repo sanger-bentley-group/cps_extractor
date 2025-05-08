@@ -55,7 +55,7 @@ workflow PIPELINE {
         
         assembly_ch = ASSEMBLY_UNICYCLER( reads_sero_ch, params.min_contig_length )
 
-        BLASTN( assembly_ch, blast_db_ch.first() )
+        BLASTN( assembly_ch, blast_db_ch.first(), reference_db_ch.first() )
 
         CURATE_CPS_SEQUENCE( BLASTN.out.blast_results_ch, results_dir_ch.first() )
 
