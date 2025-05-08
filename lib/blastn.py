@@ -331,6 +331,9 @@ class Blast:
 
         elif len(sorted_data) == 1:
             seq = sorted_data[0]["seq"]
+            logging.info(
+                "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+            )
         elif len(sorted_data) == 2:
             if self.are_hits_same_contig(sorted_data):
                 seq = self.join_sequence(
