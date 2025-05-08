@@ -12,16 +12,27 @@ class BlastParser:
         required = parser.add_argument_group("required")
         required.add_argument(
             "-a",
-            "--assembly",
+            "--alia",
             required=True,
-            help="Path to assembly file",
+            help="Path to aliA blast results file",
         )
-
         required.add_argument(
             "-b",
             "--blast-results-file",
             required=True,
             help="Path to blast results file",
+        )
+        required.add_argument(
+            "-d",
+            "--dexb",
+            required=True,
+            help="Path to dexB blast results file",
+        )
+        required.add_argument(
+            "-g",
+            "--genome",
+            required=True,
+            help="Path to genome (assembly) file",
         )
         required.add_argument(
             "-o",

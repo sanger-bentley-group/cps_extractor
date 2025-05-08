@@ -1,5 +1,5 @@
 include { ARIBA; CHECK_GENE_INTEGRITY; COLLATE_DISRUPTED_GENES; COLLECT_KEY_MUTATIONS; FIND_KEY_MUTATIONS } from "$projectDir/modules/ariba"
-include { ASSEMBLY_SHOVILL } from "$projectDir/modules/assembly"
+include { ASSEMBLY_UNICYCLER } from "$projectDir/modules/assembly"
 include { BAKTA } from "$projectDir/modules/bakta"
 include { BLASTN } from "$projectDir/modules/blast"
 include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
@@ -53,7 +53,7 @@ workflow PIPELINE {
 
         COLLECT_KEY_MUTATIONS( key_mutations_ch )
         
-        assembly_ch = ASSEMBLY_SHOVILL( reads_sero_ch, params.min_contig_length )
+        assembly_ch = ASSEMBLY_UNICYCLER( reads_sero_ch, params.min_contig_length )
 
         BLASTN( assembly_ch, blast_db_ch.first() )
 
