@@ -4,7 +4,6 @@ process BLASTN {
 
     label 'blast_container'
     label 'farm_low'
-    label 'farm_scratchless'
 
     tag "$sample_id"
 

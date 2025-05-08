@@ -4,7 +4,6 @@ process CURATE_CPS_SEQUENCE {
 
     label 'cps_extractor_python_container'
     label 'farm_low_fallible'
-    label 'farm_scratchless'
 
     cache 'lenient'
 
@@ -47,6 +46,5 @@ process CURATE_CPS_SEQUENCE {
     else
         filled=false
     fi
-    echo array
     """
 }
