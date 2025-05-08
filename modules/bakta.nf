@@ -23,6 +23,6 @@ process BAKTA {
     """
     # rename cps with copy to avoid caching issues
     cp ${cps_sequence} ${sample_id}_cps.fa
-    bakta --db ${bakta_db} -t 1 -o ${sample_id}_bakta --prodigal-tf ${prodigal_training_file} --proteins ${reference_database}/proteins/${reference}_proteins.txt --skip-plot ${sample_id}_cps.fa
+    bakta --db ${bakta_db} -t ${params.bakta_threads} -o ${sample_id}_bakta --prodigal-tf ${prodigal_training_file} --proteins ${reference_database}/proteins/${reference}_proteins.txt --skip-plot ${sample_id}_cps.fa
     """
 }
