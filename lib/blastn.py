@@ -18,11 +18,14 @@ class Blast:
         self.assembly_file = assembly_file
         self.hit_length = hit_length
 
-    def parse_blast_results(self) -> list:
+    def parse_blast_results(self, results_file: str) -> list:
         blast_results = list()
 
-        tree = ET.parse(self.blast_results_file)
+        tree = ET.parse(results_file)
         root = tree.getroot()
+
+        if results_file != self.blast_results_file:
+            self.hit_length = 700
 
         for query in root.findall(".//Iteration"):
             query_id = query.find(".//Iteration_query-def").text
@@ -208,12 +211,12 @@ class Blast:
                 return True
         return False
 
-    def join_truncated_sequence(
+    def join_sequence(
         self, start_seq: str, end_seq: str, query_id: str, hit_orientation: int
     ) -> str:
         start_seq = start_seq.replace("-", "")
         end_seq = end_seq.replace("-", "")
-        # join up truncated sequences using the assembly (gene insertions come up as multiple blast hits to same contig)
+        # join up  sequences using the assembly (gene insertions come up as multiple blast hits to same contig or dexB-aliA joins)
         for record in SeqIO.parse(self.assembly_file, "fasta"):
             if hit_orientation == 1:
                 seq = str(record.seq)
@@ -255,56 +258,169 @@ class Blast:
 
         return str()
 
-    def curate_sequence(self, sorted_data: list) -> str:
+    def curate_sequence(
+        self, sorted_data: list, dexb_data: list, alia_data: list
+    ) -> str:
         # curate blast sequence from final blast results
         # if there are more than 3 separate blast hits, the CPS sequence will not be constructed due to data quality issues in the assembly
         logging.info(sorted_data)
         seq = str()
         seq_1 = str()
+        alia_seq = str()
+        dexb_seq = str()
+
+        if len(sorted_data) > 3:
+            logging.error(
+                f"There are a large number of blast hits for the CPS region ({len(sorted_data)} hits),\
+            please check the quality of your input data"
+            )
+            raise SystemExit(1)
         if len(sorted_data) == 0:
             logging.error(
                 "No blast hits were found for the CPS region, please check the blast results file for more information.\
                  You may have a non encapsulated strain of S.pneumoniae"
             )
             raise SystemExit(1)
+        # join sequence between dexB and aliA if they are on the same contig
+        elif (
+            len(alia_data) >= 1
+            and len(dexb_data) >= 1
+            and alia_data[0]["query_id"] == dexb_data[0]["query_id"]
+        ):
+
+            seq = self.join_sequence(
+                dexb_data[0]["seq"],
+                alia_data[0]["seq"],
+                dexb_data[0]["query_id"],
+                dexb_data[0]["hit_frame"],
+            )
+
+        # join cps to aliA if in the same contig
+        elif (
+            len(alia_data) >= 1
+            and len(sorted_data) == 1
+            and alia_data[0]["query_id"] == sorted_data[0]["query_id"]
+        ):
+
+            seq = self.join_sequence(
+                sorted_data[0]["seq"],
+                alia_data[0]["seq"],
+                alia_data[0]["query_id"],
+                alia_data[0]["hit_frame"],
+            )
+            logging.info(
+                "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+            )
+
+        # join cps to dexB if in the same contig
+        elif (
+            len(dexb_data) >= 1
+            and len(sorted_data) == 1
+            and dexb_data[0]["query_id"] == sorted_data[0]["query_id"]
+        ):
+
+            seq = self.join_sequence(
+                dexb_data[0]["seq"],
+                sorted_data[0]["seq"],
+                dexb_data[0]["query_id"],
+                dexb_data[0]["hit_frame"],
+            )
+            logging.info(
+                "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+            )
+
         elif len(sorted_data) == 1:
             seq = sorted_data[0]["seq"]
+            logging.info(
+                "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+            )
         elif len(sorted_data) == 2:
             if self.are_hits_same_contig(sorted_data):
-                seq = self.join_truncated_sequence(
+                seq = self.join_sequence(
                     sorted_data[0]["seq"],
                     sorted_data[1]["seq"],
                     sorted_data[0]["query_id"],
                     sorted_data[0]["hit_frame"],
                 )
+                if (
+                    len(dexb_data) >= 1
+                    and dexb_data[0]["query_id"] == sorted_data[0]["query_id"]
+                ):
+                    seq = self.join_sequence(
+                        dexb_data[0]["seq"],
+                        seq,
+                        dexb_data[0]["query_id"],
+                        dexb_data[0]["hit_frame"],
+                    )
+                if (
+                    len(alia_data) >= 1
+                    and alia_data[0]["query_id"] == sorted_data[0]["query_id"]
+                ):
+                    seq = self.join_sequence(
+                        seq,
+                        alia_data[0]["seq"],
+                        alia_data[0]["query_id"],
+                        alia_data[0]["hit_frame"],
+                    )
             if not seq:
-                seq = self.join_overlap_sequences(
-                    sorted_data[0]["seq"], sorted_data[1]["seq"]
+                if (
+                    len(dexb_data) >= 1
+                    and dexb_data[0]["query_id"] == sorted_data[0]["query_id"]
+                ):
+                    dexb_seq = self.join_sequence(
+                        dexb_data[0]["seq"],
+                        sorted_data[0]["seq"],
+                        dexb_data[0]["query_id"],
+                        dexb_data[0]["hit_frame"],
+                    )
+                if (
+                    len(alia_data) >= 1
+                    and alia_data[0]["query_id"] == sorted_data[1]["query_id"]
+                ):
+                    alia_seq = self.join_sequence(
+                        sorted_data[1]["seq"],
+                        alia_data[0]["seq"],
+                        alia_data[0]["query_id"],
+                        alia_data[0]["hit_frame"],
+                    )
+                if dexb_seq and alia_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, alia_seq)
+                elif dexb_seq and not alia_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, sorted_data[1]["seq"])
+                elif not dexb_seq and alia_seq:
+                    seq = self.join_overlap_sequences(sorted_data[0]["seq"], alia_seq)
+                else:
+                    seq = self.join_overlap_sequences(
+                        sorted_data[0]["seq"], sorted_data[1]["seq"]
+                    )
+            if not dexb_seq or not alia_seq:
+                logging.info(
+                    "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
                 )
             logging.info(
                 "Warning: The CPS sequence for this sample is fragmented across 2 blast hits - there may be a data quality issue"
             )
         elif len(sorted_data) == 3:
-            if self.are_hits_same_contig(sorted_data[:2]):
-                seq_1 = self.join_truncated_sequence(
-                    sorted_data[0]["seq"],
-                    sorted_data[1]["seq"],
-                    sorted_data[0]["query_id"],
-                    sorted_data[0]["hit_frame"],
+            if not self.are_hits_same_contig(
+                sorted_data[:2]
+            ) or not self.are_hits_same_contig(sorted_data[1:3]):
+                logging.error(
+                    "There are 3 blast hits split across multiple contigs, there is a data quality issue."
                 )
-            if not seq_1:
-                seq_1 = self.join_overlap_sequences(
-                    sorted_data[0]["seq"], sorted_data[1]["seq"]
-                )
-            if self.are_hits_same_contig(sorted_data[1:3]):
-                seq = self.join_truncated_sequence(
-                    seq_1,
-                    sorted_data[2]["seq"],
-                    sorted_data[2]["query_id"],
-                    sorted_data[2]["hit_frame"],
-                )
-            if not seq:
-                seq = self.join_overlap_sequences(seq_1, sorted_data[2]["seq"])
+                raise SystemExit(1)
+            seq_1 = self.join_sequence(
+                sorted_data[0]["seq"],
+                sorted_data[1]["seq"],
+                sorted_data[0]["query_id"],
+                sorted_data[0]["hit_frame"],
+            )
+
+            seq = self.join_sequence(
+                seq_1,
+                sorted_data[2]["seq"],
+                sorted_data[2]["query_id"],
+                sorted_data[2]["hit_frame"],
+            )
             logging.info(
                 "Warning: The CPS sequence for this sample is fragmented across 3 blast hits - there may be a data quality issue"
             )
