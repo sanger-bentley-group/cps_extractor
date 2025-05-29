@@ -287,13 +287,41 @@ class Blast:
             and len(dexb_data) >= 1
             and alia_data[0]["query_id"] == dexb_data[0]["query_id"]
         ):
-
-            seq = self.join_sequence(
-                dexb_data[0]["seq"],
-                alia_data[0]["seq"],
-                dexb_data[0]["query_id"],
-                dexb_data[0]["hit_frame"],
-            )
+            if len(sorted_data) == 1:
+                seq = self.join_sequence(
+                    dexb_data[0]["seq"],
+                    alia_data[0]["seq"],
+                    dexb_data[0]["query_id"],
+                    dexb_data[0]["hit_frame"],
+                )
+            if (
+                len(sorted_data) == 2
+                and sorted_data[0]["query_id"] != sorted_data[1]["query_id"]
+            ):
+                if dexb_data[0]["query_id"] == sorted_data[0]["query_id"]:
+                    dexb_seq = self.join_sequence(
+                        dexb_data[0]["seq"],
+                        sorted_data[0]["seq"],
+                        dexb_data[0]["query_id"],
+                        dexb_data[0]["hit_frame"],
+                    )
+                if alia_data[0]["query_id"] == sorted_data[1]["query_id"]:
+                    alia_seq = self.join_sequence(
+                        sorted_data[1]["seq"],
+                        alia_data[0]["seq"],
+                        alia_data[0]["query_id"],
+                        alia_data[0]["hit_frame"],
+                    )
+                if alia_seq and dexb_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, alia_seq)
+                elif not alia_seq and dexb_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, sorted_data[1]["seq"])
+                elif not dexb_seq and alia_seq:
+                    seq = self.join_overlap_sequences(sorted_data[0]["seq"], alia_seq)
+                else:
+                    seq = self.join_overlap_sequences(
+                        sorted_data[0]["seq"], sorted_data[1]["seq"]
+                    )
 
         # join cps to aliA if in the same contig
         elif (
@@ -424,12 +452,6 @@ class Blast:
             logging.info(
                 "Warning: The CPS sequence for this sample is fragmented across 3 blast hits - there may be a data quality issue"
             )
-        else:
-            logging.error(
-                f"There are a large number of blast hits for the CPS region ({len(sorted_data)} hits),\
-            please check the quality of your input data"
-            )
-            raise SystemExit(1)
 
         # remove gaps and Ns
         seq = seq.replace("-", "")

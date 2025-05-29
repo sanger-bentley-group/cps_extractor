@@ -15,3 +15,6 @@ settings.json
 python3
 *.e
 *.o
+regression_test*
+test_data.csv
+gap_filled

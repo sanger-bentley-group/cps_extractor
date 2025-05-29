@@ -24,10 +24,6 @@ def main(args):
 
     sorted_alia_results = blast.reverse_complement_hits(final_alia_results)
 
-    print(sorted_dexb_results)
-
-    print(sorted_alia_results)
-
     sequence = blast.curate_sequence(
         sorted_results, sorted_dexb_results, sorted_alia_results
     )
