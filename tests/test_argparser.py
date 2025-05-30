@@ -4,8 +4,23 @@ from lib.argparser import (
     BlastParser,
     GapFillerParser,
     GeneOrderParser,
+    GeneticVariantParser,
     NewSerotypeParser,
 )
+
+
+def test_genetic_variant_args_valid():
+    vargs = ["-a", "annotation.gff3"]
+    args = GeneticVariantParser.parse_args(vargs)
+
+    assert args.annotation == "annotation.gff3"
+
+
+def test_genetic_variant_args_invalid():
+    vargs = list()
+
+    with pytest.raises(SystemExit):
+        GeneticVariantParser.parse_args(vargs)
 
 
 def test_blast_args_valid():

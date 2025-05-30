@@ -189,3 +189,24 @@ class NewSerotypeParser:
         args = parser.parse_args(vargs)
 
         return args
+
+
+class GeneticVariantParser:
+    @classmethod
+    def parse_args(cls, vargs=None):
+        parser = argparse.ArgumentParser(
+            description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
+        required = parser.add_argument_group("required")
+        required.add_argument(
+            "-a",
+            "--annotation",
+            required=True,
+            help="Annotation file",
+            type=str,
+        )
+
+        args = parser.parse_args(vargs)
+
+        return args

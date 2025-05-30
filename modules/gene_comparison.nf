@@ -154,7 +154,7 @@ process FIND_POTENTIAL_NEW_SEROTYPES {
 }
 
 // Create a plot of gene alignments using clinker
-process CLINKER_ALL {
+process CLINKER_NEW_SEROTYPES {
     publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "*.html"
     label 'clinker_container'
     label 'farm_high_slow'
