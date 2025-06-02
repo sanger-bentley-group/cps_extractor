@@ -1,15 +1,13 @@
 from BCBio import GFF
+import pandas as pd
 
 
 class GeneticVariants:
-    def __init__(self, annotation_file: str):
-        self.annotation_file = annotation_file
-
-    def get_features(self) -> dict:
+    def get_features(self, annotation_file) -> dict:
         # get key features out of annotation
         gene_info = list()
 
-        with open(self.annotation_file) as annotation:
+        with open(annotation_file) as annotation:
             for rec in GFF.parse(annotation):
                 for feature in rec.features:
                     if feature.type != "region":
@@ -42,3 +40,12 @@ class GeneticVariants:
                             }
                         )
         return gene_info
+
+    def assign_groups(self, groups_file):
+        data = pd.read_csv(groups_file)
+        # assign groups for unique genetic variants based on md5sum of gene list
+        codes, uniques = pd.factorize(data["md5"])
+        data["genetic_group"] = ["group" + str(i + 1) for i in codes]
+        data = data.drop(columns=["md5"])
+        data.to_csv("genetic_groups.csv", index=False)
+        return data

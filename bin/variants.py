@@ -5,8 +5,8 @@ from lib.genetic_variants import GeneticVariants
 
 
 def main(args):
-    genetic_variants = GeneticVariants(args.annotation)
-    features = genetic_variants.get_features()
+    genetic_variants = GeneticVariants()
+    features = genetic_variants.get_features(args.annotation)
 
     for i in features:
         print(i["name"])

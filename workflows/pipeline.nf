@@ -6,7 +6,7 @@ include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
 include { CURATE_CPS_SEQUENCE } from "$projectDir/modules/curate_cps_sequence"
 include { GAP_FILLER } from "$projectDir/modules/gap_filler"
 include { CHECK_GENE_ORDER; CLINKER; CLINKER_NEW_SEROTYPES; FIND_POTENTIAL_NEW_SEROTYPES; PANAROO_ALL; PANAROO_REF_COMPARISON } from "$projectDir/modules/gene_comparison"
-include { CLINKER_GENETIC_VARIANTS; GET_GENETIC_VARIANTS } from "$projectDir/modules/genetic_variants"
+include { ASSIGN_VARIANT_GROUPS; CLINKER_GENETIC_VARIANTS; GET_GENETIC_VARIANTS } from "$projectDir/modules/genetic_variants"
 include { CONCAT_PROTEIN_SEQUENCES; CREATE_PROTEIN_FILES; EXTRACT_PROTEIN_SEQUENCES } from "$projectDir/modules/proteins"
 include { SEROBA } from "$projectDir/modules/serotyping"
 
@@ -81,6 +81,7 @@ workflow PIPELINE {
             genbank_ch = BAKTA.out.bakta_results_ch.map { it -> it[4] }.collect()
 
             GET_GENETIC_VARIANTS( annotation_ch, params.serotype, reference_db_ch )
+            ASSIGN_VARIANT_GROUPS( GET_GENETIC_VARIANTS.out.genes_ch )
             CLINKER_GENETIC_VARIANTS( genbank_ch, reference_db_ch, params.serotype, GET_GENETIC_VARIANTS.out.genetic_variants_ch )
             // Run panaroo on all isolates
             PANAROO_ALL( annotation_ch, reference_db_ch, params.serotype )

@@ -1,17 +1,18 @@
 import pytest
+import pandas as pd
 
 from lib.genetic_variants import GeneticVariants
 
 
 @pytest.fixture
 def variant():
-    genetic_variant = GeneticVariants("tests/test_data/18B.gff")
+    genetic_variant = GeneticVariants()
     return genetic_variant
 
 
 def test_get_features(variant):
-    features = variant.get_features()
-    print(features)
+    features = variant.get_features("tests/test_data/18B.gff")
+
     assert features == [
         {
             "name": "cps2a",
@@ -48,3 +49,21 @@ def test_get_features(variant):
         {"name": "aliA", "product": "UDP-galactopyranose mutase"},
         {"name": "glf", "product": "UDP-galactopyranose glf mutase"},
     ]
+
+
+def test_assign_groups(variant):
+    data = [
+        {"sample": "ERR311103", "genetic_group": "group1"},
+        {"sample": "ERR311104", "genetic_group": "group1"},
+        {"sample": "ERR311105", "genetic_group": "group1"},
+        {"sample": "ERR311105", "genetic_group": "group2"},
+        {"sample": "ERR311106", "genetic_group": "group2"},
+        {"sample": "ERR311107", "genetic_group": "group1"},
+        {"sample": "ERR311108", "genetic_group": "group3"},
+    ]
+
+    actual = pd.DataFrame(data)
+
+    test_df = variant.assign_groups("tests/test_data/md5.csv")
+
+    pd.testing.assert_frame_equal(actual, test_df)
