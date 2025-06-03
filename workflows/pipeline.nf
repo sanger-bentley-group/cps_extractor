@@ -5,7 +5,8 @@ include { BLASTN } from "$projectDir/modules/blast"
 include { CHECK_CPS_SEQUENCE } from "$projectDir/modules/check_cps_sequence"
 include { CURATE_CPS_SEQUENCE } from "$projectDir/modules/curate_cps_sequence"
 include { GAP_FILLER } from "$projectDir/modules/gap_filler"
-include { CHECK_GENE_ORDER; CLINKER; CLINKER_ALL; FIND_POTENTIAL_NEW_SEROTYPES; PANAROO_ALL; PANAROO_REF_COMPARISON; RENAME_PANAROO_ALIGNMENTS; SNP_DISTS } from "$projectDir/modules/gene_comparison"
+include { CHECK_GENE_ORDER; CLINKER; CLINKER_NEW_SEROTYPES; FIND_POTENTIAL_NEW_SEROTYPES; PANAROO_ALL; PANAROO_REF_COMPARISON } from "$projectDir/modules/gene_comparison"
+include { ASSIGN_VARIANT_GROUPS; CLINKER_GENETIC_VARIANTS; GET_GENETIC_VARIANTS } from "$projectDir/modules/genetic_variants"
 include { CONCAT_PROTEIN_SEQUENCES; CREATE_PROTEIN_FILES; EXTRACT_PROTEIN_SEQUENCES } from "$projectDir/modules/proteins"
 include { SEROBA } from "$projectDir/modules/serotyping"
 
@@ -75,19 +76,19 @@ workflow PIPELINE {
 
         PANAROO_REF_COMPARISON( EXTRACT_PROTEIN_SEQUENCES.out.results_ch, reference_db_ch.first() )
 
-        RENAME_PANAROO_ALIGNMENTS( PANAROO_REF_COMPARISON.out.panaroo_results_ch )
-
-        SNP_DISTS( RENAME_PANAROO_ALIGNMENTS.out.gene_alignment_results.transpose() )
-
         if ( params.serotype ) {
-            // Collect all annotations and run panaroo on them
             annotation_ch = BAKTA.out.bakta_results_ch.map { it -> it[3] }.collect()
+            genbank_ch = BAKTA.out.bakta_results_ch.map { it -> it[4] }.collect()
+
+            GET_GENETIC_VARIANTS( annotation_ch, params.serotype, reference_db_ch )
+            ASSIGN_VARIANT_GROUPS( GET_GENETIC_VARIANTS.out.genes_ch )
+            CLINKER_GENETIC_VARIANTS( genbank_ch, reference_db_ch, params.serotype, GET_GENETIC_VARIANTS.out.genetic_variants_ch )
+            // Run panaroo on all isolates
             PANAROO_ALL( annotation_ch, reference_db_ch, params.serotype )
 
             // Collect all genbank files and generate plot using clinker
             FIND_POTENTIAL_NEW_SEROTYPES( COLLATE_DISRUPTED_GENES.out.disrupted_genes_ch, reference_db_ch.first() )
-            genbank_ch = BAKTA.out.bakta_results_ch.map { it -> it[4] }.collect()
-            CLINKER_ALL( genbank_ch, reference_db_ch, params.serotype, FIND_POTENTIAL_NEW_SEROTYPES.out.new_sero_ch )
+            CLINKER_NEW_SEROTYPES( genbank_ch, reference_db_ch, params.serotype, FIND_POTENTIAL_NEW_SEROTYPES.out.new_sero_ch )
 
             // Collect all protein sequences and concatenate them
             proteins_ch = CREATE_PROTEIN_FILES.out.proteins_ch

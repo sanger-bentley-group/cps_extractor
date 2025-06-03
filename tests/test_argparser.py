@@ -4,8 +4,38 @@ from lib.argparser import (
     BlastParser,
     GapFillerParser,
     GeneOrderParser,
+    GeneticGroupParser,
+    GeneticVariantParser,
     NewSerotypeParser,
 )
+
+
+def test_genetic_variant_args_valid():
+    vargs = ["-a", "annotation.gff3"]
+    args = GeneticVariantParser.parse_args(vargs)
+
+    assert args.annotation == "annotation.gff3"
+
+
+def test_genetic_variant_args_invalid():
+    vargs = list()
+
+    with pytest.raises(SystemExit):
+        GeneticVariantParser.parse_args(vargs)
+
+
+def test_genetic_groups_args_valid():
+    vargs = ["-g", "groups.txt"]
+    args = GeneticGroupParser.parse_args(vargs)
+
+    assert args.groups == "groups.txt"
+
+
+def test_genetic_groups_args_invalid():
+    vargs = list()
+
+    with pytest.raises(SystemExit):
+        GeneticGroupParser.parse_args(vargs)
 
 
 def test_blast_args_valid():
