@@ -8,8 +8,8 @@ process GET_GENETIC_VARIANTS {
     path(cps_reference_database)
 
     output:
-    path("unique_genetic_variants.txt"), emit: genetic_variants_ch
-    path("*_genes.txt"), emit: genes_ch
+    path("unique_genetic_variants.txt"), emit: genetic_variants_ch, optional: true
+    path("*_genes.txt"), emit: genes_ch, optional: true
 
     script:
     """
@@ -18,13 +18,15 @@ process GET_GENETIC_VARIANTS {
     echo "\$file" >> full_cps.txt
     fi
     done
-    
-    while read file
-    do
-      sample=\$(echo \$file | awk -F "_cps.gff3" '{ print \$1 }')
-      variants.py -a \$file > \${sample}_genes.txt
-    done < full_cps.txt
-    md5sum *_genes.txt | sort -k1,1 -u | awk '{ print \$NF }' | sed 's|_genes.txt||g' > unique_genetic_variants.txt
+    if [[ -s "full_cps.txt" ]]
+    then
+        while read file
+        do
+        sample=\$(echo \$file | awk -F "_cps.gff3" '{ print \$1 }')
+        variants.py -a \$file > \${sample}_genes.txt
+        done < full_cps.txt
+        md5sum *_genes.txt | sort -k1,1 -u | awk '{ print \$NF }' | sed 's|_genes.txt||g' > unique_genetic_variants.txt
+    fi
     """
 }
 
