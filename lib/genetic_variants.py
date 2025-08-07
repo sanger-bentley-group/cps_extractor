@@ -33,9 +33,15 @@ class GeneticVariants:
                             gene_name = "tnp"
                         if gene_name.lower() == "oppa":
                             gene_name = "aliA"
-                        if gene_name.lower().startswith("wzx") and gene_name[3:].isdigit():
+                        if (
+                            gene_name.lower().startswith("wzx")
+                            and gene_name[3:].isdigit()
+                        ):
                             gene_name = "wzx"
-                        if gene_name.lower().startswith("wzy") and gene_name[3:].isdigit():
+                        if (
+                            gene_name.lower().startswith("wzy")
+                            and gene_name[3:].isdigit()
+                        ):
                             gene_name = "wzy"
 
                         gene_info.append(
