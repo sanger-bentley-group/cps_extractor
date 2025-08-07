@@ -1,29 +1,5 @@
-// Use panaroo to assess gene content difference vs reference
-process PANAROO_REF_COMPARISON {
-
-    label 'panaroo_container'
-    label 'farm_low_fallible'
-
-    errorStrategy 'ignore'
-
-    tag "$sample_id"
-
-    input:
-    tuple val(sample_id), path(annotation_file), val(reference)
-    path reference_database
-
-    output:
-    tuple val(sample_id), path(panaroo_results), val(reference), path(annotation_file), emit: panaroo_results_ch
-
-    script:
-    panaroo_results="${sample_id}_panaroo_results"
-    """
-    panaroo -i ${annotation_file} ${reference_database}/annotation/${reference}.gff -o ${sample_id}_panaroo_results --clean-mode strict -a core
-    """
-}
-
 process PANAROO_ALL {
-    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "panaroo_pangenome_results"
+    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "pan-cps_results"
 
     label 'panaroo_container'
     label 'farm_high'
@@ -37,10 +13,10 @@ process PANAROO_ALL {
     path(panaroo_results)
 
     script:
-    panaroo_results="panaroo_pangenome_results"
+    panaroo_results="pan-cps_results"
     """
     cp ${reference_database}/annotation/${serotype}.gff ${serotype}.gff3
-    panaroo -i *.gff3 -o panaroo_pangenome_results --clean-mode strict -a pan --threads 32
+    panaroo -i *.gff3 -o pan-cps_results --clean-mode strict -a pan --threads 32
     """
 }
 
@@ -87,7 +63,7 @@ process CLINKER {
 
     script:
     """
-    clinker ${reference_database}/genbank/${reference}.gb ${gb_file} -p ${sample_id}_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv
+    clinker ${reference_database}/genbank/${reference}.gb ${gb_file} -p ${sample_id}_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv -cm ${reference_database}/clinker_descriptions/colours.csv
     """
 }
 
@@ -129,7 +105,7 @@ process CLINKER_NEW_SEROTYPES {
     then
         sample_list=\$(cat potential_new_serotypes.txt | sed 's|\$|_cps.gbff|g')
         echo \${sample_list}
-        clinker ${reference_database}/genbank/${reference}.gb \${sample_list} -p potential_new_serotypes_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv
+        clinker ${reference_database}/genbank/${reference}.gb \${sample_list} -p potential_new_serotypes_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv -cm ${reference_database}/clinker_descriptions/colours.csv
     fi
     """
 }

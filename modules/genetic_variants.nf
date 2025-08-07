@@ -83,7 +83,7 @@ process CLINKER_GENETIC_VARIANTS {
     then
         sample_list=\$(cat ${genetic_variant_list} | sed 's|\$|_cps.gbff|g')
         echo \${sample_list}
-        clinker ${reference_database}/genbank/${reference}.gb \${sample_list} -p genetic_variants_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv
+        clinker ${reference_database}/genbank/${reference}.gb \${sample_list} -p genetic_variants_plot.html -gf ${reference_database}/clinker_descriptions/${reference}_gene_info.csv -cm ${reference_database}/clinker_descriptions/colours.csv
     fi
     """
 }

@@ -14,7 +14,7 @@ class GeneticVariants:
                         if "gene" in feature.qualifiers.keys():
                             gene_name = " ".join(feature.qualifiers["gene"])
                         else:
-                            gene_name = "unidentified"
+                            gene_name = "tnp"
 
                         product = " ".join(feature.qualifiers["product"])
                         if (
@@ -24,14 +24,25 @@ class GeneticVariants:
                             or "chlorohydrolase" in product.lower()
                             or "family element" in product.lower()
                             or "is66" in product.lower()
+                            or "srn266" in product.lower()
                         ):
                             gene_name = "tnp"
                         if "glf" in product.lower():
                             gene_name = "glf"
                         if "hypothetical" in product.lower():
-                            gene_name = "hypothetical protein"
+                            gene_name = "tnp"
                         if gene_name.lower() == "oppa":
                             gene_name = "aliA"
+                        if (
+                            gene_name.lower().startswith("wzx")
+                            and gene_name[3:].isdigit()
+                        ):
+                            gene_name = "wzx"
+                        if (
+                            gene_name.lower().startswith("wzy")
+                            and gene_name[3:].isdigit()
+                        ):
+                            gene_name = "wzy"
 
                         gene_info.append(
                             {
