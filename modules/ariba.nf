@@ -32,7 +32,7 @@ process ARIBA {
 }
 
 process FIND_KEY_MUTATIONS {
-    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "key_ariba_mutations.tsv"
+    publishDir "${params.output}/${sample_id}", mode: 'copy', overwrite: true, pattern: "key_mutations.tsv"
 
     label 'bash_container'
     label 'farm_low'
@@ -47,21 +47,21 @@ process FIND_KEY_MUTATIONS {
     path(key_mutations_per_sample), emit: key_mutations_sample_ch, optional: true
 
     script:
-    ariba_key_mutations="key_ariba_mutations.tsv"
-    key_mutations_per_sample="${sample_id}_key_ariba_mutations.tsv"
+    ariba_key_mutations="key_mutations.tsv"
+    key_mutations_per_sample="${sample_id}_key_mutations.tsv"
     """
-    head -1 ${ariba_report} > key_ariba_mutations.tsv
+    head -1 ${ariba_report} > key_mutations.tsv
     # catch exit 1 - grep exits with code 1 if there is no match
-    grep -i -e "fshift" -e "trunc" -e "ins" -e "del" -e "indels" ${ariba_report} >> key_ariba_mutations.tsv || [[ \$? == 1 ]]
-    if [[ \$(wc -l <key_ariba_mutations.tsv) -gt 1 ]]
+    grep -i -e "fshift" -e "trunc" -e "ins" -e "del" -e "indels" ${ariba_report} >> key_mutations.tsv || [[ \$? == 1 ]]
+    if [[ \$(wc -l <key_mutations.tsv) -gt 1 ]]
     then
-      tail +2 key_ariba_mutations.tsv | sed "s|^|${sample_id}\t|g" > ${sample_id}_key_ariba_mutations.tsv
+      tail +2 key_mutations.tsv | sed "s|^|${sample_id}\t|g" > ${sample_id}_key_mutations.tsv
     fi
     """
 }
 
 process COLLECT_KEY_MUTATIONS {
-    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "key_ariba_mutations_all_samples.tsv"
+    publishDir "${params.output}", mode: 'copy', overwrite: true, pattern: "key_mutations_all_samples.tsv"
 
     label 'bash_container'
     label 'farm_low'
@@ -73,7 +73,7 @@ process COLLECT_KEY_MUTATIONS {
     path(ariba_key_mutations), emit: ariba_mutations_ch
 
     script:
-    ariba_key_mutations="key_ariba_mutations_all_samples.tsv"
+    ariba_key_mutations="key_mutations_all_samples.tsv"
     """
     echo -e "sample\tariba_ref_name\tref_name\tgene\tvar_only\tflag\
     \treads\tcluster\tref_len\tref_base_assembled\tpc_ident\tctg\
@@ -81,8 +81,8 @@ process COLLECT_KEY_MUTATIONS {
     \tknown_var_change\thas_known_var\tref_ctg_change\t\
     ref_ctg_effect\tref_start\tref_end\tref_nt\tctg_start\
     \tctg_end\tctg_nt\tsmtls_total_depth\tsmtls_nts\
-    \tsmtls_nts_depth\tvar_description\tfree_text" > key_ariba_mutations_all_samples.tsv
-    cat *_key_ariba_mutations.tsv >> key_ariba_mutations_all_samples.tsv
+    \tsmtls_nts_depth\tvar_description\tfree_text" > key_mutations_all_samples.tsv
+    cat *_key_mutations.tsv >> key_mutations_all_samples.tsv
     """
 }
 
