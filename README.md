@@ -13,21 +13,21 @@ The development of this pipeline is part of the GPS Project ([Global Pneumococca
 &nbsp;
 # Table of contents <!-- omit in toc -->
 - [Workflow](#workflow)
-  - [Output](#Output)
+  - [Output](#output)
 - [Usage](#usage)
   - [Requirements](#requirements)
   - [Accepted Inputs](#accepted-inputs)
   - [Setup](#setup)
-  - [Running the pipeline](#run)
+  - [Run](#run)
   - [Options](#options)
   - [Profile](#profile)
-  - [Resuming the pipeline](#resume)
-  - [Clean up](#clean-up)
-- [Pipeline options](#pipeline-options)
-  - [Alternative workflows](#alternative-workflows)
-  - [Pipeline parameters](#general-options)
+  - [Resume](#resume)
+  - [Clean Up](#clean-up)
+- [Pipeline Options](#pipeline-options)
+  - [Alternative Workflows](#alternative-workflows)
+  - [General options](#general-options)
   - [Default database](#default-database)
-- [Credits](#credits) 
+- [Credits](#credits)
 
 
 # Workflow
@@ -104,11 +104,11 @@ If you run the pipeline using the `--serotype` argument, the pangenome analysis 
 ## Setup 
 1. Clone the repository (if Git is installed on your system)
     ```
-    git clone https://gitlab.internal.sanger.ac.uk/sanger-bentley-group/cps_extractor.git
+    git clone https://github.com/GlobalPneumoSeq/cps_extractor.git
     ```
     or 
     
-    Download and unzip/extract the [latest release](https://gitlab.internal.sanger.ac.uk/sanger-bentley-group/cps_extractor/-/tags)
+    Download and unzip/extract the [latest commit](https://github.com/GlobalPneumoSeq/cps_extractor/archive/refs/heads/main.zip)
 2. Go into the local directory of the pipeline and it is ready to use without installation (the directory name might be different)
     ```
     cd cps_extractor
@@ -235,7 +235,7 @@ If you run the pipeline using the `--serotype` argument, the pangenome analysis 
 
 
 ## Default database
-  The default database is stored at: https://gitlab.internal.sanger.ac.uk/sanger-bentley-group/cps_reference_database
+  The default database is stored at: https://github.com/GlobalPneumoSeq/cps_reference_database
   
 # Credits
   See [`Citations.MD`](CITATIONS.md) for the full list of citations.
