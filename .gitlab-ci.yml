@@ -1,0 +1,33 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: always
+
+stages:
+  - format
+  - test
+
+Check Black format:
+  stage: format
+  only:
+    - branches
+  except:
+    - tags
+  script:
+    - pip install black
+    - black . --check --diff --color
+
+Pytest:
+  stage: test
+  image: python:3.11
+  only:
+    - branches
+  except:
+    - tags
+  script:
+    - apt-get update -y
+    - apt-get install -y bedtools
+    - pip install --upgrade pip 
+    - pip install -r requirements.txt
+    - python -m pytest --cov=lib --cov-fail-under=90 tests

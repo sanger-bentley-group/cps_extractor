@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import xml.etree.ElementTree as ET
 import logging
+import difflib
+from Bio import SeqIO
+from Bio.Seq import Seq
 
 logging.basicConfig(
     filename=f"cps_extractor.log",
@@ -10,15 +13,19 @@ logging.basicConfig(
 
 
 class Blast:
-    def __init__(self, blast_results_file: str, hit_length: int):
+    def __init__(self, blast_results_file: str, assembly_file: str, hit_length: int):
         self.blast_results_file = blast_results_file
+        self.assembly_file = assembly_file
         self.hit_length = hit_length
 
-    def parse_blast_results(self) -> list:
+    def parse_blast_results(self, results_file: str) -> list:
         blast_results = list()
 
-        tree = ET.parse(self.blast_results_file)
+        tree = ET.parse(results_file)
         root = tree.getroot()
+
+        if results_file != self.blast_results_file:
+            self.hit_length = 700
 
         for query in root.findall(".//Iteration"):
             query_id = query.find(".//Iteration_query-def").text
@@ -106,7 +113,7 @@ class Blast:
 
             for result in final_blast_results:
                 if best_serotype in result["hit_def"] and result["e_value"] < float(
-                    10**-50
+                    10**-1
                 ):
                     best_serotype_results.append(result)
 
@@ -173,60 +180,278 @@ class Blast:
 
         return blast_hits_dict
 
-    def curate_sequence(self, sorted_data: list) -> str:
+    def join_overlap_sequences(self, s1: str, s2: str) -> str:
+        # blast hit positions are not always accurate, check if the sequences overlap with difflib
+        s1_end = str(s1[(len(s1) - 200) :])
+        s2_start = str(s2[:200])
+
+        # find the best sequence match between sequences
+        s = difflib.SequenceMatcher(None, s1_end, s2_start, autojunk=False)
+        pos_a, pos_b, size = s.find_longest_match(0, len(s1_end), 0, len(s2_start))
+        best_overlap = s1_end[pos_a : pos_a + size]
+
+        # if the best match is at the start of the second sequence, remove it so not to duplicate the sequence
+        if best_overlap == s2[: len(best_overlap)] and len(best_overlap) >= 5:
+            s2 = s2[len(best_overlap) :]
+
+        # join the sequences
+        joined_sequence = s1 + s2
+        return joined_sequence
+
+    def are_hits_same_contig(self, blast_results: list) -> bool:
+        results_length = len(blast_results)
+        if results_length == 2:
+            if blast_results[0]["query_id"] == blast_results[1]["query_id"]:
+                return True
+        if results_length == 3:
+            if (
+                blast_results[0]["query_id"] == blast_results[1]["query_id"]
+                and blast_results[1]["query_id"] == blast_results[2]["query_id"]
+            ):
+                return True
+        return False
+
+    def join_sequence(
+        self, start_seq: str, end_seq: str, query_id: str, hit_orientation: int
+    ) -> str:
+        start_seq = start_seq.replace("-", "")
+        end_seq = end_seq.replace("-", "")
+        # join up  sequences using the assembly (gene insertions come up as multiple blast hits to same contig or dexB-aliA joins)
+        for record in SeqIO.parse(self.assembly_file, "fasta"):
+            if hit_orientation == 1:
+                seq = str(record.seq)
+                start_index = seq.find(start_seq[:100])
+                end_index = seq.find(
+                    end_seq[(len(end_seq) - 100) :], start_index + len(start_seq)
+                )
+                end_index += 100
+                if record.name == query_id.split(" ")[0]:
+                    break
+            elif hit_orientation == -1:
+                seq = str(record.seq)
+                start_seq_rc = str(Seq(start_seq).reverse_complement())
+                end_seq_rc = str(Seq(end_seq).reverse_complement())
+                start_index = seq.find(end_seq_rc[:100])
+                end_index = seq.find(
+                    start_seq_rc[(len(start_seq_rc) - 100) :],
+                    start_index + len(end_seq_rc),
+                )
+                end_index += 100
+                if record.name == query_id.split(" ")[0]:
+                    break
+            else:
+                return str()
+
+        if start_index != -1 and end_index != -1:
+            if hit_orientation == 1:
+                extracted_region = seq[start_index:end_index]
+                # create an empty file to show gap is filled
+                with open("gap_filled", "w") as fp:
+                    pass
+                return extracted_region
+            else:
+                extracted_region = seq[start_index:end_index]
+                # create an empty file to show gap is filled
+                with open("gap_filled", "w") as fp:
+                    pass
+                return str(Seq(extracted_region).reverse_complement())
+
+        return str()
+
+    def curate_sequence(
+        self, sorted_data: list, dexb_data: list, alia_data: list
+    ) -> str:
         # curate blast sequence from final blast results
-        # if sequences don't overlap, join them together
-        # if sequences do overlap, prioritise the match from the sequence with the higher length in overlapping regions
+        # if there are more than 3 separate blast hits, the CPS sequence will not be constructed due to data quality issues in the assembly
         logging.info(sorted_data)
         seq = str()
-        if len(sorted_data) == 0:
-            logging.error("No blast hits found, please check the blast XML file")
+        seq_1 = str()
+        alia_seq = str()
+        dexb_seq = str()
+
+        if len(sorted_data) > 3:
+            logging.error(
+                f"There are a large number of blast hits for the CPS region ({len(sorted_data)} hits),\
+            please check the quality of your input data"
+            )
             raise SystemExit(1)
+        if len(sorted_data) == 0:
+            logging.error(
+                "No blast hits were found for the CPS region, please check the blast results file for more information.\
+                 You may have a non encapsulated strain of S.pneumoniae"
+            )
+            raise SystemExit(1)
+        # join sequence between dexB and aliA if they are on the same contig
+        elif (
+            len(alia_data) >= 1
+            and len(dexb_data) >= 1
+            and alia_data[0]["query_id"] == dexb_data[0]["query_id"]
+        ):
+            if len(sorted_data) == 1:
+                seq = self.join_sequence(
+                    dexb_data[0]["seq"],
+                    alia_data[0]["seq"],
+                    dexb_data[0]["query_id"],
+                    dexb_data[0]["hit_frame"],
+                )
+            if (
+                len(sorted_data) == 2
+                and sorted_data[0]["query_id"] != sorted_data[1]["query_id"]
+            ):
+                if dexb_data[0]["query_id"] == sorted_data[0]["query_id"]:
+                    dexb_seq = self.join_sequence(
+                        dexb_data[0]["seq"],
+                        sorted_data[0]["seq"],
+                        dexb_data[0]["query_id"],
+                        dexb_data[0]["hit_frame"],
+                    )
+                if alia_data[0]["query_id"] == sorted_data[1]["query_id"]:
+                    alia_seq = self.join_sequence(
+                        sorted_data[1]["seq"],
+                        alia_data[0]["seq"],
+                        alia_data[0]["query_id"],
+                        alia_data[0]["hit_frame"],
+                    )
+                if alia_seq and dexb_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, alia_seq)
+                elif not alia_seq and dexb_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, sorted_data[1]["seq"])
+                elif not dexb_seq and alia_seq:
+                    seq = self.join_overlap_sequences(sorted_data[0]["seq"], alia_seq)
+                else:
+                    seq = self.join_overlap_sequences(
+                        sorted_data[0]["seq"], sorted_data[1]["seq"]
+                    )
+
+        # join cps to aliA if in the same contig
+        elif (
+            len(alia_data) >= 1
+            and len(sorted_data) == 1
+            and alia_data[0]["query_id"] == sorted_data[0]["query_id"]
+        ):
+
+            seq = self.join_sequence(
+                sorted_data[0]["seq"],
+                alia_data[0]["seq"],
+                alia_data[0]["query_id"],
+                alia_data[0]["hit_frame"],
+            )
+            logging.info(
+                "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+            )
+
+        # join cps to dexB if in the same contig
+        elif (
+            len(dexb_data) >= 1
+            and len(sorted_data) == 1
+            and dexb_data[0]["query_id"] == sorted_data[0]["query_id"]
+        ):
+
+            seq = self.join_sequence(
+                dexb_data[0]["seq"],
+                sorted_data[0]["seq"],
+                dexb_data[0]["query_id"],
+                dexb_data[0]["hit_frame"],
+            )
+            logging.info(
+                "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+            )
+
         elif len(sorted_data) == 1:
             seq = sorted_data[0]["seq"]
-        else:
-            for i in range(0, (len(sorted_data) - 1)):
-                if i == 0:
-                    if self.check_partial_overlap(sorted_data[i], sorted_data[i + 1]):
-                        if int(sorted_data[i]["seq_length"]) > int(
-                            sorted_data[i + 1]["seq_length"]
-                        ):
-                            seq += sorted_data[i]["seq"]
-                            overlap_index = (
-                                1
-                                + int(sorted_data[i]["hit_end"])
-                                - int(sorted_data[i + 1]["hit_start"])
-                            )
-                            seq += sorted_data[i + 1]["seq"][overlap_index::]
-                        else:
-                            seq += sorted_data[i]["seq"][
-                                0 : int((sorted_data[i + 1]["hit_start"]) - 1)
-                            ]
-                            seq += sorted_data[i + 1]["seq"]
-                    else:
-                        seq += sorted_data[i]["seq"]
-                        seq += sorted_data[i + 1]["seq"]
+            logging.info(
+                "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+            )
+        elif len(sorted_data) == 2:
+            if self.are_hits_same_contig(sorted_data):
+                seq = self.join_sequence(
+                    sorted_data[0]["seq"],
+                    sorted_data[1]["seq"],
+                    sorted_data[0]["query_id"],
+                    sorted_data[0]["hit_frame"],
+                )
+                if (
+                    len(dexb_data) >= 1
+                    and dexb_data[0]["query_id"] == sorted_data[0]["query_id"]
+                ):
+                    seq = self.join_sequence(
+                        dexb_data[0]["seq"],
+                        seq,
+                        dexb_data[0]["query_id"],
+                        dexb_data[0]["hit_frame"],
+                    )
+                if (
+                    len(alia_data) >= 1
+                    and alia_data[0]["query_id"] == sorted_data[0]["query_id"]
+                ):
+                    seq = self.join_sequence(
+                        seq,
+                        alia_data[0]["seq"],
+                        alia_data[0]["query_id"],
+                        alia_data[0]["hit_frame"],
+                    )
+            if not seq:
+                if (
+                    len(dexb_data) >= 1
+                    and dexb_data[0]["query_id"] == sorted_data[0]["query_id"]
+                ):
+                    dexb_seq = self.join_sequence(
+                        dexb_data[0]["seq"],
+                        sorted_data[0]["seq"],
+                        dexb_data[0]["query_id"],
+                        dexb_data[0]["hit_frame"],
+                    )
+                if (
+                    len(alia_data) >= 1
+                    and alia_data[0]["query_id"] == sorted_data[1]["query_id"]
+                ):
+                    alia_seq = self.join_sequence(
+                        sorted_data[1]["seq"],
+                        alia_data[0]["seq"],
+                        alia_data[0]["query_id"],
+                        alia_data[0]["hit_frame"],
+                    )
+                if dexb_seq and alia_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, alia_seq)
+                elif dexb_seq and not alia_seq:
+                    seq = self.join_overlap_sequences(dexb_seq, sorted_data[1]["seq"])
+                elif not dexb_seq and alia_seq:
+                    seq = self.join_overlap_sequences(sorted_data[0]["seq"], alia_seq)
                 else:
-                    if self.check_partial_overlap(sorted_data[i], sorted_data[i + 1]):
-                        if int(sorted_data[i]["seq_length"]) > int(
-                            sorted_data[i + 1]["seq_length"]
-                        ):
-                            overlap_index = (
-                                1
-                                + int(sorted_data[i]["hit_end"])
-                                - int(sorted_data[i + 1]["hit_start"])
-                            )
-                            seq += sorted_data[i + 1]["seq"][overlap_index::]
-                        else:
-                            overlap_index = int(sorted_data[i]["hit_end"]) - int(
-                                sorted_data[i + 1]["hit_start"]
-                            )
-                            print(overlap_index)
-                            seq = seq[:-overlap_index]
-                            seq += sorted_data[i + 1]["seq"]
+                    seq = self.join_overlap_sequences(
+                        sorted_data[0]["seq"], sorted_data[1]["seq"]
+                    )
+            if not dexb_seq or not alia_seq:
+                logging.info(
+                    "Warning: aliA and dexB are fragmented across multiple contigs, please note that this may be a partial CPS sequence"
+                )
+            logging.info(
+                "Warning: The CPS sequence for this sample is fragmented across 2 blast hits - there may be a data quality issue"
+            )
+        elif len(sorted_data) == 3:
+            if not self.are_hits_same_contig(
+                sorted_data[:2]
+            ) or not self.are_hits_same_contig(sorted_data[1:3]):
+                logging.error(
+                    "There are 3 blast hits split across multiple contigs, there is a data quality issue."
+                )
+                raise SystemExit(1)
+            seq_1 = self.join_sequence(
+                sorted_data[0]["seq"],
+                sorted_data[1]["seq"],
+                sorted_data[0]["query_id"],
+                sorted_data[0]["hit_frame"],
+            )
 
-                    else:
-                        seq += sorted_data[i + 1]["seq"]
+            seq = self.join_sequence(
+                seq_1,
+                sorted_data[2]["seq"],
+                sorted_data[2]["query_id"],
+                sorted_data[2]["hit_frame"],
+            )
+            logging.info(
+                "Warning: The CPS sequence for this sample is fragmented across 3 blast hits - there may be a data quality issue"
+            )
 
         # remove gaps and Ns
         seq = seq.replace("-", "")

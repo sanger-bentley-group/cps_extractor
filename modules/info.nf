@@ -28,17 +28,18 @@ process TOOLS {
     label 'farm_low'
 
     input:
+    val ariba_version
     val bakta_version
     val bcftools_version
     val bedtools_version
     val blast_version
     val bwa_version
+    val clinker_version
     val panaroo_version
     val python_version
     val samtools_version
     val seroba_version
-    val shovill_version
-    val snpdists_version
+    val unicycler_version
 
     output:
     path(json), emit: json
@@ -46,17 +47,18 @@ process TOOLS {
     script:
     json='tools.json'
     """
+    ARIBA_VERSION="$ariba_version"
     BAKTA_VERSION="$bakta_version"
     BCFTOOLS_VERSION="$bcftools_version"
     BEDTOOLS_VERSION="$bedtools_version"
     BWA_VERSION="$bwa_version"
+    CLINKER_VERSION="$clinker_version"
     SAMTOOLS_VERSION="$samtools_version"
     BLAST_VERSION="$blast_version"
     PANAROO_VERSION="$panaroo_version"
     PYTHON_VERSION="$python_version"
     SEROBA_VERSION="$seroba_version"
-    SHOVILL_VERSION="$shovill_version"
-    SNPDISTS_VERSION="$snpdists_version"
+    UNICYCLER_VERSION="$unicycler_version"
     JSON_FILE="$json"
                 
     source save_tools_info.sh
@@ -142,17 +144,18 @@ process PARSE {
         |╔════════════════════════════════╤════════════════════════════════════════════════════════════════╗
         |${textRow(30, 62, 'Tool', 'Version')}
         |╠════════════════════════════════╪════════════════════════════════════════════════════════════════╣
+        |${toolTextRow('ARIBA', 'ariba')}
         |${toolTextRow('Bakta', 'bakta')}
         |${toolTextRow('Bcftools', 'bcftools')}
         |${toolTextRow('Bedtools', 'bedtools')}
         |${toolTextRow('Blast', 'blast')}
         |${toolTextRow('BWA', 'bwa')}
+        |${toolTextRow('Clinker', 'clinker')}
         |${toolTextRow('Panaroo', 'panaroo')}
         |${toolTextRow('python', 'python')}
         |${toolTextRow('SAMtools', 'samtools')}
         |${toolTextRow('SeroBA', 'seroba')}
-        |${toolTextRow('Shovill', 'shovill')}
-        |${toolTextRow('SNP_Dists', 'snpdists')}
+        |${toolTextRow('Unicycler', 'unicycler')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
 
@@ -173,16 +176,18 @@ process PARSE {
         |╔════════════════════════════════╤════════════════════════════════════════════════════════════════╗
         |${textRow(30, 62, 'Environment For', 'Image')}
         |╠════════════════════════════════╪════════════════════════════════════════════════════════════════╣
+        |${imageTextRow('ARIBA', 'ariba')}
         |${imageTextRow('Bakta', 'bakta')}
         |${imageTextRow('Bash', 'bash')}
+        |${imageTextRow('Bedtools', 'bedtools')}
         |${imageTextRow('Blast', 'blast')}
+        |${imageTextRow('Clinker', 'clinker')}
         |${imageTextRow('Check Gene Content', 'check_gene_content')}
         |${imageTextRow('CPS extractor python', 'cps_extractor_python')}
         |${imageTextRow('Gap Filler', 'gap_filler')}
         |${imageTextRow('Panaroo', 'panaroo')}
         |${imageTextRow('SeroBA', 'seroba')}
-        |${imageTextRow('Shovill', 'shovill')}
-        |${imageTextRow('SNP_Dists', 'snp_dists')}
+        |${imageTextRow('Unicycler', 'unicycler')}
         |╚════════════════════════════════╧════════════════════════════════════════════════════════════════╝
         |""".stripMargin()
 }
@@ -272,6 +277,19 @@ process SAVE {
 }
 
 // Below processes get tool versions within container images by running their containers
+
+process ARIBA_VERSION {
+    label 'ariba_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(ariba version | head -1 | awk '{ print $NF }')
+    '''
+}
 
 process PYTHON_VERSION {
     label 'cps_extractor_python_container'
@@ -390,19 +408,6 @@ process BAKTA_VERSION {
     '''
 }
 
-process SHOVILL_VERSION {
-    label 'shovill_container'
-    label 'farm_low'
-
-    output:
-    env VERSION
-
-    shell:
-    '''
-    VERSION=$(shovill --version | awk '{ print $NF }')
-    '''
-}
-
 process SEROBA_VERSION {
     label 'seroba_container'
     label 'farm_low'
@@ -413,5 +418,31 @@ process SEROBA_VERSION {
     shell:
     '''
     VERSION=$(seroba version)
+    '''
+}
+
+process UNICYCLER_VERSION {
+    label 'unicycler_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(unicycler --version | awk '{ print $NF }' | sed 's|v||g')
+    '''
+}
+
+process CLINKER_VERSION {
+    label 'clinker_container'
+    label 'farm_low'
+
+    output:
+    env VERSION
+
+    shell:
+    '''
+    VERSION=$(clinker --version | awk '{ print $NF }' | sed 's|v||g')
     '''
 }

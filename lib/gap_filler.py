@@ -142,14 +142,12 @@ class GapFiller:
         sample_id = bam_file.split("_filtered.bam")[0]
         bcftools_mpileup_cmd = f"bcftools mpileup -Ou -f subset_ref.fa {bam_file} | bcftools call --ploidy 1 -Ou -mv | bcftools norm -f subset_ref.fa -Oz -o {sample_id}.vcf.gz"
         subprocess.check_output(bcftools_mpileup_cmd, shell=True)
-
         return f"{sample_id}.vcf.gz"
 
     def bcftools_filter(self, vcf_file: str) -> str:
         sample_id = vcf_file.split(".vcf.gz")[0]
         bcftools_filter_cmd = f"bcftools view -e 'QUAL <= 10 || DP < 35 || MQBZ < -3 || RPBZ < -3 || RPBZ > 3 || SCBZ > 3' {vcf_file} | bgzip > {sample_id}_filtered.vcf.gz"
         subprocess.check_output(bcftools_filter_cmd, shell=True)
-
         return f"{sample_id}_filtered.vcf.gz"
 
     def index_vcf(self, vcf_file: str):
@@ -162,7 +160,6 @@ class GapFiller:
             f"bcftools consensus -f subset_ref.fa {vcf_file} > {sample_id}_gap_fill.fa"
         )
         subprocess.check_output(bcftools_consensus_cmd, shell=True)
-
         return f"{sample_id}_gap_fill.fa"
 
     def get_gap_length(self, gaps: dict) -> int:
@@ -185,11 +182,18 @@ class GapFiller:
         gap_data: list,
         iteration: int,
         seq_added: int,
+        hits_list: dict,
     ) -> str:
         filled_seq = str()
         for k, v in gap_data[iteration].items():
             # remove any trailing sequence if the sequence is longer than the gap
-            ref_seq_start = seq_to_fill[0 : (k + seq_added)]
-            ref_seq_end = seq_to_fill[(k + seq_added) :]
+            if hits_list[0]["hit_start"] > 1:
+                ref_seq_start = seq_to_fill[
+                    0 : (k + seq_added - hits_list[0]["hit_start"])
+                ]
+                ref_seq_end = seq_to_fill[(k + seq_added - hits_list[0]["hit_start"]) :]
+            else:
+                ref_seq_start = seq_to_fill[0 : (k + seq_added)]
+                ref_seq_end = seq_to_fill[(k + seq_added) :]
             filled_seq = f"{ref_seq_start}{gap_seq}{ref_seq_end}"
         return filled_seq

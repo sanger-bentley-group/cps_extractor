@@ -1,5 +1,5 @@
-process ASSEMBLY_SHOVILL {
-    label 'shovill_container'
+process ASSEMBLY_UNICYCLER {
+    label 'unicycler_container'
     label 'farm_high_fallible'
 
     errorStrategy 'ignore'
@@ -18,7 +18,7 @@ process ASSEMBLY_SHOVILL {
     read2="${reads[1]}"
     fasta="${sample_id}.contigs.fasta"
     """
-    shovill --R1 "$read1" --R2 "$read2" --outdir results --cpus "`nproc`" --minlen "$min_contig_length" --force
-    mv results/contigs.fa "${fasta}"
+    unicycler -1 "$read1" -2 "$read2"  -t "`nproc`" -o results --mode bold
+    mv results/assembly.fasta "${fasta}"
     """
 }

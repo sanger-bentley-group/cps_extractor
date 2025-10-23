@@ -1,33 +1,41 @@
 import pytest
 
 from lib.argparser import (
-    AnnotationParser,
     BlastParser,
     GapFillerParser,
     GeneOrderParser,
+    GeneticGroupParser,
+    GeneticVariantParser,
+    NewSerotypeParser,
 )
 
 
-def test_annotation_args_valid():
-    vargs = ["-c", "cps_file.txt", "-b", "bakta_input_folder"]
-    args = AnnotationParser.parse_args(vargs)
+def test_genetic_variant_args_valid():
+    vargs = ["-a", "annotation.gff3"]
+    args = GeneticVariantParser.parse_args(vargs)
 
-    assert args.cps_sequence == "cps_file.txt"
-    assert args.bakta_input == "bakta_input_folder"
-
-
-def test_annotation_args_missing_required_argument():
-    vargs = ["-c", "cps_file.txt"]
-
-    with pytest.raises(SystemExit):
-        AnnotationParser.parse_args(vargs)
+    assert args.annotation == "annotation.gff3"
 
 
-def test_annotation_args_invalid_args():
-    vargs = ["-c", "cps_file.txt", "-b", "bakta_input_folder", "--custom", "value"]
+def test_genetic_variant_args_invalid():
+    vargs = list()
 
     with pytest.raises(SystemExit):
-        AnnotationParser.parse_args(vargs)
+        GeneticVariantParser.parse_args(vargs)
+
+
+def test_genetic_groups_args_valid():
+    vargs = ["-g", "groups.txt"]
+    args = GeneticGroupParser.parse_args(vargs)
+
+    assert args.groups == "groups.txt"
+
+
+def test_genetic_groups_args_invalid():
+    vargs = list()
+
+    with pytest.raises(SystemExit):
+        GeneticGroupParser.parse_args(vargs)
 
 
 def test_blast_args_valid():
@@ -40,6 +48,12 @@ def test_blast_args_valid():
         "2000",
         "-s",
         "01",
+        "-a",
+        "alia_results.txt",
+        "-d",
+        "dexb_results.txt",
+        "-g",
+        "genome.fa",
     ]
     args = BlastParser.parse_args(vargs)
 
@@ -58,7 +72,18 @@ def test_blast_args_missing_required_argument():
 
 
 def test_blast_args_default_values():
-    vargs = ["-b", "blast_results.txt", "-o", "output_file.txt"]
+    vargs = [
+        "-b",
+        "blast_results.txt",
+        "-o",
+        "output_file.txt",
+        "-a",
+        "alia_results.txt",
+        "-d",
+        "dexb_results.txt",
+        "-g",
+        "genome.fa",
+    ]
     args = BlastParser.parse_args(vargs)
 
     assert args.hit_length == 2500
@@ -100,8 +125,6 @@ def test_gap_filler_args_valid():
         "input_cps_sequence.txt",
         "-g",
         "150",
-        "-m",
-        "75",
     ]
     args = GapFillerParser.parse_args(vargs)
 
@@ -112,7 +135,6 @@ def test_gap_filler_args_valid():
     assert args.reference == "reference.fasta"
     assert args.input_sequence == "input_cps_sequence.txt"
     assert args.gap_length == 150
-    assert args.minimum_reads == 75
 
 
 def test_gap_filler_args_missing_required_argument():
@@ -129,8 +151,6 @@ def test_gap_filler_args_missing_required_argument():
         "reference.fasta",
         "-g",
         "150",
-        "-m",
-        "75",
     ]
 
     # Use pytest.raises to catch the argparse error when a required argument is missing
@@ -156,7 +176,6 @@ def test_gap_filler_args_default_values():
     args = GapFillerParser.parse_args(vargs)
 
     assert args.gap_length == 100
-    assert args.minimum_reads == 500
 
 
 def test_gap_filler_args_invalid_gap_length():
@@ -178,29 +197,6 @@ def test_gap_filler_args_invalid_gap_length():
     ]
 
     # Use pytest.raises to catch the argparse error when an invalid value is provided for gap_length
-    with pytest.raises(SystemExit):
-        GapFillerParser.parse_args(vargs)
-
-
-def test_gap_filler_args_invalid_minimum_reads():
-    vargs = [
-        "-l",
-        "cps_extractor.log",
-        "-a",
-        "reference_annotation.gff",
-        "-r1",
-        "read1.fastq",
-        "-r2",
-        "read2.fastq",
-        "-r",
-        "reference.fasta",
-        "-i",
-        "input_cps_sequence.txt",
-        "-m",
-        "invalid_value",
-    ]
-
-    # Use pytest.raises to catch the argparse error when an invalid value is provided for minimum_reads
     with pytest.raises(SystemExit):
         GapFillerParser.parse_args(vargs)
 
@@ -240,3 +236,26 @@ def test_gene_order_args_valid():
     assert args.input_annotation == "input.gff"
     assert args.reference_annotation == "reference.gff"
     assert args.output == "output_folder"
+
+
+def test_new_serotype_args_no_args():
+    # Test with no arguments
+    with pytest.raises(SystemExit):
+        NewSerotypeParser.parse_args()
+
+
+def test_new_serotype_args_invalid_args():
+    vargs = ["-x", "invalid_argument"]
+
+    # Use pytest.raises to catch the argparse error when an invalid argument is provided
+    with pytest.raises(SystemExit):
+        NewSerotypeParser.parse_args(vargs)
+
+
+def test_new_serotype_args_valid():
+    vargs = ["-s", "11A", "-d", "disrupted_genes.csv", "-k", "known_disruptions.csv"]
+    args = NewSerotypeParser.parse_args(vargs)
+
+    assert args.serotype == "11A"
+    assert args.disrupted_genes == "disrupted_genes.csv"
+    assert args.known_disruptions == "known_disruptions.csv"

@@ -11,10 +11,28 @@ class BlastParser:
         )
         required = parser.add_argument_group("required")
         required.add_argument(
+            "-a",
+            "--alia",
+            required=True,
+            help="Path to aliA blast results file",
+        )
+        required.add_argument(
             "-b",
             "--blast-results-file",
             required=True,
             help="Path to blast results file",
+        )
+        required.add_argument(
+            "-d",
+            "--dexb",
+            required=True,
+            help="Path to dexB blast results file",
+        )
+        required.add_argument(
+            "-g",
+            "--genome",
+            required=True,
+            help="Path to genome (assembly) file",
         )
         required.add_argument(
             "-o",
@@ -38,32 +56,6 @@ class BlastParser:
             required=False,
             help="Provide the serotype if it is known",
             default=None,
-        )
-
-        args = parser.parse_args(vargs)
-
-        return args
-
-
-class AnnotationParser:
-    @classmethod
-    def parse_args(cls, vargs=None):
-        parser = argparse.ArgumentParser(
-            description=__doc__,
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        )
-        required = parser.add_argument_group("required")
-        required.add_argument(
-            "-c",
-            "--cps-sequence",
-            required=True,
-            help="Path to cps sequence file",
-        )
-        required.add_argument(
-            "-b",
-            "--bakta-input",
-            required=True,
-            help="Path to bakta input folder",
         )
 
         args = parser.parse_args(vargs)
@@ -125,15 +117,6 @@ class GapFillerParser:
             type=int,
         )
 
-        optional.add_argument(
-            "-m",
-            "--minimum-reads",
-            required=False,
-            help="Minimum number of mapped reads required to fill gap",
-            default=500,
-            type=int,
-        )
-
         args = parser.parse_args(vargs)
 
         return args
@@ -164,6 +147,85 @@ class GeneOrderParser:
             "--output",
             required=True,
             help="Path to output CSV file",
+        )
+
+        args = parser.parse_args(vargs)
+
+        return args
+
+
+class NewSerotypeParser:
+    @classmethod
+    def parse_args(cls, vargs=None):
+        parser = argparse.ArgumentParser(
+            description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
+        required = parser.add_argument_group("required")
+        required.add_argument(
+            "-s",
+            "--serotype",
+            required=True,
+            help="Serotype of your samples",
+            type=str,
+        )
+
+        required.add_argument(
+            "-d",
+            "--disrupted-genes",
+            required=True,
+            help="Disrupted genes file of your samples",
+            type=str,
+        )
+
+        required.add_argument(
+            "-k",
+            "--known-disruptions",
+            required=True,
+            help="File containing known disrupted genes",
+            type=str,
+        )
+
+        args = parser.parse_args(vargs)
+
+        return args
+
+
+class GeneticVariantParser:
+    @classmethod
+    def parse_args(cls, vargs=None):
+        parser = argparse.ArgumentParser(
+            description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
+        required = parser.add_argument_group("required")
+        required.add_argument(
+            "-a",
+            "--annotation",
+            required=True,
+            help="Annotation file",
+            type=str,
+        )
+
+        args = parser.parse_args(vargs)
+
+        return args
+
+
+class GeneticGroupParser:
+    @classmethod
+    def parse_args(cls, vargs=None):
+        parser = argparse.ArgumentParser(
+            description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
+        required = parser.add_argument_group("required")
+        required.add_argument(
+            "-g",
+            "--groups",
+            required=True,
+            help="Genetic groups file",
+            type=str,
         )
 
         args = parser.parse_args(vargs)
